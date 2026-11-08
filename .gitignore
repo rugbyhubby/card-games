@@ -1,0 +1,15 @@
+# macOS clutter
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+Icon?
+
+# Editor leftovers
+*.swp
+*~
+.vscode/
+.idea/

@@ -3,7 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Euchre">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18181a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <title>Euchre</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,12 +155,28 @@ button{font:inherit;color:inherit}
 .sheet h2{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:34px;margin:0 0 6px}
 .sheet p{margin:0 0 16px;line-height:1.45;color:var(--ink)}
 .sheet .fs{display:flex;justify-content:center;gap:28px;margin:4px 0 16px}
+
+/* menu extras: rules, version, feedback */
+.menu{display:flex;align-items:center;gap:10px}
+.foot{display:flex;justify-content:center;align-items:center;gap:6px;font-size:11px;color:var(--muted);padding:2px 0 0}
+.foot a{color:inherit;text-underline-offset:3px;padding:4px 2px}
+.rules{max-height:calc(100dvh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;text-align:left;
+  -webkit-user-select:text;user-select:text;overscroll-behavior:contain}
+.rules h2{text-align:center}
+.rules h3{font-size:13px;font-weight:600;margin:14px 0 4px}
+.rules p,.rules li{font-size:14px;line-height:1.45;margin:0 0 6px}
+.rules ul{margin:0 0 6px;padding-left:18px}
+.rules .done{display:flex;justify-content:center;margin-top:14px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div id="rules" hidden></div>
 <script>
+// Release number. Bump together with CACHE in sw.js on every release.
+const VERSION = '0.1.0';
+
 // ---------- constants ----------
 const SUITS = ['S','H','C','D'];
 const SYM = {S:'♠',H:'♥',C:'♣',D:'♦'};
@@ -515,7 +540,10 @@ function render(){
       <div class="seg" role="group" aria-label="Computer difficulty">
         ${diffs.map(([k,l]) => `<button data-diff="${k}" aria-pressed="${S.difficulty===k}" ${k==='hard' ? 'disabled title="Coming soon"' : ''}>${l}</button>`).join('')}
       </div>
-      <button class="link" data-act="new">New game</button>
+      <div class="menu">
+        <button class="link" data-act="rules">Rules</button>
+        <button class="link" data-act="new">New game</button>
+      </div>
     </div>
     <main class="table">
       ${seatHTML(2)}
@@ -528,6 +556,7 @@ function render(){
     </div>
     <div class="actions">${actionsHTML()}</div>
     <div class="hand">${handHTML()}</div>
+    <div class="foot"><span>v${VERSION}</span><span aria-hidden="true">·</span><a href="${feedbackHref()}">Send feedback</a></div>
     ${S.overlay ? `<div class="ov"><div class="sheet" role="dialog" aria-modal="true">
       <h2>${S.overlay.title}</h2>
       <div class="fs"><div class="sc"><b>${S.score[0]}</b><span>Us</span></div><div class="sc"><b>${S.score[1]}</b><span>Them</span></div></div>
@@ -544,6 +573,7 @@ document.getElementById('app').addEventListener('click', e => {
   const a = e.target.closest('[data-act]');
   if (a){
     const act = a.dataset.act;
+    if (act==='rules') return openRules();
     if (act==='new') return newGame();
     if (act==='next'){
       if (S.phase==='gameOver') return newGame();
@@ -566,6 +596,75 @@ document.getElementById('app').addEventListener('click', e => {
     }
   }
 });
+
+// ---------- rules sheet ----------
+// Lives outside #app so the game's redraws don't close it.
+const rulesEl = document.getElementById('rules');
+let rulesReturn = null;
+function openRules(){
+  rulesReturn = document.activeElement;
+  rulesEl.innerHTML = `<div class="ov"><div class="sheet rules" role="dialog" aria-modal="true" aria-labelledby="rules-h" tabindex="-1">
+    <h2 id="rules-h">How to play</h2>
+    <h3>The deck and teams</h3>
+    <p>24 cards: 9, 10, Jack, Queen, King and Ace in each suit. You and Partner play against West and East. Each player gets 5 cards and one card is turned up.</p>
+    <h3>Trump and the bowers</h3>
+    <p>Trump beats every other suit. The highest trumps are the two Jacks of trump's color:</p>
+    <ul>
+      <li><b>Right bower</b>: the Jack of trump.</li>
+      <li><b>Left bower</b>: the other Jack of the same color. It counts as a trump, not its own suit.</li>
+    </ul>
+    <p>Then Ace, King, Queen, 10, 9 of trump.</p>
+    <h3>Bidding, round one</h3>
+    <p>Starting left of the dealer, each player may <b>order up</b> the turned-up card, making its suit trump, or pass. If someone orders it up, the dealer takes that card and discards one.</p>
+    <h3>Bidding, round two</h3>
+    <p>If all four pass, the card is turned down. Each player may now name any other suit as trump, or pass.</p>
+    <h3>Redeal</h3>
+    <p>If everyone passes twice, the hand is thrown in and the next player deals.</p>
+    <h3>Play</h3>
+    <p>The player left of the dealer leads. You must follow the suit led if you can; otherwise play anything. The highest trump wins the trick, or the highest card of the suit led if no trump was played.</p>
+    <h3>Going alone</h3>
+    <p>Whoever names trump may go alone. Their partner sits out the hand, and taking all 5 tricks scores extra.</p>
+    <h3>Scoring</h3>
+    <ul>
+      <li>Calling team takes 3 or 4 tricks: <b>1 point</b>.</li>
+      <li>Calling team takes all 5: <b>2 points</b>.</li>
+      <li>All 5 while going alone: <b>4 points</b>.</li>
+      <li>Calling team takes fewer than 3 (<b>euchred</b>): the other team gets <b>2 points</b>.</li>
+    </ul>
+    <p>First team to <b>10 points</b> wins.</p>
+    <div class="done"><button class="btn pri" data-close>Got it</button></div>
+  </div></div>`;
+  rulesEl.hidden = false;
+  rulesEl.querySelector('.sheet').focus();
+}
+function closeRules(){
+  rulesEl.hidden = true; rulesEl.innerHTML = '';
+  if (rulesReturn && rulesReturn.isConnected) rulesReturn.focus();
+}
+rulesEl.addEventListener('click', e => {
+  if (e.target.closest('[data-close]') || e.target.classList.contains('ov')) closeRules();
+});
+document.addEventListener('keydown', e => { if (e.key==='Escape' && !rulesEl.hidden) closeRules(); });
+
+// ---------- feedback email ----------
+function feedbackHref(){
+  const standalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+  const body = [
+    'What happened, or what would you change?', '', '', '',
+    '---',
+    `Euchre version: ${VERSION}`,
+    `Opened from: ${standalone ? 'Home Screen app' : 'browser'}`,
+    `Screen: ${screen.width}×${screen.height} @${window.devicePixelRatio}x`,
+    `Device/browser: ${navigator.userAgent}`
+  ].join('\n');
+  return 'mailto:contact@rugbyhubby.com?subject=' + encodeURIComponent(`Euchre feedback v${VERSION}`) +
+    '&body=' + encodeURIComponent(body);
+}
+
+// ---------- offline support ----------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 
 newGame();
 </script>
