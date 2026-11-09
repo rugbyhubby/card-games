@@ -2,10 +2,9 @@
 import { SUITS, SYM, SUIT_NAME as SNAME, isRed } from '../../../shared/deck.js';
 import { cardHTML, miniFanHTML } from '../../../shared/cards.js';
 import { seatHTML, meHTML, tableHTML, centerHTML, slotHTML, SLOTS_4 } from '../../../shared/table.js';
-import { headerHTML, segHTML, linkHTML, controlsHTML, statusHTML, actionsHTML, handHTML, footHTML, resultSheetHTML } from '../../../shared/ui.js';
+import { headerHTML, levelLabel, linkHTML, controlsHTML, statusHTML, actionsHTML, handHTML, footHTML, resultSheetHTML } from '../../../shared/ui.js';
 import { NAMES } from './rules.js';
 
-export const DIFFICULTIES = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard', 'Coming soon']];
 
 function seatTag(S, p) {
   if (p === S.sitter) return 'Sitting out';
@@ -69,8 +68,8 @@ function hand(S, legal) {
   }).join('');
 }
 
-// The whole screen. opts: { legal, difficulty, version, feedback }
-export function renderHTML(S, { legal, difficulty, version, feedback }) {
+// The whole screen. opts: { legal, version, feedback }
+export function renderHTML(S, { legal, version, feedback }) {
   if (!S.hands) return '';
   const showTricks = ['play', 'handEnd', 'gameOver'].includes(S.phase);
   const scores = [{ label: 'Us', value: S.score[0], cls: 'us' }, { label: 'Them', value: S.score[1] }];
@@ -78,7 +77,7 @@ export function renderHTML(S, { legal, difficulty, version, feedback }) {
   return `
     ${headerHTML('Euchre', scores)}
     ${controlsHTML(
-      segHTML({ label: 'Computer difficulty', key: 'diff', options: DIFFICULTIES, value: difficulty }),
+      `<span class="lvl">${levelLabel(S.level)} level</span>`,
       [linkHTML('menu', 'Menu')]
     )}
     ${tableHTML({

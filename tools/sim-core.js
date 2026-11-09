@@ -58,6 +58,7 @@ export function normalizeHTML(html) {
   return html
     .replace(/mailto:[^"]*/g, 'mailto:FEEDBACK')     // holds device details that differ per computer
     .replace(/ style="--n:\d+"/g, '')                // card-count hint on the hand (added in v0.2.1)
+    .replace(/ disabled title="Coming soon"/g, '')    // the Hard button, switched on in v0.3.0
     .replace(/v?\d+\.\d+\.\d+/g, 'VER')
     .replace(/>\s+</g, '><')
     .replace(/\s+/g, ' ')

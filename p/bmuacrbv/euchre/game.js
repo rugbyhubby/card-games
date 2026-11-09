@@ -3,14 +3,18 @@
 import { makeDeck, shuffle, SUIT_NAME as SNAME, cardName } from '../../../shared/deck.js';
 import { RANKS, NAMES, team, nextP, partnerOf, effSuit, power, legalCards, trickWinner } from './rules.js';
 import * as bots from './bots.js';
+import * as hard from './bots-hard.js';
 
 // options:
 //   timer         from shared/timing.js; spaces out computer moves
-//   difficultyFor (seat) => 'easy' | 'medium'
+//   levelAtStart  () => 'easy' | 'medium' | 'hard': the level for a new game. It stays
+//                 fixed until the next new game.
+//   difficultyFor (seat) => level, to give seats different levels (simulator only)
 //   onChange      called whenever something on screen should update
 //   onEvent       called with a short note for every bid and card (used by the simulator)
-export function createEuchre({ timer, difficultyFor, onChange = () => {}, onEvent = () => {} }) {
-  const S = { score: [0, 0], dealer: 0 };
+export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyFor = null, onChange = () => {}, onEvent = () => {} }) {
+  const S = { score: [0, 0], dealer: 0, level: 'medium' };
+  const levelFor = p => difficultyFor ? difficultyFor(p) : S.level;
   const later = (fn, ms) => timer.later(fn, ms);
   const changed = () => onChange(S);
   const who = p => p === 0 ? 'You' : NAMES[p];
@@ -34,6 +38,7 @@ export function createEuchre({ timer, difficultyFor, onChange = () => {}, onEven
 
   function newGame() {
     timer.cancelAll(); S.score = [0, 0]; S.overlay = null;
+    S.level = levelAtStart();
     S.dealer = Math.floor(Math.random() * 4);
     newHand();
   }
@@ -45,7 +50,8 @@ export function createEuchre({ timer, difficultyFor, onChange = () => {}, onEven
     for (let i = 0; i < 20; i++) { S.hands[p].push(deck[i]); p = nextP(p); }
     S.upcard = deck[20];
     Object.assign(S, { trump: null, maker: null, alone: false, sitter: null, turnedDown: null, trick: [], tricks: [0, 0],
-      said: {}, aloneToggle: false, upcardTaken: false, lastPlayed: null, winner: null, phase: 'bid1', turn: nextP(S.dealer), passes: 0, justDealt: true });
+      said: {}, aloneToggle: false, upcardTaken: false, lastPlayed: null, winner: null, phase: 'bid1', turn: nextP(S.dealer), passes: 0, justDealt: true,
+      history: [], discard: null });
     sortHuman();
     msg(`${S.dealer === 0 ? 'You deal' : NAMES[S.dealer] + ' deals'}. The ${cardName(S.upcard)} is turned up.`);
     changed();
@@ -93,6 +99,7 @@ export function createEuchre({ timer, difficultyFor, onChange = () => {}, onEven
       }
       const d = bots.discardChoice(S.hands[S.dealer], S.trump);
       S.hands[S.dealer] = S.hands[S.dealer].filter(c => c !== d);
+      S.discard = { p: S.dealer, card: d };
     }
     S.phase = 'called'; changed(); later(startPlay, 1100);
   }
@@ -114,6 +121,7 @@ export function createEuchre({ timer, difficultyFor, onChange = () => {}, onEven
     S.turn = null; S.phase = 'called'; changed(); later(startPlay, 1100);
   }
   function discard(id) {
+    S.discard = { p: 0, card: S.hands[0].find(c => c.id === id) };
     S.hands[0] = S.hands[0].filter(c => c.id !== id);
     S.phase = 'called'; msg('Discarded. Play begins.'); changed();
     later(startPlay, 600);
@@ -129,6 +137,7 @@ export function createEuchre({ timer, difficultyFor, onChange = () => {}, onEven
     onEvent('play:' + p + ':' + card.id);
     S.hands[p] = S.hands[p].filter(c => c.id !== card.id);
     S.trick.push({ p, card }); S.lastPlayed = card.id;
+    S.history.push({ p, card, led: effSuit(S.trick[0].card, S.trump) });   // every card played this hand
     if (S.trick.length === activeCount()) {
       const w = trickWinner(S.trick, S.trump);
       S.winner = w.p; S.tricks[team(w.p)]++; S.turn = null;
@@ -167,10 +176,11 @@ export function createEuchre({ timer, difficultyFor, onChange = () => {}, onEven
 
   // A computer player's move, for whichever seat's turn it is.
   function botMove(p) {
-    const level = difficultyFor(p);
-    if (S.phase === 'bid1') { const d = bots.bid1(S, p, level); return bid1(p, d.order, d.alone); }
-    if (S.phase === 'bid2') { const d = bots.bid2(S, p, level); return bid2(p, d.suit, d.alone); }
-    if (S.phase === 'play') return play(p, bots.playCard(S, p, level, activeCount()));
+    const level = levelFor(p);
+    const b = level === 'hard' ? hard : bots;
+    if (S.phase === 'bid1') { const d = b.bid1(S, p, level); return bid1(p, d.order, d.alone); }
+    if (S.phase === 'bid2') { const d = b.bid2(S, p, level); return bid2(p, d.suit, d.alone); }
+    if (S.phase === 'play') return play(p, b.playCard(S, p, level, activeCount()));
     if (S.phase === 'discard' && p === 0) return discard(bots.discardChoice(S.hands[0], S.trump).id);
   }
   function botAct() {

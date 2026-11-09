@@ -111,6 +111,7 @@ export function feedbackHref({ game, version, to = 'contact@rugbyhubby.com' }) {
 // ---------- settings and menu ----------
 
 const LABELS = {
+  difficulty: { easy: 'Easy', medium: 'Medium', hard: 'Hard' },
   speed: { slow: 'Slow', normal: 'Normal', fast: 'Fast' },
   theme: { system: 'System', light: 'Light', dark: 'Dark' }
 };
@@ -122,16 +123,29 @@ export function settingsHTML(settings) {
   return `<div class="set">${row('speed', 'Game speed')}${row('theme', 'Theme')}</div>`;
 }
 
+// Computer level, for a game's menu. The level is chosen for the next new game;
+// `playing` is the level of the game in progress.
+export const levelLabel = level => LABELS.difficulty[level] || level;
+function levelNote(chosen, playing) {
+  return chosen === playing ? `This game is on ${levelLabel(playing)}.` : `${levelLabel(chosen)} starts when you tap New game.`;
+}
+export function levelHTML(settings, playing) {
+  return `<div class="set"><h3>Computer level</h3>
+      ${segHTML({ label: 'Computer level', key: 'difficulty', options: CHOICES.difficulty.map(v => [v, LABELS.difficulty[v]]), value: settings.get('difficulty') })}
+      <p class="note" data-level-note="${playing}">${levelNote(settings.get('difficulty'), playing)}</p></div>`;
+}
+
 // Make the settings controls inside `el` work, and keep links marked
 // data-carry="<page>" pointing at that page with the current settings.
 export function bindSettings(el, settings) {
   el.addEventListener('click', e => {
-    const b = e.target.closest('[data-speed],[data-theme]');
+    const b = e.target.closest('[data-speed],[data-theme],[data-difficulty]');
     if (b) {
-      const key = b.dataset.speed ? 'speed' : 'theme';
+      const key = ['speed', 'theme', 'difficulty'].find(k => b.dataset[k]);
       settings.set(key, b.dataset[key]);
       el.querySelectorAll(`[data-${key}]`).forEach(x => x.setAttribute('aria-pressed', String(x.dataset[key] === settings.get(key))));
       el.querySelectorAll('a[data-carry]').forEach(x => { x.href = settings.link(x.dataset.carry); });
+      el.querySelectorAll('[data-level-note]').forEach(n => { n.textContent = levelNote(settings.get('difficulty'), n.dataset.levelNote); });
       return;
     }
     const a = e.target.closest('a[data-carry]');
@@ -139,10 +153,12 @@ export function bindSettings(el, settings) {
   });
 }
 
-// Inside of a game's menu sheet: the game's own buttons, then settings,
-// then a link back to the game list. items: [[act, label, primary?]].
-export function menuHTML({ items, settings, allGames = '../' }) {
+// Inside of a game's menu sheet: optional `lead` (e.g. levelHTML()), the game's
+// own buttons, then settings, then a link back to the game list.
+// items: [[act, label, primary?]].
+export function menuHTML({ items, settings, allGames = '../', lead = '' }) {
   return `<h2 id="menu-h">Menu</h2>
+    ${lead}
     <div class="menu-actions">${items.map(([act, label, pri]) => `<button class="btn${pri ? ' pri' : ''}" data-act="${act}">${label}</button>`).join('')}</div>
     ${settingsHTML(settings)}
     <div class="menu-foot"><a class="link" href="${settings.link(allGames)}" data-carry="${allGames}">‹ All games</a><button class="btn" data-close>Done</button></div>`;

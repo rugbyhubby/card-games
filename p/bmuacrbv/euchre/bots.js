@@ -2,6 +2,7 @@
 // game.js carries it out.
 //   easy:   random play, rough bidding
 //   medium: sensible bidding and play
+//   hard:   see bots-hard.js
 import { SUITS } from '../../../shared/deck.js';
 import { RV, effSuit, power, trumpVal, strength, team, legalCards, trickWinner } from './rules.js';
 
@@ -64,8 +65,11 @@ export function playCard(S, p, level, active) {
   }
   const led = effSuit(S.trick[0].card, t);
   const w = trickWinner(S.trick, t);
-  const last = S.trick.length === active - 1;
-  if (team(w.p) === team(p) && (last || w.pw >= 100 || w.card.r === 'A')) return lowest(L, t);
+  // Partner is winning: don't take the trick from them if any card avoids it (since v0.3.0).
+  if (team(w.p) === team(p)) {
+    const under = L.filter(c => power(c, t, led) <= w.pw);
+    return lowest(under.length ? under : L, t);
+  }
   const beaters = L.filter(c => power(c, t, led) > w.pw).sort((a, b) => power(a, t, led) - power(b, t, led));
   if (beaters.length) return beaters[0];
   return lowest(L, t);

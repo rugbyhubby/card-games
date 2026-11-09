@@ -25,8 +25,8 @@
   <p>Plays Euchre with every seat run by the computer and reports errors, stuck games and win rates. Same as <code>tools/simulate.sh</code>. Needs a local web server (see tools/README.md).</p>
   <form id="f">
     <label for="games">Games</label><input id="games" type="number" min="1" value="300">
-    <label for="us">Your team</label><select id="us"><option>easy</option><option selected>medium</option></select>
-    <label for="them">Other team</label><select id="them"><option>easy</option><option selected>medium</option></select>
+    <label for="us">Your team</label><select id="us"><option>easy</option><option selected>medium</option><option>hard</option></select>
+    <label for="them">Other team</label><select id="them"><option>easy</option><option selected>medium</option><option>hard</option></select>
     <label for="cmp">Compare with</label>
     <select id="cmp">
       <option value="">nothing</option>
@@ -34,6 +34,9 @@
       <option value="baselines/euchre-v0.1.0-medium.json">v0.1.0, medium vs medium</option>
       <option value="baselines/euchre-v0.2.2-easy.json">v0.2.2, easy vs easy</option>
       <option value="baselines/euchre-v0.2.2-medium.json">v0.2.2, medium vs medium</option>
+      <option value="baselines/euchre-v0.3.0-easy.json">v0.3.0, easy vs easy</option>
+      <option value="baselines/euchre-v0.3.0-medium.json">v0.3.0, medium vs medium</option>
+      <option value="baselines/euchre-v0.3.0-hard.json">v0.3.0, hard vs hard</option>
     </select>
     <div class="row"><label><input id="render" type="checkbox"> Also check every screen</label></div>
     <div class="row"><button class="btn pri" id="go">Run</button></div>

@@ -129,3 +129,7 @@
 .set .seg button{flex:1;padding:7px 6px;font-size:14px}
 .menu-foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
 .menu-foot .link{font-size:15px;color:inherit}
+.sheet{max-height:calc(100dvh - 40px);overflow-y:auto;overscroll-behavior:contain}
+.set .note{font-size:12px;color:var(--muted);margin:6px 0 4px;text-align:left;line-height:1.35}
+.set + .menu-actions{margin-top:14px}
+.controls .lvl{font-size:13px;color:var(--muted)}
