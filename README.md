@@ -14,7 +14,14 @@ robots.txt          Asks search engines not to crawl anything.
 shared/             The toolkit every game uses: deck, card drawings, table layout,
                     score header and sheets, computer-move timing, settings, theme.
                     See shared/README.md.
-p/<slug>/<game>/    One folder per game. <slug> is a random 8-letter code that keeps the link unlisted.
+p/<slug>/           The game list ("Card Games"). <slug> is a random 8-letter code that keeps the link unlisted.
+  index.html        The list: Euchre, then Pitch, Cribbage, Nertz, Solitaire ("Coming soon").
+  main.js           Settings sheet, links into games, offline setup.
+  version.js        The game list's version number.
+  manifest.webmanifest, sw.js, *.png, icon.svg
+                    Its own Home Screen app ("Card Games"), offline helper and icon
+                    (icon.svg is the source drawing for the PNGs).
+p/<slug>/<game>/    One folder per game.
   index.html        The page: head tags, icons, and the game's own few styles.
   main.js           Connects the game to the screen and to taps.
   game.js           Game flow: dealing, bidding, play, scoring.
@@ -44,7 +51,9 @@ What goes where:
   plus the small file that draws its screen from the shared parts.
 
 Settings (difficulty, game speed, theme) are kept in memory only. Nothing is saved on the
-phone yet.
+phone. When you move between the game list and a game, the link carries them in the part
+after `#` (e.g. `euchre/#speed=fast&theme=dark`), which never leaves the phone. Closing
+the page resets them. Each game's Menu has New game, Rules, the settings, and "All games".
 
 To try the site on your Mac, start a local web server in the `card-games` folder
 (`python3 -m http.server 8000`) and open http://localhost:8000/p/<slug>/euchre/.
@@ -54,9 +63,13 @@ Every page carries `<meta name="robots" content="noindex, nofollow">`. There is 
 
 ### Current games
 
-| Game   | Link |
-|--------|------|
-| Euchre | https://games.rugbyhubby.com/p/bmuacrbv/euchre/ |
+| Page      | Link |
+|-----------|------|
+| Game list | https://games.rugbyhubby.com/p/bmuacrbv/ |
+| Euchre    | https://games.rugbyhubby.com/p/bmuacrbv/euchre/ |
+
+Testers who added Euchre to their Home Screen before the game list existed keep that icon; it
+still works. Adding the game list to the Home Screen gives a "Card Games" icon that opens the list.
 
 ## Branches
 
@@ -65,12 +78,13 @@ Every page carries `<meta name="robots" content="noindex, nofollow">`. There is 
 
 ## How releases work
 
-Each game has a version number in two places that must change together:
+Each game, and the game list, has a version number in two places that must change together:
 
-1. `VERSION` in the game's `version.js` (shown small under the cards).
-2. `CACHE` at the top of the game's `sw.js` (e.g. `euchre-v0.2.1`).
+1. `VERSION` in its `version.js` (shown small at the bottom of the screen).
+2. `CACHE` at the top of its `sw.js` (e.g. `euchre-v0.2.2`, `cardgames-v0.2.2`).
 
-Shared files count as part of every game that uses them: if you change something in `shared/`, bump the version of each game that uses it.
+Shared files count as part of every page that uses them: if you change something in `shared/`,
+bump the version of each game, and of the game list, that uses it.
 
 To release:
 

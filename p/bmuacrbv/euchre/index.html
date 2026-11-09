@@ -14,6 +14,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <title>Euchre</title>
+<script>/* Use the theme from the link right away, so the page doesn't flash the other theme first. */(function(){var m=/[#&]theme=(light|dark)(&|$)/.exec(location.hash);if(m)document.documentElement.dataset.theme=m[1];})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
@@ -34,7 +35,7 @@
 </head>
 <body>
 <div id="app"></div>
-<div id="rules" hidden></div>
+<div id="sheet" hidden></div>
 <script type="module" src="main.js"></script>
 </body>
 </html>

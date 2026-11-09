@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Card Games">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18181a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>Card Games</title>
+<script>/* Use the theme from the link right away, so the page doesn't flash the other theme first. */(function(){var m=/[#&]theme=(light|dark)(&|$)/.exec(location.hash);if(m)document.documentElement.dataset.theme=m[1];})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../shared/theme.css">
+<link rel="stylesheet" href="../../shared/parts.css">
+<style>
+/* Game list */
+.top .link{font-size:15px;padding:6px 2px 2px}
+.games{list-style:none;margin:8px 0 0;padding:0;flex:1}
+.games li{border-bottom:1.5px solid var(--faint)}
+.game{display:flex;align-items:center;gap:12px;padding:18px 4px;color:inherit;text-decoration:none}
+.game .gname{font-family:var(--serif);font-size:32px;line-height:1}
+.game .about{flex:1;font-size:13px;color:var(--muted);text-align:right}
+.game .go{font-size:22px;line-height:1;width:14px;text-align:right}
+a.game:active{background:var(--faint)}
+a.game:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.game.soon .gname{color:var(--muted)}
+.game.soon .about{font-style:italic}
+.game.soon .go{visibility:hidden}
+.sheet .done{display:flex;justify-content:center;margin-top:20px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <h1 class="title" style="margin:0;font-weight:400">Card Games</h1>
+    <button class="link" data-act="settings">Settings</button>
+  </header>
+  <ul class="games">
+    <li><a class="game" href="euchre/" data-carry="euchre/"><span class="gname">Euchre</span><span class="about">4 players, with a partner</span><span class="go" aria-hidden="true">›</span></a></li>
+    <li><div class="game soon" aria-disabled="true"><span class="gname">Pitch</span><span class="about">Coming soon</span><span class="go" aria-hidden="true">›</span></div></li>
+    <li><div class="game soon" aria-disabled="true"><span class="gname">Cribbage</span><span class="about">Coming soon</span><span class="go" aria-hidden="true">›</span></div></li>
+    <li><div class="game soon" aria-disabled="true"><span class="gname">Nertz</span><span class="about">Coming soon</span><span class="go" aria-hidden="true">›</span></div></li>
+    <li><div class="game soon" aria-disabled="true"><span class="gname">Solitaire</span><span class="about">Coming soon</span><span class="go" aria-hidden="true">›</span></div></li>
+  </ul>
+  <div class="foot"><span id="ver"></span><span aria-hidden="true">·</span><a id="fb" href="mailto:contact@rugbyhubby.com">Send feedback</a></div>
+</div>
+<div id="sheet" hidden></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
