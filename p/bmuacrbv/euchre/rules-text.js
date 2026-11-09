@@ -1,3 +1,10 @@
+// What each computer level means, in plain words (shown in the Menu and the rules).
+export const LEVEL_ABOUT = {
+  easy: 'Relaxed. The computer players make plenty of mistakes. Good for learning.',
+  medium: 'Friendly. They play sensibly, like a casual player at the kitchen table.',
+  hard: 'Tough. They remember every card played and bid boldly.'
+};
+
 // The "How to play" sheet.
 export const rulesHTML = `
     <h2 id="rules-h">How to play</h2>
@@ -28,5 +35,12 @@ export const rulesHTML = `
       <li>Calling team takes fewer than 3 (<b>euchred</b>): the other team gets <b>2 points</b>.</li>
     </ul>
     <p>First team to <b>10 points</b> wins.</p>
+    <h3>Computer levels</h3>
+    <p>Choose in the Menu; it starts with your next new game. Your partner plays at the same level as the other two.</p>
+    <ul>
+      <li><b>Easy</b>: ${LEVEL_ABOUT.easy}</li>
+      <li><b>Medium</b>: ${LEVEL_ABOUT.medium}</li>
+      <li><b>Hard</b>: ${LEVEL_ABOUT.hard}</li>
+    </ul>
     <div class="done"><button class="btn pri" data-close>Got it</button></div>
 `;
