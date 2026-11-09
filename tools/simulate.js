@@ -1,7 +1,8 @@
 // Command-line simulator. Run it with tools/simulate.sh (see tools/README.md).
 //
+//   --game NAME      euchre | pitch (default euchre)
 //   --games N        how many games (default 300)
-//   --us LEVEL       your team's difficulty: easy | medium (default medium)
+//   --us LEVEL       your team's difficulty: easy | medium | hard (default medium)
 //   --them LEVEL     the other team's difficulty (default: same as --us)
 //   --seed N         first seed; game i uses seed N+i (default 1)
 //   --render         also check every screen drawn (for before/after checks)
@@ -9,9 +10,10 @@
 //   --save FILE      save this run's results
 import { runGames, compareRuns, margin } from './sim-core.js';
 import { euchreGame } from './euchre-sim.js';
+import { pitchGame } from './pitch-sim.js';
 
 const args = globalThis.arguments || [];
-const opt = { games: 300, us: 'medium', them: null, seed: 1, render: false, compare: null, save: null };
+const opt = { game: 'euchre', games: 300, us: 'medium', them: null, seed: 1, render: false, compare: null, save: null };
 for (let i = 0; i < args.length; i++) {
   const a = args[i].replace(/^--/, '');
   if (a === 'render') opt.render = true;
@@ -20,8 +22,11 @@ for (let i = 0; i < args.length; i++) {
 }
 opt.games = +opt.games; opt.seed = +opt.seed; opt.them = opt.them || opt.us;
 
-print(`Playing ${opt.games} games of Euchre: us ${opt.us}, them ${opt.them}, seeds ${opt.seed}–${opt.seed + opt.games - 1}${opt.render ? ', checking screens' : ''}`);
-const run = runGames(euchreGame({ us: opt.us, them: opt.them, render: opt.render }), {
+const GAMES = { euchre: ['Euchre', euchreGame], pitch: ['Pitch', pitchGame] };
+if (!GAMES[opt.game]) { print(`Unknown game: ${opt.game}`); throw new Error('bad game'); }
+const [gameName, makeGame] = GAMES[opt.game];
+print(`Playing ${opt.games} games of ${gameName}: us ${opt.us}, them ${opt.them}, seeds ${opt.seed}–${opt.seed + opt.games - 1}${opt.render ? ', checking screens' : ''}`);
+const run = runGames(makeGame({ us: opt.us, them: opt.them, render: opt.render }), {
   count: opt.games, firstSeed: opt.seed,
   onProgress: (n, total) => { if (n % 500 === 0 && n < total) print(`  ${n} games…`); }
 });

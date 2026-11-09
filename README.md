@@ -15,7 +15,7 @@ shared/             The toolkit every game uses: deck, card drawings, table layo
                     score header and sheets, computer-move timing, settings, theme.
                     See shared/README.md.
 p/<slug>/           The game list ("Card Games"). <slug> is a random 8-letter code that keeps the link unlisted.
-  index.html        The list: Euchre, then Pitch, Cribbage, Nertz, Solitaire ("Coming soon").
+  index.html        The list: Euchre, Pitch, then Cribbage, Nertz, Solitaire ("Coming soon").
   main.js           Settings sheet, links into games, offline setup.
   version.js        The game list's version number.
   manifest.webmanifest, sw.js, *.png, icon.svg
@@ -72,6 +72,11 @@ Every page carries `<meta name="robots" content="noindex, nofollow">`. There is 
 |-----------|------|
 | Game list | https://games.rugbyhubby.com/p/bmuacrbv/ |
 | Euchre    | https://games.rugbyhubby.com/p/bmuacrbv/euchre/ |
+| Pitch     | https://games.rugbyhubby.com/p/bmuacrbv/pitch/ |
+
+Pitch is 4-point Pitch (High, Low, Jack, Game), two teams, play to 21, bids of 2 to 4 or
+Shoot the moon, dealer stuck at 2. You may trump even when you can follow suit. It has the
+same folder layout as Euchre.
 
 Testers who added Euchre to their Home Screen before the game list existed keep that icon; it
 still works. Adding the game list to the Home Screen gives a "Card Games" icon that opens the list.
