@@ -3,7 +3,7 @@
 //
 // This helper looks after the game list only. Each game has its own helper
 // in its folder (e.g. euchre/sw.js), which takes over for that game's pages.
-const CACHE = 'cardgames-v0.2.2';
+const CACHE = 'cardgames-v0.2.3';
 
 const SHARED = '../../shared/';
 const FILES = [
