@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Card Games icon: three fanned cards, black line style on white. Source for the PNG icons. -->
+  <rect width="512" height="512" fill="#ffffff"/>
+  <defs>
+    <path id="spade" d="M0-60C-14-34-58-14-58 16c0 22 17 36 36 36 9 0 16-3 20-7-2 14-9 24-18 33h40c-9-9-16-19-18-33 4 4 11 7 20 7 19 0 36-14 36-36C58-14 14-34 0-60z"/>
+    <path id="heart" d="M0 52C-30 26-60 4-60-22c0-20 15-34 33-34 12 0 22 6 27 15 5-9 15-15 27-15 18 0 33 14 33 34 0 26-30 48-60 74z"/>
+    <path id="club" d="M0-58c-17 0-30 13-30 29 0 7 2 13 6 18-4-2-9-3-14-3-17 0-30 13-30 29s13 29 30 29c13 0 24-8 28-19-1 15-8 26-18 34h56c-10-8-17-19-18-34 4 11 15 19 28 19 17 0 30-13 30-29s-13-29-30-29c-5 0-10 1-14 3 4-5 6-11 6-18 0-16-13-29-30-29z"/>
+    <rect id="card" x="-92" y="-128" width="184" height="256" rx="20" fill="#ffffff" stroke="#1d1d1f" stroke-width="11"/>
+  </defs>
+  <g transform="translate(256 262)">
+    <g transform="translate(0 120) rotate(-22) translate(0 -120)">
+      <use href="#card"/>
+      <use href="#heart" fill="#cc1f2d" transform="translate(-56 -80) scale(.4)"/>
+    </g>
+    <g transform="translate(0 120) rotate(22) translate(0 -120)">
+      <use href="#card"/>
+      <use href="#club" fill="#1d1d1f" transform="translate(58 -80) scale(.4)"/>
+    </g>
+    <g>
+      <use href="#card"/>
+      <use href="#spade" fill="#1d1d1f" transform="translate(0 4) scale(1.05)"/>
+    </g>
+  </g>
+</svg>

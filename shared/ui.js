@@ -1,6 +1,7 @@
 // Screen parts around the table: score header, controls, status line,
 // action buttons, footer, the end-of-hand / game-over sheet, pop-up sheets
-// (like the rules) and the feedback email link.
+// (like the rules), the menu and settings sheet, and the feedback email link.
+import { CHOICES } from './settings.js';
 
 // One score: big number with a small label under it.
 export const scoreHTML = ({ label, value, cls = '' }) =>
@@ -105,4 +106,44 @@ export function feedbackHref({ game, version, to = 'contact@rugbyhubby.com' }) {
   ].join('\n');
   return `mailto:${to}?subject=` + encodeURIComponent(`${game} feedback v${version}`) +
     '&body=' + encodeURIComponent(body);
+}
+
+// ---------- settings and menu ----------
+
+const LABELS = {
+  speed: { slow: 'Slow', normal: 'Normal', fast: 'Fast' },
+  theme: { system: 'System', light: 'Light', dark: 'Dark' }
+};
+
+// Game speed and theme controls, shared by every game and the game list.
+export function settingsHTML(settings) {
+  const row = (key, title) => `<h3>${title}</h3>
+      ${segHTML({ label: title, key, options: CHOICES[key].map(v => [v, LABELS[key][v]]), value: settings.get(key) })}`;
+  return `<div class="set">${row('speed', 'Game speed')}${row('theme', 'Theme')}</div>`;
+}
+
+// Make the settings controls inside `el` work, and keep links marked
+// data-carry="<page>" pointing at that page with the current settings.
+export function bindSettings(el, settings) {
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-speed],[data-theme]');
+    if (b) {
+      const key = b.dataset.speed ? 'speed' : 'theme';
+      settings.set(key, b.dataset[key]);
+      el.querySelectorAll(`[data-${key}]`).forEach(x => x.setAttribute('aria-pressed', String(x.dataset[key] === settings.get(key))));
+      el.querySelectorAll('a[data-carry]').forEach(x => { x.href = settings.link(x.dataset.carry); });
+      return;
+    }
+    const a = e.target.closest('a[data-carry]');
+    if (a) a.href = settings.link(a.dataset.carry);   // just before the browser follows it
+  });
+}
+
+// Inside of a game's menu sheet: the game's own buttons, then settings,
+// then a link back to the game list. items: [[act, label, primary?]].
+export function menuHTML({ items, settings, allGames = '../' }) {
+  return `<h2 id="menu-h">Menu</h2>
+    <div class="menu-actions">${items.map(([act, label, pri]) => `<button class="btn${pri ? ' pri' : ''}" data-act="${act}">${label}</button>`).join('')}</div>
+    ${settingsHTML(settings)}
+    <div class="menu-foot"><a class="link" href="${settings.link(allGames)}" data-carry="${allGames}">‹ All games</a><button class="btn" data-close>Done</button></div>`;
 }

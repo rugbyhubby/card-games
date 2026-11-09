@@ -121,3 +121,11 @@
 .rules p,.rules li{font-size:14px;line-height:1.45;margin:0 0 6px}
 .rules ul{margin:0 0 6px;padding-left:18px}
 .rules .done{display:flex;justify-content:center;margin-top:14px}
+
+/* menu and settings sheet */
+.menu-actions{display:flex;flex-direction:column;gap:8px;margin:10px 0 4px}
+.set{text-align:left}
+.set h3{font-size:13px;font-weight:600;margin:16px 0 6px}
+.set .seg button{flex:1;padding:7px 6px;font-size:14px}
+.menu-foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.menu-foot .link{font-size:15px;color:inherit}

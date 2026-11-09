@@ -35,12 +35,15 @@ Options:
 | `--compare FILE` | compare game by game with a saved run |
 | `--save FILE` | save this run |
 
-Check that Easy and Medium still play exactly like v0.1.0:
+Check that Easy and Medium still play, and look, exactly like v0.2.2:
 
 ```sh
-tools/simulate.sh --us easy --render --compare tools/baselines/euchre-v0.1.0-easy.json
-tools/simulate.sh --us medium --render --compare tools/baselines/euchre-v0.1.0-medium.json
+tools/simulate.sh --us easy --render --compare tools/baselines/euchre-v0.2.2-easy.json
+tools/simulate.sh --us medium --render --compare tools/baselines/euchre-v0.2.2-medium.json
 ```
+
+Leave out `--render` to compare play only (bids, cards, scores), e.g. against v0.1.0,
+whose screens had "Rules · New game" where v0.2.2 has "Menu".
 
 The last line says `RESULT: OK` or `RESULT: PROBLEMS FOUND`.
 
@@ -51,10 +54,11 @@ then open http://localhost:8000/tools/simulate.html. Same options, with a Run bu
 
 ## Baselines
 
-`baselines/euchre-v0.1.0-*.json` hold the results of 300 games each of the
-original v0.1.0 Euchre (the single-file version, before the shared toolkit),
-for Easy and Medium. They were made by running the same test against the
-v0.1.0 code from the `main` branch.
+Saved results of 300 games each, for Easy and Medium:
+
+- `euchre-v0.1.0-*.json`: the original single-file Euchre, before the shared toolkit.
+  Made by running the same test against the v0.1.0 code from the `main` branch.
+- `euchre-v0.2.2-*.json`: v0.2.2 (Menu in place of Rules · New game). Same play as v0.1.0.
 
 ## Files
 

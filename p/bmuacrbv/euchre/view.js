@@ -79,7 +79,7 @@ export function renderHTML(S, { legal, difficulty, version, feedback }) {
     ${headerHTML('Euchre', scores)}
     ${controlsHTML(
       segHTML({ label: 'Computer difficulty', key: 'diff', options: DIFFICULTIES, value: difficulty }),
-      [linkHTML('rules', 'Rules'), linkHTML('new', 'New game')]
+      [linkHTML('menu', 'Menu')]
     )}
     ${tableHTML({
       north: seat(S, 2), west: seat(S, 1), east: seat(S, 3), center: center(S),

@@ -1,7 +1,7 @@
 // Euchre offline helper (service worker).
 // RELEASE: bump CACHE together with VERSION in version.js. A new name makes
 // phones fetch a fresh copy of the game and delete the old one.
-const CACHE = 'euchre-v0.2.1';
+const CACHE = 'euchre-v0.2.2';
 
 const SHARED = '../../../shared/';
 const FILES = [

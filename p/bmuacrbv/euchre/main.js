@@ -1,8 +1,8 @@
 // Euchre page: connects the game to the screen and to your taps.
 import { settings, SPEED_FACTOR } from '../../../shared/settings.js';
 import { createTimer } from '../../../shared/timing.js';
-import { applyTheme } from '../../../shared/theme.js';
-import { createSheet, feedbackHref } from '../../../shared/ui.js';
+import { followTheme } from '../../../shared/theme.js';
+import { createSheet, feedbackHref, menuHTML, bindSettings } from '../../../shared/ui.js';
 import { createEuchre } from './game.js';
 import { renderHTML } from './view.js';
 import { rulesHTML } from './rules-text.js';
@@ -27,14 +27,25 @@ function render() {
   S.justDealt = false;
 }
 
-applyTheme(settings.get('theme'));
-settings.onChange(key => {
-  if (key === 'theme') applyTheme(settings.get('theme'));
-  render();
-});
+followTheme(settings);
+settings.onChange(key => { if (key === 'difficulty') render(); });
 
-// The rules sheet sits outside #app so redraws don't close it.
-const rules = createSheet(document.getElementById('rules'));
+// Pop-up sheets (menu, rules) sit outside #app so the game's redraws don't close them.
+const sheetEl = document.getElementById('sheet');
+const sheet = createSheet(sheetEl);
+bindSettings(sheetEl, settings);
+const openMenu = () => sheet.open(menuHTML({
+  items: [['new', 'New game', true], ['rules', 'Rules']],
+  settings, allGames: '../'
+}), { labelledBy: 'menu-h' });
+const openRules = () => sheet.open(rulesHTML, { cls: 'rules', labelledBy: 'rules-h' });
+
+sheetEl.addEventListener('click', e => {
+  const a = e.target.closest('[data-act]');
+  if (!a) return;
+  if (a.dataset.act === 'new') { sheet.close(); game.newGame(); }
+  if (a.dataset.act === 'rules') openRules();
+});
 
 app.addEventListener('click', e => {
   const d = e.target.closest('[data-diff]');
@@ -42,8 +53,7 @@ app.addEventListener('click', e => {
   const a = e.target.closest('[data-act]');
   if (a) {
     const act = a.dataset.act;
-    if (act === 'rules') return rules.open(rulesHTML, { cls: 'rules', labelledBy: 'rules-h' });
-    if (act === 'new') return game.newGame();
+    if (act === 'menu') return openMenu();
     if (act === 'next') return game.next();
     if (act === 'alone') return game.you.toggleAlone();
     if (act === 'pass') return game.you.pass();

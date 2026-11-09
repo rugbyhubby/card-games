@@ -19,3 +19,9 @@ export function applyTheme(theme = 'system') {
     }
   }
 }
+
+// Apply the theme from settings now, and again whenever it changes.
+export function followTheme(settings) {
+  applyTheme(settings.get('theme'));
+  settings.onChange(key => { if (key === 'theme') applyTheme(settings.get('theme')); });
+}
