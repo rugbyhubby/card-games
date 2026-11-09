@@ -46,7 +46,9 @@ export function statusHTML(message, detail) {
 }
 
 export const actionsHTML = inner => `<div class="actions">${inner}</div>`;
-export const handHTML = inner => `<div class="hand">${inner}</div>`;
+// Your hand. `count` (number of cards) lets the cards shrink to fit when there are many.
+export const handHTML = (inner, count) =>
+  `<div class="hand"${count ? ` style="--n:${count}"` : ''}>${inner}</div>`;
 
 // Small line at the bottom: version and feedback link.
 export const footHTML = (version, feedback) =>
