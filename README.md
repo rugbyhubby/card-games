@@ -26,7 +26,8 @@ p/<slug>/<game>/    One folder per game.
   main.js           Connects the game to the screen and to taps.
   game.js           Game flow: dealing, bidding, play, scoring.
   rules.js          Card rules (which card wins, what may be played).
-  bots.js           Computer-player strategy, Easy and Medium.
+  bots.js           Computer-player strategy, Easy and Medium. Medium never beats a partner
+                    who is winning the trick if it has another card it can play.
   bots-hard.js      Computer-player strategy, Hard: remembers cards played, bids by seat and
                     score, plays by position. Tuned with the simulator (see tools/README.md).
   view.js           Draws the screen from the shared parts.
@@ -55,7 +56,9 @@ What goes where:
 Settings (difficulty, game speed, theme) are kept in memory only. Nothing is saved on the
 phone. When you move between the game list and a game, the link carries them in the part
 after `#` (e.g. `euchre/#speed=fast&theme=dark`), which never leaves the phone. Closing
-the page resets them. Each game's Menu has New game, Rules, the settings, and "All games".
+the page resets them. Each game's Menu has the computer level, New game, Rules, game speed,
+theme, and "All games". The computer level is chosen for the next new game; it can't change
+in the middle of a game.
 
 To try the site on your Mac, start a local web server in the `card-games` folder
 (`python3 -m http.server 8000`) and open http://localhost:8000/p/<slug>/euchre/.

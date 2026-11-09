@@ -35,17 +35,18 @@ Options:
 | `--compare FILE` | compare game by game with a saved run |
 | `--save FILE` | save this run |
 
-How strong is Hard? (v0.3.0: about 75% wins against Medium)
+How strong is Hard? (v0.3.0: about 76% wins against Medium)
 
 ```sh
 tools/simulate.sh --games 2000 --us hard --them medium
 ```
 
-Check that Easy and Medium still play, and look, exactly like v0.2.2:
+Check that each level still plays, and looks, exactly like v0.3.0:
 
 ```sh
-tools/simulate.sh --us easy --render --compare tools/baselines/euchre-v0.2.2-easy.json
-tools/simulate.sh --us medium --render --compare tools/baselines/euchre-v0.2.2-medium.json
+tools/simulate.sh --us easy --render --compare tools/baselines/euchre-v0.3.0-easy.json
+tools/simulate.sh --us medium --render --compare tools/baselines/euchre-v0.3.0-medium.json
+tools/simulate.sh --us hard --render --compare tools/baselines/euchre-v0.3.0-hard.json
 ```
 
 Leave out `--render` to compare play only (bids, cards, scores), e.g. against v0.1.0,
@@ -65,7 +66,9 @@ Saved results of 300 games each, for Easy and Medium:
 - `euchre-v0.1.0-*.json`: the original single-file Euchre, before the shared toolkit.
   Made by running the same test against the v0.1.0 code from the `main` branch.
 - `euchre-v0.2.2-*.json`: v0.2.2 (Menu in place of Rules · New game). Same play as v0.1.0.
-  The screen check ignores the Hard button being switched on in v0.3.0.
+- `euchre-v0.3.0-*.json`: v0.3.0, Easy, Medium and Hard. Easy plays the same as before;
+  Medium changed on purpose in v0.3.0 (it no longer beats a partner who is winning the
+  trick when it has another card to play).
 
 ## Files
 

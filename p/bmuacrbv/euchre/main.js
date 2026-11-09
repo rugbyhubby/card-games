@@ -2,7 +2,7 @@
 import { settings, SPEED_FACTOR } from '../../../shared/settings.js';
 import { createTimer } from '../../../shared/timing.js';
 import { followTheme } from '../../../shared/theme.js';
-import { createSheet, feedbackHref, menuHTML, bindSettings } from '../../../shared/ui.js';
+import { createSheet, feedbackHref, menuHTML, levelHTML, bindSettings } from '../../../shared/ui.js';
 import { createEuchre } from './game.js';
 import { renderHTML } from './view.js';
 import { rulesHTML } from './rules-text.js';
@@ -12,7 +12,7 @@ const app = document.getElementById('app');
 const timer = createTimer({ speed: () => SPEED_FACTOR[settings.get('speed')] || 1 });
 const game = createEuchre({
   timer,
-  difficultyFor: () => settings.get('difficulty'),
+  levelAtStart: () => settings.get('difficulty'),   // chosen in the Menu; fixed for the whole game
   onChange: render
 });
 const S = game.state;
@@ -20,7 +20,6 @@ const S = game.state;
 function render() {
   app.innerHTML = renderHTML(S, {
     legal: game.legal,
-    difficulty: settings.get('difficulty'),
     version: VERSION,
     feedback: feedbackHref({ game: 'Euchre', version: VERSION })
   });
@@ -28,13 +27,13 @@ function render() {
 }
 
 followTheme(settings);
-settings.onChange(key => { if (key === 'difficulty') render(); });
 
 // Pop-up sheets (menu, rules) sit outside #app so the game's redraws don't close them.
 const sheetEl = document.getElementById('sheet');
 const sheet = createSheet(sheetEl);
 bindSettings(sheetEl, settings);
 const openMenu = () => sheet.open(menuHTML({
+  lead: levelHTML(settings, S.level),
   items: [['new', 'New game', true], ['rules', 'Rules']],
   settings, allGames: '../'
 }), { labelledBy: 'menu-h' });
@@ -48,8 +47,6 @@ sheetEl.addEventListener('click', e => {
 });
 
 app.addEventListener('click', e => {
-  const d = e.target.closest('[data-diff]');
-  if (d && !d.disabled) return settings.set('difficulty', d.dataset.diff);
   const a = e.target.closest('[data-act]');
   if (a) {
     const act = a.dataset.act;

@@ -20,13 +20,14 @@ export function euchreGame({ us = 'medium', them = 'medium', render = false } = 
     let game;
     const draw = render ? S => {
       screens.add(normalizeHTML(renderHTML(S, {
-        legal: game.legal, difficulty: us, version: VERSION,
+        legal: game.legal, version: VERSION,
         feedback: feedbackHref({ game: 'Euchre', version: VERSION })
       })));
       S.justDealt = false;
     } : () => {};
     game = createEuchre({
       timer,
+      levelAtStart: () => us,
       difficultyFor: p => (p % 2 === 0 ? us : them),
       onChange: draw,
       onEvent: s => moves.add(s)
