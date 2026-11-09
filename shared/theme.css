@@ -1,0 +1,36 @@
+/* Theme: colors (light and dark), fonts and page basics shared by every game.
+   Fonts come from Google Fonts; each page links them in its <head>:
+   Instrument Serif (headings, scores, card ranks) and Instrument Sans (text).
+
+   Dark mode follows the phone's setting, unless the page sets
+   data-theme="light" or data-theme="dark" on <html> (see theme.js). */
+:root{
+  --paper:#ffffff; --ink:#1d1d1f; --muted:#7a7a80; --faint:#d6d6da; --card:#ffffff;
+  --red:#cc1f2d; --mark:#ffe14d; --mark-ink:#1d1d1f; --shade:rgba(29,29,31,.45);
+  --serif:'Instrument Serif',Georgia,serif;
+  --sans:'Instrument Sans',system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#18181a; --ink:#efeff2; --muted:#94949b; --faint:#3a3a3f; --card:#202023;
+    --red:#ff6b72; --mark:#e8c534; --mark-ink:#18181a; --shade:rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#18181a; --ink:#efeff2; --muted:#94949b; --faint:#3a3a3f; --card:#202023;
+  --red:#ff6b72; --mark:#e8c534; --mark-ink:#18181a; --shade:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;height:100%;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;
+  -webkit-tap-highlight-color:transparent;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit}
+#app{max-width:520px;height:100%;margin:0 auto;display:flex;flex-direction:column;padding:6px 12px 8px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}

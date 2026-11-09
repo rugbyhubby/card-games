@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Game simulator</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<link rel="stylesheet" href="../shared/parts.css">
+<style>
+  body{-webkit-user-select:text;user-select:text}
+  main{max-width:640px;margin:0 auto;padding:16px}
+  h1{font-family:var(--serif);font-weight:400;font-size:34px;margin:8px 0 4px}
+  p{color:var(--muted);margin:0 0 16px;line-height:1.45}
+  form{display:grid;grid-template-columns:auto 1fr;gap:10px 12px;align-items:center;margin-bottom:16px}
+  label{font-size:14px}
+  input,select{font:inherit;color:inherit;background:var(--paper);border:1.5px solid var(--ink);border-radius:8px;padding:6px 8px;max-width:220px}
+  .row{grid-column:1/-1;display:flex;gap:10px;align-items:center}
+  pre{white-space:pre-wrap;border:1.5px solid var(--faint);border-radius:12px;padding:12px;font-size:13px;min-height:120px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Game simulator</h1>
+  <p>Plays Euchre with every seat run by the computer and reports errors, stuck games and win rates. Same as <code>tools/simulate.sh</code>. Needs a local web server (see tools/README.md).</p>
+  <form id="f">
+    <label for="games">Games</label><input id="games" type="number" min="1" value="300">
+    <label for="us">Your team</label><select id="us"><option>easy</option><option selected>medium</option></select>
+    <label for="them">Other team</label><select id="them"><option>easy</option><option selected>medium</option></select>
+    <label for="cmp">Compare with</label>
+    <select id="cmp">
+      <option value="">nothing</option>
+      <option value="baselines/euchre-v0.1.0-easy.json">v0.1.0, easy vs easy</option>
+      <option value="baselines/euchre-v0.1.0-medium.json">v0.1.0, medium vs medium</option>
+    </select>
+    <div class="row"><label><input id="render" type="checkbox"> Also check every screen</label></div>
+    <div class="row"><button class="btn pri" id="go">Run</button></div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+</main>
+<script type="module">
+import { runGames, compareRuns, margin } from './sim-core.js';
+import { euchreGame } from './euchre-sim.js';
+const $ = id => document.getElementById(id);
+const out = $('out');
+const say = t => { out.textContent += t + '\n'; };
+
+$('f').addEventListener('submit', async e => {
+  e.preventDefault();
+  out.textContent = ''; $('go').disabled = true;
+  const us = $('us').value, them = $('them').value, count = +$('games').value, render = $('render').checked;
+  say(`Playing ${count} games: us ${us}, them ${them}…`);
+  await new Promise(r => setTimeout(r, 30)); // let the page update before the busy part
+  const run = runGames(euchreGame({ us, them, render }), { count });
+  const s = run.summary, pct = x => (100 * x).toFixed(1) + '%';
+  say(`Finished: ${s.finished} of ${s.played}   errors or stuck: ${run.problems.length}`);
+  say(`Us won ${s.usWins}, them ${s.themWins}: us ${pct(s.usWinRate)} ± ${pct(margin(s.usWinRate, s.finished))}`);
+  say(`Average hands per game: ${s.avgHands.toFixed(1)}   time: ${s.seconds.toFixed(1)}s`);
+  run.problems.slice(0, 20).forEach(p => say('  ' + p));
+  let ok = !run.problems.length;
+  if ($('cmp').value) {
+    const other = await (await fetch($('cmp').value)).json();
+    const diffs = compareRuns(run.games, other.games);
+    if (diffs.length) { ok = false; say(`DIFFERENT in ${diffs.length} places:`); diffs.slice(0, 20).forEach(d => say('  ' + d)); }
+    else say('Identical: same moves and scores in every game' + (render ? ', same screens too.' : '.'));
+  }
+  say(ok ? 'RESULT: OK' : 'RESULT: PROBLEMS FOUND');
+  $('go').disabled = false;
+});
+</script>
+</body>
+</html>
