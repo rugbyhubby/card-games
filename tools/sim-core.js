@@ -57,6 +57,7 @@ export function fingerprint() {
 export function normalizeHTML(html) {
   return html
     .replace(/mailto:[^"]*/g, 'mailto:FEEDBACK')     // holds device details that differ per computer
+    .replace(/ style="--n:\d+"/g, '')                // card-count hint on the hand (added in v0.2.1)
     .replace(/v?\d+\.\d+\.\d+/g, 'VER')
     .replace(/>\s+</g, '><')
     .replace(/\s+/g, ' ')

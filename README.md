@@ -68,7 +68,7 @@ Every page carries `<meta name="robots" content="noindex, nofollow">`. There is 
 Each game has a version number in two places that must change together:
 
 1. `VERSION` in the game's `version.js` (shown small under the cards).
-2. `CACHE` at the top of the game's `sw.js` (e.g. `euchre-v0.2.0`).
+2. `CACHE` at the top of the game's `sw.js` (e.g. `euchre-v0.2.1`).
 
 Shared files count as part of every game that uses them: if you change something in `shared/`, bump the version of each game that uses it.
 

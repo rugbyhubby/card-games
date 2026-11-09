@@ -87,7 +87,7 @@ export function renderHTML(S, { legal, difficulty, version, feedback }) {
     })}
     ${statusHTML(S.msg, showTricks ? `Tricks this hand: us ${S.tricks[0]}, them ${S.tricks[1]}` : '')}
     ${actionsHTML(actions(S))}
-    ${handHTML(hand(S, legal))}
+    ${handHTML(hand(S, legal), S.hands[0].length)}
     ${footHTML(version, feedback)}
     ${S.overlay ? resultSheetHTML({
       title: S.overlay.title, body: S.overlay.body, button: S.overlay.btn,

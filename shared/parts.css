@@ -88,7 +88,10 @@
 
 /* your hand */
 .hand{display:flex;justify-content:center;gap:5px;padding:6px 0 2px;min-height:calc(min(17.5vw,70px)*1.4 + 14px)}
-.hand .card{--cw:min(17.5vw,70px);--ch:calc(var(--cw)*1.4);transition:transform .15s}
+/* Card width: normally 17.5% of the screen (max 70px), but never wider than
+   lets all --n cards fit across the game area (520px max, 12px side padding, 5px gaps). */
+.hand .card{--cw:min(17.5vw,70px,calc((min(100vw,520px) - 24px - (var(--n,5) - 1)*5px)/var(--n,5)));
+  --ch:calc(var(--cw)*1.4);transition:transform .15s}
 .hand .card .ix{font-size:21px}.hand .card .ix i{font-size:16px}
 .hand .card .pip{font-size:30px}
 .hand .card.can{cursor:pointer}
