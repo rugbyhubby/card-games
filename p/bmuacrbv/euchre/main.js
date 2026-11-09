@@ -5,7 +5,7 @@ import { followTheme } from '../../../shared/theme.js';
 import { createSheet, feedbackHref, menuHTML, levelHTML, bindSettings } from '../../../shared/ui.js';
 import { createEuchre } from './game.js';
 import { renderHTML } from './view.js';
-import { rulesHTML } from './rules-text.js';
+import { rulesHTML, LEVEL_ABOUT } from './rules-text.js';
 import { VERSION } from './version.js';
 
 const app = document.getElementById('app');
@@ -33,7 +33,7 @@ const sheetEl = document.getElementById('sheet');
 const sheet = createSheet(sheetEl);
 bindSettings(sheetEl, settings);
 const openMenu = () => sheet.open(menuHTML({
-  lead: levelHTML(settings, S.level),
+  lead: levelHTML(settings, S.level, LEVEL_ABOUT),
   items: [['new', 'New game', true], ['rules', 'Rules']],
   settings, allGames: '../'
 }), { labelledBy: 'menu-h' });

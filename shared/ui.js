@@ -129,10 +129,13 @@ export const levelLabel = level => LABELS.difficulty[level] || level;
 function levelNote(chosen, playing) {
   return chosen === playing ? `This game is on ${levelLabel(playing)}.` : `${levelLabel(chosen)} starts when you tap New game.`;
 }
-export function levelHTML(settings, playing) {
-  return `<div class="set"><h3>Computer level</h3>
-      ${segHTML({ label: 'Computer level', key: 'difficulty', options: CHOICES.difficulty.map(v => [v, LABELS.difficulty[v]]), value: settings.get('difficulty') })}
-      <p class="note" data-level-note="${playing}">${levelNote(settings.get('difficulty'), playing)}</p></div>`;
+// `about` gives each level a one-line, plain-language description: { easy, medium, hard }.
+export function levelHTML(settings, playing, about = {}) {
+  const chosen = settings.get('difficulty');
+  return `<div class="set"><h3>How well the computers play</h3>
+      ${segHTML({ label: 'How well the computers play', key: 'difficulty', options: CHOICES.difficulty.map(v => [v, LABELS.difficulty[v]]), value: chosen })}
+      ${CHOICES.difficulty.filter(v => about[v]).map(v => `<p class="about" data-level-about="${v}"${v === chosen ? '' : ' hidden'}>${about[v]}</p>`).join('')}
+      <p class="note" data-level-note="${playing}">${levelNote(chosen, playing)}</p></div>`;
 }
 
 // Make the settings controls inside `el` work, and keep links marked
@@ -146,6 +149,7 @@ export function bindSettings(el, settings) {
       el.querySelectorAll(`[data-${key}]`).forEach(x => x.setAttribute('aria-pressed', String(x.dataset[key] === settings.get(key))));
       el.querySelectorAll('a[data-carry]').forEach(x => { x.href = settings.link(x.dataset.carry); });
       el.querySelectorAll('[data-level-note]').forEach(n => { n.textContent = levelNote(settings.get('difficulty'), n.dataset.levelNote); });
+      el.querySelectorAll('[data-level-about]').forEach(n => { n.hidden = n.dataset.levelAbout !== settings.get('difficulty'); });
       return;
     }
     const a = e.target.closest('a[data-carry]');
