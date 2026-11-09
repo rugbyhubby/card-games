@@ -26,7 +26,9 @@ p/<slug>/<game>/    One folder per game.
   main.js           Connects the game to the screen and to taps.
   game.js           Game flow: dealing, bidding, play, scoring.
   rules.js          Card rules (which card wins, what may be played).
-  bots.js           Computer-player strategy.
+  bots.js           Computer-player strategy, Easy and Medium.
+  bots-hard.js      Computer-player strategy, Hard: remembers cards played, bids by seat and
+                    score, plays by position. Tuned with the simulator (see tools/README.md).
   view.js           Draws the screen from the shared parts.
   version.js        The version number.
   manifest.webmanifest   Name, icons and settings for "Add to Home Screen".

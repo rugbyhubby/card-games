@@ -2,6 +2,7 @@
 // game.js carries it out.
 //   easy:   random play, rough bidding
 //   medium: sensible bidding and play
+//   hard:   see bots-hard.js
 import { SUITS } from '../../../shared/deck.js';
 import { RV, effSuit, power, trumpVal, strength, team, legalCards, trickWinner } from './rules.js';
 

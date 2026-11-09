@@ -1,7 +1,7 @@
 // Euchre offline helper (service worker).
 // RELEASE: bump CACHE together with VERSION in version.js. A new name makes
 // phones fetch a fresh copy of the game and delete the old one.
-const CACHE = 'euchre-v0.2.2';
+const CACHE = 'euchre-v0.3.0';
 
 const SHARED = '../../../shared/';
 const FILES = [
@@ -11,7 +11,7 @@ const FILES = [
   'icon-192.png',
   'icon-512.png',
   // Euchre's own code
-  'main.js', 'game.js', 'rules.js', 'bots.js', 'view.js', 'rules-text.js', 'version.js',
+  'main.js', 'game.js', 'rules.js', 'bots.js', 'bots-hard.js', 'view.js', 'rules-text.js', 'version.js',
   // Shared parts Euchre uses
   SHARED + 'theme.css', SHARED + 'parts.css',
   SHARED + 'deck.js', SHARED + 'cards.js', SHARED + 'table.js', SHARED + 'ui.js',

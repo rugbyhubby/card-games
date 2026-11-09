@@ -5,7 +5,7 @@ import { seatHTML, meHTML, tableHTML, centerHTML, slotHTML, SLOTS_4 } from '../.
 import { headerHTML, segHTML, linkHTML, controlsHTML, statusHTML, actionsHTML, handHTML, footHTML, resultSheetHTML } from '../../../shared/ui.js';
 import { NAMES } from './rules.js';
 
-export const DIFFICULTIES = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard', 'Coming soon']];
+export const DIFFICULTIES = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']];
 
 function seatTag(S, p) {
   if (p === S.sitter) return 'Sitting out';
