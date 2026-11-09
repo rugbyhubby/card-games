@@ -2,7 +2,7 @@
 import { settings, SPEED_FACTOR } from '../../../shared/settings.js';
 import { createTimer } from '../../../shared/timing.js';
 import { followTheme } from '../../../shared/theme.js';
-import { createSheet, feedbackHref, menuHTML, levelHTML, bindSettings } from '../../../shared/ui.js';
+import { createSheet, feedbackHref, menuHTML, levelHTML, bindSettings, addRotateNotice } from '../../../shared/ui.js';
 import { createEuchre } from './game.js';
 import { renderHTML } from './view.js';
 import { rulesHTML, LEVEL_ABOUT } from './rules-text.js';
@@ -27,6 +27,7 @@ function render() {
 }
 
 followTheme(settings);
+addRotateNotice('Euchre');
 
 // Pop-up sheets (menu, rules) sit outside #app so the game's redraws don't close them.
 const sheetEl = document.getElementById('sheet');

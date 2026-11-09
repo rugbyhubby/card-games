@@ -167,3 +167,21 @@ export function menuHTML({ items, settings, allGames = '../', lead = '' }) {
     ${settingsHTML(settings)}
     <div class="menu-foot"><a class="link" href="${settings.link(allGames)}" data-carry="${allGames}">‹ All games</a><button class="btn" data-close>Done</button></div>`;
 }
+
+// ---------- phone held sideways ----------
+
+// Card tables need the phone upright. When a phone is turned sideways (short
+// and wide), this covers the game with a "turn your phone upright" note; the
+// game reappears as soon as it's turned back. iPads and computers never see it.
+// The showing and hiding is done by parts.css, so it reacts instantly.
+export function addRotateNotice(game) {
+  if (document.querySelector('.rotate')) return;
+  const el = document.createElement('div');
+  el.className = 'rotate';
+  el.innerHTML = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="20" y="8" width="24" height="44" rx="4"/><path d="M29 46h6"/>
+      <path d="M50 22a20 20 0 0 1 2 18"/><path d="M48 38l4 3 3-4"/></svg>
+    <h2>Turn your phone upright</h2>
+    <p>${game} is made to be played with your phone held upright.</p>`;
+  document.body.appendChild(el);
+}
