@@ -24,7 +24,7 @@ import { makeDeck, shuffle } from '../../../shared/deck.js';
 | `deck.js` | Suits and symbols, `makeDeck()` (52 cards, or custom ranks such as Euchre's 24), `shuffle()`, `cardName()`. |
 | `cards.js` | Drawing cards: `cardHTML()` faces, `backHTML()`, `miniFanHTML()` small backs for a seat's hand. |
 | `table.js` | Table layout for 4 seats or 2 seats: `seatHTML()` (avatar, dealer tag, speech bubble, turn highlight), `meHTML()`, `tableHTML()`, `centerHTML()`, `slotHTML()`. |
-| `ui.js` | Score header, controls row, status line, action buttons, footer, the end-of-hand / game-over sheet, pop-up sheets (`createSheet()`), the menu and settings sheet, and the feedback email link. |
+| `ui.js` | Score header, controls row, status line, action buttons, footer, the end-of-hand / game-over sheet, pop-up sheets (`createSheet()`), the menu and settings sheet, the feedback email link, and `addRotateNotice()` (a "turn your phone upright" note when a phone is held sideways; each game calls it once). |
 | `timing.js` | `createTimer()`: pauses between computer moves, and `cancelAll()` so New game drops any moves still waiting. |
 | `settings.js` | Difficulty, game speed and theme. In memory, carried between pages in the link (see below). |
 
