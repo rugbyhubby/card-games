@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Pitch icon: one card with a red heart, black line style on white (matches Euchre's spade). Source for the PNGs. -->
+  <rect width="512" height="512" fill="#ffffff"/>
+  <rect x="146" y="96" width="220" height="320" rx="24" fill="#ffffff" stroke="#1d1d1f" stroke-width="13"/>
+  <path transform="translate(256 262) scale(1.45)" fill="#cc1f2d" d="M0 52C-30 26-60 4-60-22c0-20 15-34 33-34 12 0 22 6 27 15 5-9 15-15 27-15 18 0 33 14 33 34 0 26-30 48-60 74z"/>
+</svg>
