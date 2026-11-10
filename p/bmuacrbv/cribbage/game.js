@@ -250,7 +250,7 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
     S.count = { label: stageLabel(st), owner: st.owner, crib: st.crib, cards: [...cards], hl: [], say: '', items: bd.items, total: bd.total, done: false };
     if (st.owner === 0 && S.muggins) {
       S.phase = 'claim';
-      S.claim = { mode: 'tap', sel: [], claims: [], number: 0 };
+      S.claim = { sel: [], claims: [] };
       msg(`Count ${st.crib ? 'your crib' : 'your hand'}: tap cards that score together, then what they make.`);
       changed();
       return;
@@ -299,11 +299,10 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
   function nextStage() { S.stage++; S.pts = {}; runStage(); }
 
   // ---------- your own count (muggins) ----------
-  // Tap mode: you select cards and name what they make (15, pair, run, flush, nobs).
-  // Number mode: you enter a total. Nothing is checked until Done.
-  // Short: Computer takes what you missed ("Muggins!").
-  // Too many (number mode): you get the real count and Computer takes the extra.
-  const CLAIM_PTS = { fifteen: () => 2, pair: () => 2, run: k => k, flush: k => k, nobs: () => 1 };
+  // You show every score: select the cards and name what they make (15, pair, run,
+  // flush, nibs). Nothing is checked until Done. A wrong claim scores nothing;
+  // anything you missed, Computer takes ("Muggins!").
+  const CLAIM_PTS = { fifteen: () => 2, pair: () => 2, run: k => k, flush: k => k, nibs: () => 1 };
   function checkClaims() {
     const C = S.count, left = [...C.items];
     let got = 0;
@@ -318,27 +317,23 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
   function doneClaim() {
     if (S.phase !== 'claim') return;
     const C = S.count, real = C.total;
-    let mine, extra = 0;
-    if (S.claim.mode === 'number') { mine = Math.min(S.claim.number, real); extra = Math.max(0, S.claim.number - real); }
-    else mine = checkClaims();
-    const missed = real - mine;
-    S.claim.result = { mine, missed, extra };
-    onEvent(`claim:${S.claim.mode}:${mine}:${missed}:${extra}`);
+    const mine = checkClaims(), missed = real - mine;
+    S.claim.result = { mine, missed };
+    onEvent(`claim:${mine}:${missed}`);
     S.phase = 'count';
-    if (!missed && !extra) {
+    if (!missed) {
       C.done = true; C.hl = []; C.say = `${sayCount(C.items)} Right!`;
       msg(`You count ${real}. Correct.`);
       changed();
       return later(() => scoreStage(0, real), 1300);
     }
     S.said = { 1: 'Muggins!' };
-    msg(missed ? `Muggins! You claimed ${mine}. Computer shows you the full count.` : `You claimed ${S.claim.number}, but it’s only ${real}.`);
-    S.handLog.push({ label: C.label, pts: mine, note: missed ? `Computer took ${missed + extra} (muggins)` : `Computer took ${extra} (too many)` });
+    msg(`Muggins! You claimed ${mine}. Computer shows you the full count.`);
+    S.handLog.push({ label: C.label, pts: mine, note: `Computer took ${missed} (muggins)` });
     showCount(C.items, () => {
       if (mine && addScore(0, mine, `${C.label}: ${mine}`)) return;
-      const take = missed + extra;
-      if (addScore(1, take, missed ? `Muggins! +${take}` : `Too many: +${take}`)) return;
-      msg(missed ? `Muggins! Computer takes the ${take} point${take > 1 ? 's' : ''} you missed.` : `You claimed too many: Computer takes ${take}.`);
+      if (addScore(1, missed, `Muggins! +${missed}`)) return;
+      msg(`Muggins! Computer takes the ${missed} point${missed > 1 ? 's' : ''} you missed.`);
       changed();
       later(nextStage, 1800);
     }, true);
@@ -381,7 +376,7 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
     go() { if (S.phase === 'peg' && S.turn === 0 && !legal(0).length) sayGo(0); },
     // muggins counting
     select(id) {
-      if (S.phase !== 'claim' || S.claim.mode !== 'tap') return;
+      if (S.phase !== 'claim') return;
       const sel = S.claim.sel;
       S.claim.sel = sel.includes(id) ? sel.filter(x => x !== id) : [...sel, id];
       changed();
@@ -393,14 +388,6 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
       changed();
     },
     unclaim(i) { if (S.phase === 'claim') { S.claim.claims.splice(i, 1); changed(); } },
-    mode(m) {
-      if (S.phase !== 'claim') return;
-      S.claim.mode = m; S.claim.sel = [];
-      const what = S.count.crib ? 'your crib' : 'your hand';
-      msg(m === 'number' ? `What is ${what} worth? Set the number, then claim it.` : `Count ${what}: tap cards that score together, then what they make.`);
-      changed();
-    },
-    bump(d) { if (S.phase === 'claim') { S.claim.number = Math.max(0, Math.min(29, S.claim.number + d)); changed(); } },
     done: doneClaim
   };
 

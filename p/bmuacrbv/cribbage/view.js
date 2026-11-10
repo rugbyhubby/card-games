@@ -61,15 +61,13 @@ function center(S) {
 
 // Counting: the cards and starter, the combination being said, and (muggins) your claims.
 function countArea(S) {
-  const C = S.count, claiming = S.phase === 'claim' && S.claim.mode === 'tap';
+  const C = S.count, claiming = S.phase === 'claim';
   const cls = c => [C.hl.includes(c.id) ? 'win' : '', claiming && S.claim.sel.includes(c.id) ? 'sel' : ''].join(' ');
   const card = c => cardHTML(c, 'sm ' + cls(c), claiming ? `data-card="${c.id}"` : 'tabindex="-1"');
   let h = `<div class="cl">${C.label}</div><div class="cards">${C.cards.map(card).join('')}<span class="gap"></span>${card(S.starter)}</div>`;
   if (S.phase === 'claim') {
     const cl = S.claim;
-    h += cl.mode === 'tap'
-      ? `<div class="claims">${cl.claims.map((x, i) => `<button class="chip" data-act="unclaim" data-i="${i}" aria-label="Remove">${KIND[x.kind]} ${x.pts} ×</button>`).join('') || '<span class="hint">Tap cards that score together, then what they make.</span>'}</div>`
-      : `<div class="say">What’s it worth?</div>`;
+    h += `<div class="claims">${cl.claims.map((x, i) => `<button class="chip" data-act="unclaim" data-i="${i}" aria-label="Remove">${KIND[x.kind]} ${x.pts} ×</button>`).join('') || '<span class="hint">Tap cards that score together, then what they make.</span>'}</div>`;
   } else {
     h += `<div class="say">${C.say || '&nbsp;'}</div>`;
     const res = S.claim && S.claim.result && S.claim.claims.length && C.owner === 0 ? S.claim.claims : null;
@@ -77,7 +75,7 @@ function countArea(S) {
   }
   return h;
 }
-const KIND = { fifteen: '15', pair: 'Pair', run: 'Run', flush: 'Flush', nobs: 'Nobs' };
+const KIND = { fifteen: '15', pair: 'Pair', run: 'Run', flush: 'Flush', nibs: 'Nibs' };
 
 function actions(S, legal) {
   const cfg = SETUP[S.n];
@@ -89,13 +87,9 @@ function actions(S, legal) {
   if (S.phase === 'peg' && S.turn === 0 && !legal(0).length) return '<button class="btn pri" data-act="go">Go</button>';
   if (S.phase === 'claim') {
     const cl = S.claim;
-    if (cl.mode === 'number') {
-      return `<button class="btn num" data-act="bump" data-d="-1" aria-label="One less">–</button><b class="claimn">${cl.number}</b><button class="btn num" data-act="bump" data-d="1" aria-label="One more">+</button>
-        <button class="btn pri" data-act="done">Claim ${cl.number}</button><button class="link" data-act="mode" data-m="tap">Tap cards instead</button>`;
-    }
     const off = cl.sel.length ? '' : ' disabled';
     return Object.entries(KIND).map(([k, l]) => `<button class="btn kind" data-act="claim" data-k="${k}"${off}>${l}</button>`).join('') +
-      `<button class="btn pri" data-act="done">Done</button><button class="link" data-act="mode" data-m="number">Enter a number</button>`;
+      '<button class="btn pri" data-act="done">Done</button>';
   }
   if (S.phase === 'handEnd') return '<button class="btn pri" data-act="next">Next hand</button>';
   return '';
@@ -118,7 +112,7 @@ function hand(S, legal) {
 
 function detail(S) {
   if (S.phase === 'count' && S.count && !S.count.done && S.count.items.length) return 'Tap to skip to the total';
-  if (S.phase === 'claim') return S.claim.mode === 'tap' ? `Claimed so far: ${S.claim.claims.reduce((t, x) => t + x.pts, 0)}` : 'Use – and + to set your count';
+  if (S.phase === 'claim') return `Claimed so far: ${S.claim.claims.reduce((t, x) => t + x.pts, 0)}`;
   return 'First to 121 wins';
 }
 

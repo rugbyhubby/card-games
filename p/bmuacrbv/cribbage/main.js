@@ -110,8 +110,6 @@ app.addEventListener('click', e => {
     if (act === 'go') return game.you.go();
     if (act === 'claim') return game.you.claim(a.dataset.k);
     if (act === 'unclaim') return game.you.unclaim(+a.dataset.i);
-    if (act === 'mode') return game.you.mode(a.dataset.m);
-    if (act === 'bump') return game.you.bump(+a.dataset.d);
     if (act === 'done') return game.you.done();
     return;
   }

@@ -10,7 +10,7 @@ const kinds = (h, starter, crib = false) => R.countHand(cs(h), c(starter), crib)
 
 print('Hands');
 check('29: three 5s and the Jack of the starter suit, a 5 turned', hand('5H 5D 5C JS', '5S'), 29);
-check('28: four 5s and a ten card (no nobs)', hand('5H 5D 5C 5S', 'KD'), 28);
+check('28: four 5s and a ten card (no nibs)', hand('5H 5D 5C 5S', 'KD'), 28);
 check('double run 4-5-5-6 with a King', hand('4C 5H 5S 6D', 'KD'), 16);
 check('double run: two runs of 3 counted', kinds('4C 5H 5S 6D', 'KD').replace(/[^r]/g, ''), 'rr');
 check('double-double run 4-4-5-5-6', hand('4C 4D 5H 5S', '6D'), 24);
@@ -20,9 +20,9 @@ check('hand flush, starter different suit: 4', hand('2H 4H 8H QH', 'KS'), 4);
 check('hand flush, starter matches: 5', hand('2H 4H 8H QH', 'KH'), 5);
 check('crib with 4 of a suit, starter different: no flush', hand('2H 4H 8H QH', 'KS', true), 0);
 check('crib with all 5 of a suit: 5', hand('2H 4H 8H QH', 'KH', true), 5);
-check('his nobs: Jack matching the starter suit', hand('JD AC 3S 7H', 'KD'), 1);
+check('his nibs: Jack matching the starter suit', hand('JD AC 3S 7H', 'KD'), 1);
 check('Jack not matching the starter suit: nothing', hand('JC AD 3S 7H', 'KD'), 0);
-check('his nobs counts in the crib too', hand('JD AC 3S 7H', 'KD', true), 1);
+check('his nibs counts in the crib too', hand('JD AC 3S 7H', 'KD', true), 1);
 check('"19" hand: nothing at all', hand('2C 4D 6S 8H', 'KC'), 0);
 check('pair royal (three of a kind) is 6', hand('9C 9D 9H AS', 'KC'), 6);
 check('four of a kind is 12, plus fifteens', hand('2C 2D 2H 2S', 'KC'), 12);

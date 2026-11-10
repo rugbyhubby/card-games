@@ -31,14 +31,14 @@ export const rulesHTML = `
       <li>Each <b>pair</b>: 2 (so three of a kind is 6, four of a kind 12).</li>
       <li>Each <b>run</b> of 3 or more: 1 per card. Double and triple runs count every run.</li>
       <li><b>Flush</b>: all 4 cards in your hand the same suit: 4, or 5 if the starter matches. The crib only counts a 5-card flush.</li>
-      <li><b>His nobs</b>: the Jack of the starter’s suit: 1.</li>
+      <li><b>His nibs</b>: the Jack of the starter’s suit: 1.</li>
     </ul>
     <p>The best possible hand is 29. A hand worth nothing is jokingly called a “nineteen”, because 19 can’t be scored.</p>
     <h3>Winning</h3>
     <p>First to <b>121</b> wins, the moment it happens, even in the middle of pegging or counting. That’s why the counting order matters. If the loser hasn’t reached 91, it’s a <b>skunk</b> and counts as 2 games; under 61 is a <b>double skunk</b>, 3 games.</p>
     <h3>House rules in use</h3>
     <ul>
-      <li><b>Muggins</b> (Hard only, on unless you turn it off in the Menu): you count your own hand and crib. Tap the cards that score together and what they make, or enter a number. If you claim too few, the computer calls “Muggins!” and takes the points you missed. If you enter more than your hand is worth, you get the real count and the computer takes the extra. The computer always counts its own cards correctly.</li>
+      <li><b>Muggins</b> (Hard only, on unless you turn it off in the Menu): you count your own hand and crib. Show each score: tap the cards that score together, then what they make (15, Pair, Run, Flush, Nibs), and tap Done. A claim that’s wrong scores nothing. Anything you missed, the computer calls “Muggins!” and takes. The computer always counts its own cards correctly.</li>
       <li><b>Skunks</b> count: 2 games for a skunk, 3 for a double skunk, in the tally of games won this visit.</li>
     </ul>
     <h3>Computer levels</h3>

@@ -59,7 +59,7 @@ tools/simulate.sh --game cribbage --us medium --render --compare tools/baselines
 ```
 
 Cribbage counting and pegging are checked against tricky hands (29, double and triple runs,
-crib flush with 4 vs 5 cards, his nobs, his heels, skunk lines):
+crib flush with 4 vs 5 cards, his nibs, his heels, skunk lines):
 
 ```sh
 /System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc -m tools/cribbage-count-check.js

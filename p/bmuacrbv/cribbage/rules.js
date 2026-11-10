@@ -35,8 +35,8 @@ const isRun = cs => {
 };
 
 // Count a hand (or crib) with its starter. Returns the total and each scoring
-// combination in the order players say them: fifteens, pairs, runs, flush, nobs.
-//   items: [{ kind: 'fifteen'|'pair'|'run'|'flush'|'nobs', ids: [card ids], pts }]
+// combination in the order players say them: fifteens, pairs, runs, flush, nibs.
+//   items: [{ kind: 'fifteen'|'pair'|'run'|'flush'|'nibs', ids: [card ids], pts }]
 // With no starter (a computer guessing at its own hand), just the cards.
 export function countHand(cards, starter, isCrib = false) {
   const all = starter ? [...cards, starter] : [...cards];
@@ -55,7 +55,7 @@ export function countHand(cards, starter, isCrib = false) {
     if (starter && starter.s === cards[0].s) items.push({ kind: 'flush', ids: ids(all), pts: all.length });
     else if (!isCrib) items.push({ kind: 'flush', ids: ids(cards), pts: cards.length });   // a crib needs all 5
   }
-  if (starter) for (const c of cards) if (c.r === 'J' && c.s === starter.s) items.push({ kind: 'nobs', ids: [c.id], pts: 1 });
+  if (starter) for (const c of cards) if (c.r === 'J' && c.s === starter.s) items.push({ kind: 'nibs', ids: [c.id], pts: 1 });
   return { total: items.reduce((t, x) => t + x.pts, 0), items };
 }
 
@@ -99,7 +99,7 @@ export function sayCount(items, upto = items.length) {
     if (it.kind === 'pair') { const s = `${pairSeen ? 'another pair' : 'a pair'} is ${word(total)}`; pairSeen = true; return s; }
     if (it.kind === 'run') { const s = `${runSeen ? 'another run' : 'a run'} of ${word(it.ids.length)} is ${word(total)}`; runSeen = true; return s; }
     if (it.kind === 'flush') return `a flush is ${word(total)}`;
-    return `his nobs is ${word(total)}`;
+    return `his nibs is ${word(total)}`;
   });
   if (upto === items.length && bits.length > 1) bits[bits.length - 1] = 'and ' + bits[bits.length - 1];
   const s = bits.join(', ');
