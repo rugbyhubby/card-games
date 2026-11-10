@@ -35,6 +35,9 @@ p/<slug>/<game>/    One folder per game.
   manifest.webmanifest   Name, icons and settings for "Add to Home Screen".
   sw.js             Service worker: saves the game's files (and the shared files it uses) so it runs offline.
   *.png             Home Screen icons (180, 192, 512 px).
+p/<slug>/wireframes/cribbage/
+                    Rough, clickable Cribbage wireframes (Step 0), for making UI decisions on a phone.
+                    Not linked from the game list, not saved for offline. Delete once Cribbage ships.
 tools/              Simulator that plays hundreds of computer-only games to check for errors
                     and compare versions. Not used by the live site. See tools/README.md.
 ```
