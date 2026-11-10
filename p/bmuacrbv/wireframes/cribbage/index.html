@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Cribbage wireframes</title>
+<!--
+  Cribbage wireframes (Step 0). Deliberately rough: gray boxes, card outlines,
+  fake data, tap to advance. No game rules run here, and nothing is saved.
+  Not linked from the game list, not cached for offline. Delete once Cribbage ships.
+-->
+<style>
+:root{color-scheme:light;--ink:#222;--mute:#777;--line:#bbb;--fill:#e6e6e6;--mark:#ffe14d}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#fff;color:var(--ink);font:15px/1.35 system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+#app{max-width:430px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.serif{font-family:Georgia,serif}
+
+/* wireframe chrome (not part of the design) */
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;background:#333;color:#fff;padding:calc(env(safe-area-inset-top) + 8px) 10px 8px;font-size:13px}
+.bar button{background:none;border:1px solid #888;border-radius:6px;color:#fff;padding:3px 9px;font-size:13px}
+.bar .where{flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cap{background:#fff7cc;border-bottom:1px solid #e3cf63;padding:8px 12px;font-size:13.5px;min-height:56px}
+.cap .covers{display:block;margin-top:4px;font-size:12.5px;color:#6a5a00}
+.cap .tap{display:block;margin-top:3px;font-size:11.5px;color:#998}
+
+/* home */
+.home{padding:14px 14px 30px}
+.home h1{font:400 30px Georgia,serif;margin:4px 0 2px}
+.home p{margin:4px 0 12px;color:var(--mute);font-size:14px}
+.home h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:18px 0 6px}
+.home a{display:flex;gap:10px;align-items:baseline;padding:11px 4px;border-bottom:1px solid #e3e3e3;color:inherit;text-decoration:none}
+.home a b{width:30px;flex:none;font-family:Georgia,serif;font-weight:400;font-size:19px}
+.home a span{flex:1}
+.home a small{display:block;color:var(--mute);font-size:12.5px}
+
+/* the phone table */
+.ph{flex:1;display:flex;flex-direction:column;padding:4px 12px 8px;position:relative;overflow:hidden;min-height:620px}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1.5px solid var(--ink);padding:2px 0 5px}
+.hd .t{font:400 25px Georgia,serif}
+.hd .s{display:flex;gap:14px}
+.hd .s div{text-align:center;line-height:1}
+.hd .s b{display:block;font:400 25px Georgia,serif}
+.hd .s span{font-size:11px;color:var(--mute)}
+.ctl{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);padding:4px 0 2px}
+.ctl u{color:var(--ink)}
+.top{display:flex;align-items:center;gap:10px;min-height:62px;position:relative}
+.seat{display:flex;align-items:center;gap:8px;position:relative}
+.av{width:40px;height:40px;border:1.5px solid var(--ink);border-radius:50%;background:var(--fill);display:grid;place-items:center;font-size:10px;flex:none}
+.turn .av,.me.turn .dot{background:var(--mark)}
+.nm{font-size:13px;display:flex;gap:5px;align-items:center}
+.chip{background:var(--mark);border-radius:99px;font-size:10px;padding:1px 6px;font-weight:600}
+.fan{display:flex;margin-top:3px;height:18px}
+.mini{width:12px;height:18px;border:1.2px solid var(--ink);border-radius:2px;background:var(--fill);margin-left:-5px}
+.mini:first-child{margin-left:0}
+.bub{position:absolute;left:30px;top:-6px;transform:translateY(-100%);background:var(--ink);color:#fff;font-size:12px;padding:2px 9px;border-radius:10px;white-space:nowrap;z-index:3}
+.bub.pts{background:var(--mark);color:var(--ink);font-weight:600;border:1.5px solid var(--ink)}
+.me{display:flex;align-items:center;gap:7px;font-size:13px;min-height:26px;position:relative}
+.me .dot{width:22px;height:22px;border:1.5px solid var(--ink);border-radius:50%;background:var(--fill)}
+.me .bub{left:12px}
+.grow{flex:1}
+
+.cd{width:44px;height:62px;border:1.5px solid var(--ink);border-radius:5px;background:#fff;position:relative;font:16px Georgia,serif;padding:3px 4px;flex:none;line-height:1;transition:transform .15s}
+.cd.r{color:#c22}
+.cd .p{position:absolute;right:4px;bottom:3px;font-size:18px}
+.cd.bk{background:repeating-linear-gradient(45deg,#c9c9c9 0 1px,#f4f4f4 1px 5px)}
+.cd.sm{width:32px;height:45px;font-size:13px;padding:2px 3px;border-radius:4px}
+.cd.sm .p{font-size:13px;right:3px;bottom:2px}
+.cd.hl{box-shadow:0 0 0 3px var(--mark);background:#fff6bf}
+.cd.up{transform:translateY(-10px);box-shadow:0 0 0 3px var(--mark)}
+.cd.dim{opacity:.3}
+.cd.sel{outline:2.5px dashed var(--ink);outline-offset:2px}
+.pile{position:relative;width:36px;height:49px}
+.pile .cd{position:absolute;left:0;top:0}
+.pile .cd:nth-child(2){left:2px;top:-2px}.pile .cd:nth-child(3){left:4px;top:-4px}.pile .cd:nth-child(4){left:6px;top:-6px}
+.stk{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--mute)}
+.stk.hlx .pile .cd:last-child{box-shadow:0 0 0 3px var(--mark)}
+
+.mid{display:flex;align-items:stretch;gap:8px;margin:6px 0;position:relative}
+.side{display:flex;flex-direction:column;justify-content:center;gap:10px;align-items:center;width:46px}
+.pa{flex:1;border:1.5px dashed var(--line);border-radius:14px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px 4px;position:relative}
+.played{display:flex;align-items:center;height:62px}
+.played .cd{margin-left:-14px}
+.played .cd:first-child{margin-left:0}
+.played .cd.cpu{transform:translateY(-7px)}
+.played .cd.you{transform:translateY(7px)}
+.played .sep{width:12px}
+.cnt{font-size:13px;color:var(--mute)}
+.cnt b{font:400 22px Georgia,serif;color:var(--ink)}
+.rows2{display:flex;flex-direction:column;gap:6px;width:100%;align-items:center}
+.rows2 .lab{font-size:10px;color:var(--mute);align-self:flex-start;margin-left:6px}
+
+.msg{text-align:center;font-size:14px;min-height:22px;padding:2px 4px}
+.acts{display:flex;justify-content:center;gap:8px;min-height:40px;align-items:center;flex-wrap:wrap}
+.btn{border:1.5px solid var(--ink);border-radius:99px;background:#fff;padding:7px 14px;font-size:14px}
+.btn.pri{background:var(--ink);color:#fff}
+.btn.off{opacity:.35}
+.hand{display:flex;justify-content:center;gap:4px;padding:10px 0 4px;min-height:86px}
+.hand .cd{width:min(14.5vw,54px);height:calc(min(14.5vw,54px)*1.4);font-size:19px}
+.hand .cd .p{font-size:22px}
+.foot{text-align:center;font-size:10.5px;color:var(--mute)}
+.dealt{animation:deal .35s ease-out backwards}
+@keyframes deal{from{opacity:0;transform:translateY(-40px) rotate(-8deg)}}
+
+/* board */
+.board svg{display:block;width:100%;height:auto}
+.peg{transition:transform .9s ease-in-out}
+.bwrap{position:relative;transition:transform .45s ease, box-shadow .45s;transform-origin:top right;background:#fff;border-radius:8px;z-index:4}
+.bwrap.mini{width:50%;margin-left:auto}
+.bwrap.zoom{transform:translate(-15%,70px) scale(1.7);box-shadow:0 0 0 1.5px var(--ink),0 10px 30px rgba(0,0,0,.25)}
+.dimmer{position:absolute;inset:0;background:rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .4s;z-index:3}
+.dimmer.on{opacity:1}
+.strip{margin:2px 0}
+.l2grid{display:grid;grid-template-columns:1fr 50px;gap:6px;flex:1;min-height:0}
+.vboard{display:flex;justify-content:center;align-items:flex-start}
+.vboard svg{width:auto;height:300px}
+.lens{position:absolute;left:0;right:0;top:-6px;background:#fff;border:1.5px solid var(--ink);border-radius:14px;padding:6px;z-index:4;opacity:0;transform:scale(.9);transition:opacity .3s, transform .3s}
+.lens.on{opacity:1;transform:none}
+.lens .lt{font-size:11px;color:var(--mute);text-align:center;margin-top:2px}
+.drawer{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1.5px solid var(--ink);border-radius:16px 16px 0 0;padding:6px 12px 16px;z-index:5;transform:translateY(calc(100% - 34px));transition:transform .45s ease;box-shadow:0 -6px 20px rgba(0,0,0,.08)}
+.drawer.open{transform:none}
+.drawer .hdl{display:flex;justify-content:center;gap:8px;font-size:12px;height:24px;align-items:center;color:var(--mute)}
+.drawer .hdl i{width:36px;height:4px;border-radius:2px;background:#bbb;display:inline-block}
+
+/* counting */
+.cl{font-size:12px;color:var(--mute)}
+.cards{display:flex;gap:4px;align-items:center}
+.cards .gap{width:10px}
+.say{font:400 17px Georgia,serif;text-align:center;min-height:44px;padding:0 6px}
+.say b{font-weight:400;background:var(--mark);padding:0 4px;border-radius:3px}
+.claims{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font-size:12px}
+.claims span{border:1px solid var(--ink);border-radius:99px;padding:1px 8px}
+.step{display:flex;align-items:center;gap:10px}
+.step .btn{width:40px;padding:6px 0}
+.step b{font:400 30px Georgia,serif;width:46px;text-align:center}
+
+/* sheets and celebrations */
+.ov{position:absolute;inset:0;background:rgba(0,0,0,.35);display:grid;place-items:center;z-index:8}
+.sheet{background:#fff;border:1.5px solid var(--ink);border-radius:16px;padding:18px;width:88%;text-align:center}
+.sheet h2{font:400 30px Georgia,serif;margin:0 0 6px}
+.sheet p{margin:0 0 12px;font-size:14px}
+.sheet .set{text-align:left;font-size:13px}
+.sheet .set h3{font-size:12.5px;margin:12px 0 5px}
+.seg{display:flex;border:1.5px solid var(--ink);border-radius:99px;overflow:hidden}
+.seg span{flex:1;text-align:center;padding:5px 0;font-size:13px}
+.seg span.on{background:var(--ink);color:#fff}
+.note{font-size:11.5px;color:var(--mute);margin-top:4px}
+.cele{position:absolute;inset:0;z-index:9;display:grid;place-items:center;background:rgba(255,255,255,.88);animation:fade .3s}
+.cele .in{text-align:center;animation:boom .5s cubic-bezier(.2,1.4,.4,1)}
+.cele svg{width:220px;height:220px;display:block;margin:0 auto -150px}
+.cele .big{font:400 92px Georgia,serif;line-height:1;position:relative}
+.cele .big.word{font-size:56px}
+.cele .c1{font-size:17px;margin-top:62px}
+.cele .c2{font-size:12.5px;color:var(--mute);margin-top:6px}
+.cele.small svg{width:160px;height:160px;margin-bottom:-115px}
+@keyframes fade{from{opacity:0}}
+@keyframes boom{from{transform:scale(.6);opacity:0}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ---------- tiny helpers ----------
+const SYM = { S: '♠', H: '♥', C: '♣', D: '♦' };
+const rk = id => id.slice(0, -1), st = id => id.slice(-1);
+const card = (id, cls = '') => {
+  if (id === 'bk') return `<div class="cd bk ${cls}"></div>`;
+  const red = st(id) === 'H' || st(id) === 'D' ? ' r' : '';
+  return `<div class="cd${red} ${cls}" data-id="${id}">${rk(id)}<br>${SYM[st(id)]}<span class="p">${SYM[st(id)]}</span></div>`;
+};
+const backs = n => Array.from({ length: n }, () => card('bk', 'sm')).join('');
+const minis = n => '<div class="mini"></div>'.repeat(n);
+
+// ---------- the board: two tracks of 121 holes, 3 rows of 40 each, back and forth ----------
+const G = { DX: 7, GAP: 3, P: 24, DY: 7, TG: 9, TOP: 7 };
+const colX = col => col < 0 ? G.P - 7 : col > 39 ? colX(39) + 8 : G.P + col * G.DX + Math.floor(col / 5) * G.GAP;
+function holeXY(n, t) {            // t: 0 = Computer's track, 1 = yours
+  let r, col;
+  if (n <= 0) { r = 0; col = -1; } else if (n >= 121) { r = 2; col = 40; }
+  else { r = Math.floor((n - 1) / 40); const k = (n - 1) % 40; col = r % 2 ? 39 - k : k; }
+  return [colX(col), G.TOP + t * (3 * G.DY + G.TG) + r * G.DY];
+}
+const BW = colX(40) + 8, BH = G.TOP * 2 + 5 * G.DY + G.TG + 1;
+function pegSVG(xy, to, cls, swap) {
+  const f = ([x, y]) => swap ? `translate(${y}px,${x}px)` : `translate(${x}px,${y}px)`;
+  const fill = cls === 'you' ? 'var(--ink)' : cls === 'cpu' ? '#fff' : 'var(--mark)';
+  return `<g class="peg" style="transform:${f(xy)}" ${to ? `data-to="${f(to)}"` : ''}><circle r="2.9" fill="${fill}" stroke="var(--ink)" stroke-width="1.2"/></g>`;
+}
+// b = { you:[back,front], cpu:[back,front], move:{who, to} }, vertical = stand it up
+function boardSVG(b, vertical = false) {
+  const P = (x, y) => vertical ? [y, x] : [x, y];
+  let h = '';
+  for (let t = 0; t < 2; t++) {
+    const y0 = G.TOP + t * (3 * G.DY + G.TG) - 4.5, x0 = G.P - 11;
+    const [rx, ry] = P(x0, y0), [rw, rh] = P(BW - x0 - 3, 2 * G.DY + 9);
+    h += `<rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" rx="5" fill="none" stroke="var(--ink)" stroke-width="1"/>`;
+    for (let n = 0; n <= 121; n++) {
+      const [x, y] = P(...holeXY(n, t));
+      const big = n === 0 || n === 121;
+      h += `<circle cx="${x}" cy="${y}" r="${big ? 1.9 : 1.25}" fill="${big ? 'none' : '#555'}" stroke="${big ? '#555' : 'none'}" stroke-width=".8"/>`;
+    }
+    const lab = t ? 'You' : 'CPU';
+    const [lx, ly] = vertical ? [G.TOP + t * (3 * G.DY + G.TG) + G.DY, 6] : [1, G.TOP + t * (3 * G.DY + G.TG) + G.DY + 2];
+    h += `<text x="${lx}" y="${ly}" font-size="${vertical ? 4.5 : 5.5}" fill="var(--ink)" ${vertical ? 'text-anchor="middle"' : ''}>${lab}</text>`;
+  }
+  for (const who of ['cpu', 'you']) {
+    const t = who === 'you' ? 1 : 0, [bk, fr] = b[who];
+    const mv = b.move && b.move.who === who;
+    h += pegSVG(holeXY(fr, t), null, who, vertical);
+    h += pegSVG(holeXY(bk, t), mv ? holeXY(b.move.to, t) : null, mv ? 'mv' : who, vertical);
+  }
+  const [w, hh] = vertical ? [BH, BW] : [BW, BH];
+  return `<svg viewBox="0 0 ${w} ${hh}" aria-label="Cribbage board">${h}</svg>`;
+}
+// A magnified stretch of one track (option D2)
+function lensSVG(who, lo, hi, back, front, to) {
+  const dx = 19, W = (hi - lo) * dx + 24, X = n => 12 + (n - lo) * dx;
+  let h = `<line x1="4" y1="16" x2="${W - 4}" y2="16" stroke="#ccc"/>`;
+  for (let n = lo; n <= hi; n++) {
+    h += `<circle cx="${X(n)}" cy="16" r="3" fill="#555"/>`;
+    if (n % 5 === 0) h += `<text x="${X(n)}" y="36" font-size="10" text-anchor="middle" fill="#777">${n}</text>`;
+  }
+  const peg = (n, t, cls) => `<g class="peg" style="transform:translate(${X(n)}px,16px)" ${t != null ? `data-to="translate(${X(t)}px,16px)"` : ''}><circle r="7" fill="${cls === 'mv' ? 'var(--mark)' : 'var(--ink)'}" stroke="var(--ink)" stroke-width="1.5"/></g>`;
+  h += peg(front, null, who) + peg(back, to, 'mv');
+  return `<svg viewBox="0 0 ${W} 42" style="width:100%;height:auto">${h}</svg>`;
+}
+
+// ---------- the table ----------
+// o: layout (1|2), sc [you, cpu], dealer, cpuN, crib (count), starter (id|'bk'|null), starterHL,
+//    peg {cards:[[who,id,cls]], count}, center (html), msg, acts, hand [[id,cls]], board {mode, you, cpu, move},
+//    said {cpu, you}, pts {cpu, you}, turn ('you'|'cpu'), over (html on top), extra (html)
+function T(o) {
+  o = Object.assign({ layout: 1, sc: [0, 0], dealer: 'cpu', cpuN: 4, crib: 0, starter: null, msg: '', acts: '', hand: [], board: { mode: 'strip', you: [0, 0], cpu: [0, 0] }, said: {}, pts: {} }, o);
+  const b = o.board;
+  const scoreYou = b.move && b.move.who === 'you' ? `<b data-final="${o.scAfter ?? o.sc[0]}">${o.sc[0]}</b>` : `<b>${o.sc[0]}</b>`;
+  const scoreCpu = b.move && b.move.who === 'cpu' ? `<b data-final="${o.scAfter ?? o.sc[1]}">${o.sc[1]}</b>` : `<b>${o.sc[1]}</b>`;
+  const bubble = w => (o.said[w] ? `<div class="bub">${o.said[w]}</div>` : '') + (o.pts[w] ? `<div class="bub pts">${o.pts[w]}</div>` : '');
+  const crib = (w) => o.crib && o.dealer === w ? `<div class="stk"><div class="pile">${backs(Math.min(o.crib, 4))}</div>${w === 'you' ? 'Your crib' : 'Crib'}</div>` : '';
+  const starter = `<div class="stk${o.starterHL ? ' hlx' : ''}"><div class="pile">${backs(2)}${o.starter && o.starter !== 'bk' ? card(o.starter, 'sm' + (o.starterHL ? ' hl' : '')) : ''}</div>${o.starter && o.starter !== 'bk' ? 'Starter' : 'Deck'}</div>`;
+  const cpuSeat = `<div class="seat${o.turn === 'cpu' ? ' turn' : ''}">${bubble('cpu')}<div class="av">CPU</div><div><div class="nm">Computer${o.dealer === 'cpu' ? ' <span class="chip">Dealer</span>' : ''}</div><div class="fan">${minis(o.cpuN)}</div></div></div>`;
+  const me = `<div class="me${o.turn === 'you' ? ' turn' : ''}">${bubble('you')}<span class="dot"></span>You${o.dealer === 'you' ? ' <span class="chip">Dealer</span>' : ''}<span class="grow"></span>${o.layout === 1 ? crib('you') : ''}</div>`;
+  let center = o.center;
+  if (!center && o.peg) {
+    const P = o.peg;
+    if (o.layout === 2) {
+      const row = w => `<div class="played">${P.cards.filter(c => c[0] === w).map(c => card(c[1], 'sm ' + (c[2] || ''))).join('') || '<div class="cd sm" style="visibility:hidden"></div>'}</div>`;
+      center = `<div class="rows2"><span class="lab">Computer's cards</span>${row('cpu')}<div class="cnt">Count: <b>${P.count}</b></div>${row('you')}<span class="lab">Your cards</span></div>`;
+    } else {
+      center = `<div class="played">${P.cards.map(c => c[0] === '|' ? '<span class="sep"></span>' : card(c[1], 'sm ' + c[0] + ' ' + (c[2] || ''))).join('')}</div><div class="cnt">Count: <b>${P.count}</b></div>`;
+    }
+  }
+  center = center || '<div class="cnt">&nbsp;</div>';
+  const hand = `<div class="hand">${o.hand.map(([id, cls], i) => card(id, (cls || '') + (o.dealt ? ' dealt' : '')).replace('class="', `style="animation-delay:${i * 90}ms" class="`)).join('')}</div>`;
+  const header = `<div class="hd"><div class="t">Cribbage</div><div class="s"><div>${scoreYou}<span>You</span></div><div>${scoreCpu}<span>Computer</span></div></div></div>
+    <div class="ctl"><span>Medium level${o.muggins ? ' · Muggins on' : ''}</span><u>Menu</u></div>`;
+  let h;
+  if (o.layout === 2) {
+    h = `${header}<div class="l2grid"><div style="display:flex;flex-direction:column">
+        <div class="top">${cpuSeat}</div>
+        <div class="mid"><div class="side">${o.dealer === 'cpu' ? crib('cpu') : ''}${starter}${o.dealer === 'you' ? crib('you') : ''}</div><div class="pa">${center}</div></div>
+        ${me}</div>
+        <div class="vboard board">${boardSVG(b, true)}</div></div>
+      <div class="msg">${o.msg}</div><div class="acts">${o.acts}</div>${hand}`;
+  } else {
+    const mini = b.mode === 'mini' ? `<div class="bwrap mini board">${boardSVG(b)}</div>` : '';
+    const strip = b.mode === 'strip' ? `<div class="strip board">${boardSVG(b)}</div>` : '';
+    h = `${header}<div class="top">${cpuSeat}${crib('cpu')}<span class="grow"></span>${mini}</div>
+      ${strip}
+      <div class="mid">${o.lens || ''}<div class="side">${starter}</div><div class="pa">${center}</div></div>
+      <div class="msg">${o.msg}</div><div class="acts">${o.acts}</div>${me}${hand}
+      <div class="foot">v0.1.0 · Send feedback</div>
+      ${b.mode === 'drawer' ? `<div class="drawer"><div class="hdl"><i></i> Board · You ${o.sc[0]} · Computer ${o.sc[1]}</div><div class="board">${boardSVG(b)}</div></div>` : ''}
+      ${b.mode === 'mini' ? '<div class="dimmer"></div>' : ''}`;
+  }
+  return `<div class="ph">${h}${o.over || ''}</div>`;
+}
+
+// counting area in the middle of the table
+const countHTML = (label, cards, starter, say = '&nbsp;', extra = '') =>
+  `<div class="cl">${label}</div><div class="cards">${cards.map(c => card(c, 'sm')).join('')}<span class="gap"></span>${card(starter, 'sm')}</div><div class="say">${say}</div>${extra}`;
+
+// celebrations (Big moments)
+const burst = `<svg viewBox="0 0 200 200" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"><ellipse cx="100" cy="104" rx="56" ry="44" fill="var(--mark)" stroke="none" transform="rotate(-12 100 104)"/>${Array.from({ length: 16 }, (_, i) => { const a = i * Math.PI / 8, r1 = 70, r2 = i % 2 ? 84 : 94; return `<line x1="${100 + r1 * Math.cos(a)}" y1="${100 + r1 * Math.sin(a)}" x2="${100 + r2 * Math.cos(a)}" y2="${100 + r2 * Math.sin(a)}"/>`; }).join('')}</svg>`;
+const smallBurst = `<svg viewBox="0 0 200 200" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"><circle cx="100" cy="104" r="44" fill="var(--mark)" stroke="none"/>${Array.from({ length: 8 }, (_, i) => { const a = i * Math.PI / 4 + .4; return `<line x1="${100 + 62 * Math.cos(a)}" y1="${100 + 62 * Math.sin(a)}" x2="${100 + 76 * Math.cos(a)}" y2="${100 + 76 * Math.sin(a)}"/>`; }).join('')}</svg>`;
+const cele = (big, c1, c2, small = false, word = false) => `<div class="cele${small ? ' small' : ''}"><div class="in">${small ? smallBurst : burst}<div class="big${word ? ' word' : ''}">${big}</div><div class="c1">${c1}</div><div class="c2">${c2}</div></div></div>`;
+const sheet = inner => `<div class="ov"><div class="sheet">${inner}</div></div>`;
+
+// ---------- frame helpers ----------
+// Count a hand one combination at a time, ~1.2 s each. Tap skips to the total.
+function countFrame(cap, base, { label, cards, starter, steps, total, extra = '' }) {
+  return {
+    cap: cap + '<span class="tap">Plays by itself, about 1.2 s per combination. Tap once to skip to the total, again to go on.</span>',
+    html: () => T({ ...base, center: countHTML(label, cards, starter, '&nbsp;', extra) }),
+    manual: true,
+    after(root, api) {
+      let i = 0;
+      const sayEl = root.querySelector('.say');
+      const light = ids => root.querySelectorAll('.pa .cd[data-id]').forEach(c => c.classList.toggle('hl', ids.includes(c.dataset.id)));
+      const finish = () => { light([]); sayEl.innerHTML = `${label.replace(/:.*/, '')}: <b>${total}</b>`; api.pegs(); };
+      const run = () => {
+        if (i >= steps.length) return api.later(finish, 900);
+        const [ids, words] = steps[i++];
+        light(ids); sayEl.innerHTML = words;
+        api.later(run, 1200);
+      };
+      api.later(run, 500);
+      api.onTap(() => { api.cancel(); finish(); });
+    }
+  };
+}
+
+// ---------- the scenarios ----------
+const A_HAND = ['4C', '5H', '5S', '6D', 'QC', '3S'];
+const A_BASE = { dealer: 'cpu', sc: [0, 0], board: { mode: 'strip', you: [0, 0], cpu: [0, 0] } };
+
+const SEQ = {};
+
+SEQ.A = { title: 'A. Dealing and the crib', frames: [
+  { cap: 'Before the first hand, both players cut the deck. The table is empty; the deck sits in the middle.',
+    html: T({ ...A_BASE, dealer: null, cpuN: 0, center: `<div class="pile" style="width:80px">${backs(4)}</div><div class="cnt">Tap the deck to cut</div>`, msg: 'Cut for the first deal. Low card deals.' }) },
+  { cap: 'Both cut cards are shown face up. Ace is low. Computer cut lower, so Computer deals first and gets the first crib.',
+    html: T({ ...A_BASE, dealer: null, cpuN: 0, center: `<div class="cards"><div class="stk">${card('9C')}You</div><span class="gap"></span><div class="stk">${card('3D', 'hl')}Computer</div></div>`, msg: 'Computer cut a 3, you cut a 9. Computer deals.' }) },
+  { cap: 'Six cards arrive in your hand; Computer’s six are the small backs at the top. The Dealer tag moves to Computer.',
+    html: T({ ...A_BASE, cpuN: 6, dealt: true, hand: A_HAND.map(c => [c]), msg: 'Computer deals 6 cards each.' }) },
+  { cap: 'You choose 2 cards for the crib. Tapped cards lift and get a yellow outline. The button says whose crib it is, so you know if you’re helping yourself or the other player.',
+    html: T({ ...A_BASE, cpuN: 6, hand: A_HAND.map(c => [c, ['QC', '3S'].includes(c) ? 'up' : '']), msg: 'Choose 2 cards for Computer’s crib.', acts: '<span class="btn pri">Send to Computer’s crib</span>' }) },
+  { cap: 'The crib (4 face-down cards) sits beside the dealer, here next to Computer at the top. If you’re the dealer, it sits by you, above your hand.',
+    html: T({ ...A_BASE, cpuN: 4, crib: 4, hand: A_HAND.slice(0, 4).map(c => [c]), msg: 'You cut the deck for the starter.', acts: '<span class="btn pri">Cut</span>' }) },
+  { cap: 'The starter card is turned up on top of the deck. It counts as part of every hand and the crib.',
+    html: T({ ...A_BASE, cpuN: 4, crib: 4, starter: 'KD', starterHL: true, hand: A_HAND.slice(0, 4).map(c => [c]), msg: 'Starter: King of Diamonds. You play first.' }) },
+  { cap: 'His heels (a different deal): the starter is a Jack, so the dealer pegs 2 at once. A “+2” bubble by the dealer, and the dealer’s back peg jumps on the board.',
+    html: T({ ...A_BASE, sc: [0, 0], scAfter: 2, cpuN: 4, crib: 4, starter: 'JS', starterHL: true, pts: { cpu: 'His heels +2' }, hand: A_HAND.slice(0, 4).map(c => [c]), msg: 'A Jack! Computer pegs 2 for his heels.', board: { mode: 'strip', you: [0, 0], cpu: [0, 0], move: { who: 'cpu', to: 2 } } }) }
+]};
+
+// Pegging: You K 5 7 8, Computer 5 9 2 6. Computer dealt, so you lead.
+const B0 = { dealer: 'cpu', crib: 4, starter: '3C', sc: [40, 37] };
+const youH = played => ['KS', '5C', '7D', '8H'].filter(c => !played.includes(c)).map(c => [c]);
+const bd = (you, cpu, move) => ({ mode: 'strip', you, cpu, move });
+SEQ.B = { title: 'B. Pegging', frames: [
+  { cap: 'Pegging starts. You didn’t deal, so you play first. The middle of the table becomes the pegging area with the running count.',
+    html: T({ ...B0, cpuN: 4, turn: 'you', hand: youH([]), peg: { cards: [], count: 0 }, msg: 'Your turn. Tap a card to play.', board: bd([34, 40], [31, 37]) }) },
+  { cap: 'You play the King. Cards go into one row in the order played; yours sit a little lower, Computer’s a little higher.',
+    html: T({ ...B0, cpuN: 4, turn: 'cpu', hand: youH(['KS']), peg: { cards: [['you', 'KS']], count: 10 }, msg: 'You play a King. Count 10.', board: bd([34, 40], [31, 37]) }) },
+  { cap: '15: Computer plays a 5 to make 15 and pegs 2. A “+2” bubble names the score; the score at the top and the board update.',
+    html: T({ ...B0, scAfter: 39, cpuN: 3, turn: 'you', pts: { cpu: 'Fifteen for 2' }, hand: youH(['KS']), peg: { cards: [['you', 'KS'], ['cpu', '5D', 'hl']], count: 15 }, msg: 'Computer: fifteen for 2.', board: bd([34, 40], [31, 37], { who: 'cpu', to: 39 }) }) },
+  { cap: 'A pair: you play the other 5 and peg 2.',
+    html: T({ ...B0, sc: [40, 39], scAfter: 42, cpuN: 3, turn: 'cpu', pts: { you: 'Pair for 2' }, hand: youH(['KS', '5C']), peg: { cards: [['you', 'KS'], ['cpu', '5D', 'hl'], ['you', '5C', 'hl']], count: 20 }, msg: 'You: a pair for 2.', board: { mode: 'strip', you: [34, 40], cpu: [37, 39], move: { who: 'you', to: 42 } } }) },
+  { cap: 'Computer plays a 9. Count 29.',
+    html: T({ ...B0, sc: [42, 39], cpuN: 2, turn: 'you', hand: youH(['KS', '5C']), peg: { cards: [['you', 'KS'], ['cpu', '5D'], ['you', '5C'], ['cpu', '9H']], count: 29 }, msg: 'Count 29.', board: bd([40, 42], [37, 39]) }) },
+  { cap: 'A go: your 7 and 8 would both go over 31. They fade out and a Go button appears. (Pegging is automatic otherwise; this is the only button.)',
+    html: T({ ...B0, sc: [42, 39], cpuN: 2, turn: 'you', hand: youH(['KS', '5C']).map(([c]) => [c, 'dim']), peg: { cards: [['you', 'KS'], ['cpu', '5D'], ['you', '5C'], ['cpu', '9H']], count: 29 }, msg: 'You can’t play without going over 31.', acts: '<span class="btn pri">Go</span>', board: bd([40, 42], [37, 39]) }) },
+  { cap: '31: Computer can still play its 2, makes 31 and pegs 2. Hitting 31 gets no extra point for the go. (If Computer had been stuck too, it would have taken 1 for the go.)',
+    html: T({ ...B0, sc: [42, 39], scAfter: 41, cpuN: 1, said: { you: 'Go' }, pts: { cpu: '31 for 2' }, hand: youH(['KS', '5C']).map(([c]) => [c, 'dim']), peg: { cards: [['you', 'KS'], ['cpu', '5D'], ['you', '5C'], ['cpu', '9H'], ['cpu', '2S', 'hl']], count: 31 }, msg: 'Computer: 31 for 2.', board: { mode: 'strip', you: [40, 42], cpu: [37, 39], move: { who: 'cpu', to: 41 } } }) },
+  { cap: 'Reset to 0: the finished cards stay in the row but fade, a small gap starts the new round, and the count goes back to 0.',
+    html: T({ ...B0, sc: [42, 41], cpuN: 1, turn: 'you', hand: youH(['KS', '5C']), peg: { cards: [['you', 'KS', 'dim'], ['cpu', '5D', 'dim'], ['you', '5C', 'dim'], ['cpu', '9H', 'dim'], ['cpu', '2S', 'dim'], ['|']], count: 0 }, msg: 'Count back to 0. Your turn.', board: bd([40, 42], [39, 41]) }) },
+  { cap: 'You play the 7; Computer plays its last card, a 6. Count 13.',
+    html: T({ ...B0, sc: [42, 41], cpuN: 0, turn: 'you', hand: youH(['KS', '5C', '7D']), peg: { cards: [['you', 'KS', 'dim'], ['cpu', '5D', 'dim'], ['you', '5C', 'dim'], ['cpu', '9H', 'dim'], ['cpu', '2S', 'dim'], ['|'], ['you', '7D'], ['cpu', '6S']], count: 13 }, msg: 'Count 13.', board: bd([40, 42], [39, 41]) }) },
+  { cap: 'A run: your 8 makes 6-7-8 (any order counts), a run of 3 for 3. The three cards light up.',
+    html: T({ ...B0, sc: [42, 41], scAfter: 45, cpuN: 0, pts: { you: 'Run of 3 for 3' }, hand: [], peg: { cards: [['you', 'KS', 'dim'], ['cpu', '5D', 'dim'], ['you', '5C', 'dim'], ['cpu', '9H', 'dim'], ['cpu', '2S', 'dim'], ['|'], ['you', '7D', 'hl'], ['cpu', '6S', 'hl'], ['you', '8H', 'hl']], count: 21 }, msg: 'You: a run of 3 for 3.', board: { mode: 'strip', you: [40, 42], cpu: [39, 41], move: { who: 'you', to: 45 } } }) },
+  { cap: 'Last card: you played the last card of the round (and didn’t hit 31), so 1 more.',
+    html: T({ ...B0, sc: [45, 41], scAfter: 46, cpuN: 0, pts: { you: 'Last card for 1' }, hand: [], peg: { cards: [['you', 'KS', 'dim'], ['cpu', '5D', 'dim'], ['you', '5C', 'dim'], ['cpu', '9H', 'dim'], ['cpu', '2S', 'dim'], ['|'], ['you', '7D'], ['cpu', '6S'], ['you', '8H', 'hl']], count: 21 }, msg: 'You: last card for 1. Pegging is over.', acts: '<span class="btn pri">Count hands</span>', board: { mode: 'strip', you: [42, 45], cpu: [39, 41], move: { who: 'you', to: 46 } } }) }
+]};
+
+// Counting: you 4C 5H 5S 6D (16), Computer 7H 8H 9H AH (9), crib QC 3S 2C JD (10), starter KD
+const C0 = { dealer: 'cpu', crib: 4, starter: 'KD', cpuN: 0, hand: [] };
+const YOU4 = ['4C', '5H', '5S', '6D'], CPU4 = ['7H', '8H', '9H', 'AH'], CRIB = ['QC', '3S', '2C', 'JD'];
+const youSteps = [
+  [['4C', '5H', '6D'], 'Fifteen <b>two</b>'], [['4C', '5S', '6D'], 'Fifteen two, fifteen <b>four</b>'],
+  [['5H', 'KD'], 'Fifteen two, fifteen four, fifteen <b>six</b>'], [['5S', 'KD'], 'Fifteen two, four, six, fifteen <b>eight</b>'],
+  [['5H', '5S'], '…fifteen eight, a pair is <b>ten</b>'], [['4C', '5H', '5S', '6D'], '…a pair is ten, and a double run is <b>sixteen</b>.']
+];
+const cpuSteps = [[['7H', '8H'], 'Fifteen <b>two</b>'], [['7H', '8H', '9H'], 'Fifteen two, a run of three is <b>five</b>'], [['7H', '8H', '9H', 'AH'], 'Fifteen two, a run of three is five, and a flush is <b>nine</b>.']];
+const cribSteps = [
+  [['2C', '3S', 'KD'], 'Fifteen <b>two</b>'], [['2C', '3S', 'QC'], 'Fifteen two, fifteen <b>four</b>'], [['2C', '3S', 'JD'], 'Fifteen two, four, fifteen <b>six</b>'],
+  [['JD', 'QC', 'KD'], '…fifteen six, a run of three is <b>nine</b>'], [['JD'], '…a run of three is nine, and his nobs is <b>ten</b>.']
+];
+SEQ.C1 = { title: 'C. Counting: auto-count', frames: [
+  countFrame('Your hand is counted first, because you didn’t deal. Your 4 cards plus the starter (set a little apart) fill the middle. Each combination lights up while the caption says it out loud.',
+    { ...C0, sc: [50, 48], scAfter: 66, board: { mode: 'strip', you: [44, 50], cpu: [45, 48], move: { who: 'you', to: 66 } } },
+    { label: 'Your hand', cards: YOU4, starter: 'KD', steps: youSteps, total: 16 }),
+  countFrame('Then the dealer’s hand. A 4-card flush counts (the starter doesn’t have to match in a hand).',
+    { ...C0, sc: [66, 48], scAfter: 57, board: { mode: 'strip', you: [50, 66], cpu: [45, 48], move: { who: 'cpu', to: 57 } } },
+    { label: 'Computer’s hand', cards: CPU4, starter: 'KD', steps: cpuSteps, total: 9 }),
+  countFrame('Last, the dealer’s crib. His nobs: the Jack in the crib matches the starter’s suit (Diamonds), worth 1.',
+    { ...C0, crib: 0, sc: [66, 57], scAfter: 67, board: { mode: 'strip', you: [50, 66], cpu: [48, 57], move: { who: 'cpu', to: 67 } } },
+    { label: 'Computer’s crib', cards: CRIB, starter: 'KD', steps: cribSteps, total: 10 }),
+  { cap: 'With “Show totals only” chosen in settings, the same three counts appear in one go, no animation.',
+    html: T({ ...C0, crib: 0, sc: [66, 67], board: { mode: 'strip', you: [50, 66], cpu: [57, 67] }, center: `<div class="cl">This hand</div><div style="font-size:15px;line-height:1.9;text-align:center">Your hand <b>16</b><br>Computer’s hand <b>9</b><br>Computer’s crib <b>10</b></div>`, msg: 'Hands counted.', acts: '<span class="btn pri">Next hand</span>' }) }
+]};
+
+const MUG = { ...C0, muggins: true, sc: [50, 48], board: { mode: 'strip', you: [44, 50], cpu: [45, 48] } };
+const claim = list => `<div class="claims">${list.map(x => `<span>${x}</span>`).join('') || '<span style="border-style:dashed;color:#999">nothing claimed yet</span>'}</div>`;
+const mugPa = (sel, list, total, hl = []) => countHTML('Count your hand: tap cards that score together', YOU4, 'KD', `You’ve claimed <b>${total}</b>`, claim(list))
+  .replace(/class="cd( r)? sm" data-id="([^"]+)"/g, (m, r, id) => `class="cd${r || ''} sm${sel.includes(id) ? ' sel' : ''}${hl.includes(id) ? ' hl' : ''}" data-id="${id}"`);
+SEQ.C2 = { title: 'C. Counting: muggins, tap combinations', frames: [
+  { cap: 'Muggins on: no auto-count for your hand. You tap the cards that score together, then add them. The status line shows “Muggins on”.',
+    html: T({ ...MUG, center: mugPa([], [], 0), msg: 'Count your hand.', acts: '<span class="btn off">Add</span><span class="btn">Enter a number</span><span class="btn pri">Done</span>' }) },
+  { cap: 'You tap 4, 5 and 6. The Add button names what they make: “Add fifteen (2)”. (Decision: should it name it, or just say “Add” and check at the end?)',
+    html: T({ ...MUG, center: mugPa(['4C', '5H', '6D'], [], 0), msg: '4 + 5 + 6 = 15.', acts: '<span class="btn pri">Add fifteen (2)</span><span class="btn pri">Done</span>' }) },
+  { cap: 'Each claim becomes a chip under the cards. You’ve found the four 15s and the pair: 10 so far.',
+    html: T({ ...MUG, center: mugPa([], ['15 for 2', '15 for 2', '15 for 2', '15 for 2', 'Pair 2'], 10), msg: 'Keep going, or tap Done.', acts: '<span class="btn off">Add</span><span class="btn pri">Done</span>' }) },
+  { cap: 'You tap Done with 10. Computer calls “Muggins!” and the missed double run lights up. You peg your 10; Computer pegs the 6 you missed.',
+    html: T({ ...MUG, sc: [50, 48], scAfter: 54, said: { cpu: 'Muggins!' }, pts: { cpu: '+6 from you' }, center: countHTML('Your hand: you missed a double run', YOU4, 'KD', 'You claimed 10. It was <b>16</b>.'), msg: 'Muggins! Computer takes the 6 points you missed.', acts: '<span class="btn pri">Next</span>', board: { mode: 'strip', you: [50, 60], cpu: [45, 48], move: { who: 'cpu', to: 54 } } }),
+    after(root, api) { api.later(() => root.querySelectorAll('.pa .cd[data-id]').forEach(c => c.classList.toggle('hl', c.dataset.id !== 'KD')), 300); } },
+  { cap: 'Big moment: the Muggins steal gets a short celebration (about 2 seconds, tap to dismiss). See E for the others.',
+    html: T({ ...MUG, sc: [60, 54], board: { mode: 'strip', you: [50, 60], cpu: [48, 54] }, over: cele('Muggins!', 'Computer takes 6 points you missed.', 'A double run of 4-5-6 was hiding in there.', true, true) }) }
+]};
+SEQ.C3 = { title: 'C. Counting: muggins, enter a number', frames: [
+  { cap: 'The other way to count: “Enter a number”. Minus and plus buttons, starting at 0. Faster for experienced players. Score shown big.',
+    html: T({ ...MUG, center: countHTML('Your hand: what’s it worth?', YOU4, 'KD', '&nbsp;', '<div class="step"><span class="btn">–</span><b>12</b><span class="btn">+</span></div>'), msg: 'Count your hand.', acts: '<span class="btn">Tap combinations</span><span class="btn pri">Claim 12</span>' }) },
+  { cap: 'You claim 12. Computer calls “Muggins!” and plays the full count animation so you can see what you missed, then takes the difference (4).',
+    html: T({ ...MUG, said: { cpu: 'Muggins!' }, pts: { cpu: '+4 from you' }, sc: [50, 48], scAfter: 52, center: countHTML('The full count', YOU4, 'KD', 'Fifteen eight, a pair is ten, and a double run is <b>sixteen</b>. You claimed 12.'), msg: 'Computer takes the 4 points you missed.', acts: '<span class="btn pri">Next</span>', board: { mode: 'strip', you: [50, 62], cpu: [45, 48], move: { who: 'cpu', to: 52 } } }),
+    after(root, api) { api.later(() => root.querySelectorAll('.pa .cd[data-id]').forEach(c => c.classList.toggle('hl', c.dataset.id !== 'KD')), 300); } },
+  { cap: 'If your count is right, a short confirmation and on to the next hand. (When you deal, you count your crib the same way, after your hand.)',
+    html: T({ ...MUG, sc: [66, 48], center: countHTML('Your hand', YOU4, 'KD', 'Sixteen. <b>Right!</b>'), msg: 'You count 16. Correct.', acts: '<span class="btn pri">Next</span>', board: { mode: 'strip', you: [50, 66], cpu: [45, 48] } }) }
+]};
+
+// D. Moving the pegs: you score 6, from 40 (pegs 34 and 40) to 46.
+const D0 = { dealer: 'cpu', crib: 4, starter: '3C', cpuN: 2, sc: [40, 37], scAfter: 46, hand: [['7D'], ['8H']], pts: { you: 'Pair + run for 6' }, peg: { cards: [['you', '6C'], ['cpu', '6H'], ['you', '6S', 'hl']], count: 18 }, msg: 'You score 6.' };
+const mv = mode => ({ mode, you: [34, 40], cpu: [31, 37], move: { who: 'you', to: 46 } });
+SEQ.D = { title: 'D. Moving the pegs (board options)', frames: [
+  { cap: 'How the pegs move: each player has two pegs. When you score, your back peg (yellow while moving) jumps over your front peg to the new total. Here, a close-up of your track: 34 and 40, scoring 6, to 46.',
+    html: T({ ...D0, board: { mode: 'strip', you: [34, 40], cpu: [31, 37] }, lens: `<div class="lens on"><div class="board">${lensSVG('you', 30, 50, 34, 40, 46)}</div><div class="lt">Your track, holes 30–50. Back peg 34 → 46, past the front peg on 40.</div></div>` }) },
+  { cap: '<b>D0 · Always on, no zoom.</b> The board is a thin strip across the table (as in A–C). The peg slides in place. Simplest; holes are small on a phone.',
+    html: T({ ...D0, board: mv('strip') }) ,
+  },
+  { cap: '<b>D1 · Your idea: small board, zooms while pegs move.</b> Normally it sits at about half the screen width beside Computer. On a score it grows to about 85%, the peg moves, then it shrinks back.<span class="covers">While zoomed it covers: the pegging area and starter, and part of Computer’s seat. Your hand stays visible.</span>',
+    html: T({ ...D0, board: mv('mini') }), manual: true,
+    after(root, api) {
+      const w = root.querySelector('.bwrap'), d = root.querySelector('.dimmer');
+      api.later(() => { w.classList.add('zoom'); d.classList.add('on'); }, 500);
+      api.later(() => api.pegs(), 1000);
+      api.later(() => { w.classList.remove('zoom'); d.classList.remove('on'); }, 2400);
+    } },
+  { cap: '<b>D2 · Magnifying glass.</b> The board stays small all the time. On a score, just the stretch where the peg moves pops up magnified over the pegging area, then goes away.<span class="covers">While showing it covers: the top half of the pegging area (the cards just played). Board, hand and Computer stay visible.</span>',
+    html: T({ ...D0, board: mv('strip'), lens: `<div class="lens"><div class="board">${lensSVG('you', 30, 50, 34, 40, 46)}</div><div class="lt">Your track, 30–50</div></div>` }), manual: true,
+    after(root, api) {
+      const l = root.querySelector('.lens');
+      api.later(() => l.classList.add('on'), 400);
+      api.later(() => api.pegs(), 900);
+      api.later(() => l.classList.remove('on'), 2600);
+    } },
+  { cap: '<b>D3 · Pull-up drawer.</b> The board lives in a drawer along the bottom; the handle always shows both scores. On a score it slides up, the peg moves, it slides back. You can also drag it up any time to look.<span class="covers">While open it covers: your hand and the buttons. The pegging area stays visible. Gives the table the most room the rest of the time.</span>',
+    html: T({ ...D0, board: mv('drawer') }), manual: true,
+    after(root, api) {
+      const dr = root.querySelector('.drawer');
+      api.later(() => dr.classList.add('open'), 500);
+      api.later(() => api.pegs(), 1000);
+      api.later(() => dr.classList.remove('open'), 2500);
+    } }
+]};
+
+// Layout variants (same moment: mid-pegging, then you as dealer)
+const LP = { cards: [['you', 'KS'], ['cpu', '5D'], ['you', '5C'], ['cpu', '9H']], count: 29 };
+SEQ.L = { title: 'Layouts for the main table', frames: [
+  { cap: '<b>Layout 1 · Board across.</b> Board as a strip under Computer. Starter on the left of one wide pegging area. Played cards in one row in order. The crib sits beside the dealer (here Computer, at the top).',
+    html: T({ dealer: 'cpu', crib: 4, starter: '3C', cpuN: 2, sc: [42, 39], turn: 'you', hand: [['7D'], ['8H']], peg: LP, msg: 'Count 29. Your turn.', board: { mode: 'strip', you: [40, 42], cpu: [37, 39] } }) },
+  { cap: '<b>Layout 1, you deal.</b> Your crib sits by you, just above your hand, so it’s clear whose crib it is.',
+    html: T({ dealer: 'you', crib: 4, starter: '3C', cpuN: 2, sc: [42, 39], turn: 'cpu', hand: [['7D'], ['8H']], peg: LP, msg: 'Computer’s turn.', board: { mode: 'strip', you: [40, 42], cpu: [37, 39] } }) },
+  { cap: '<b>Layout 2 · Board up the side.</b> The board stands upright along the right edge, like a real board beside the table. The crib and starter stack on the left; the crib slides to the dealer’s end. Each player’s played cards sit in front of them, as at a real table, with the count between.',
+    html: T({ layout: 2, dealer: 'cpu', crib: 4, starter: '3C', cpuN: 2, sc: [42, 39], turn: 'you', hand: [['7D'], ['8H']], peg: LP, msg: 'Count 29. Your turn.', board: { mode: 'side', you: [40, 42], cpu: [37, 39] } }) },
+  { cap: '<b>Layout 2, you deal.</b> The crib moves to the bottom of the left column, on your side.',
+    html: T({ layout: 2, dealer: 'you', crib: 4, starter: '3C', cpuN: 2, sc: [42, 39], turn: 'cpu', hand: [['7D'], ['8H']], peg: LP, msg: 'Computer’s turn.', board: { mode: 'side', you: [40, 42], cpu: [37, 39] } }) }
+]};
+
+// Big moments and game over
+const E0 = { dealer: 'you', crib: 0, starter: '5S', cpuN: 0, sc: [70, 64], board: { mode: 'strip', you: [60, 70], cpu: [55, 64] } };
+SEQ.E = { title: 'E. Big moments and game over', frames: [
+  { cap: '<b>29 hand</b>, the biggest celebration: three 5s and the Jack of the starter’s suit, plus the fourth 5 as starter. Black line burst, one yellow splash, about 2 seconds, tap to dismiss. Respects reduced motion and game speed.',
+    html: T({ ...E0, center: countHTML('Your hand', ['5C', '5D', '5H', 'JS'], '5S', 'Fifteen two, four, six, eight… <b>twenty-nine</b>!'), over: cele('29', 'Twenty-nine! The best hand there is.', 'Odds: about 1 in 216,000 hands.') }) },
+  { cap: '<b>Muggins steal</b>, medium size (also shown in C). Plain words saying what was missed.',
+    html: T({ ...E0, starter: 'KD', over: cele('Muggins!', 'Computer takes 6 points you missed.', 'A double run of 4-5-6 was hiding in there.', true, true) }) },
+  { cap: '<b>19 hand</b> (a zero hand), tongue in cheek and smallest: a shrug, not a party.',
+    html: T({ ...E0, starter: 'KC', center: countHTML('Your hand', ['2C', '4D', '6S', '8H'], 'KC', 'Nothing at all.'), over: cele('19', 'Nineteen.', 'Cribbage talk for zero, since no hand can score 19.', true) }) },
+  { cap: '<b>Game over with a skunk.</b> Final scores, what the skunk means, and a games-won tally for this visit (a skunk counts 2, a double skunk 3). The tally lives in memory only.',
+    html: T({ ...E0, sc: [121, 84], board: { mode: 'strip', you: [113, 121], cpu: [78, 84] }, over: sheet(`<h2>You win, with a skunk!</h2><div style="display:flex;justify-content:center;gap:26px;margin:4px 0 12px"><div class="serif" style="font-size:28px">121<div style="font:11px system-ui;color:#777">You</div></div><div class="serif" style="font-size:28px">84<div style="font:11px system-ui;color:#777">Computer</div></div></div><p>Computer finished under 91, so this win counts as 2 games.</p><p style="font-size:13px;color:#555;border-top:1px solid #ddd;padding-top:10px">Games won this visit<br><b>You 3 · Computer 1</b></p><span class="btn pri">Play again</span>`) }) },
+  { cap: '<b>Game over mid-count.</b> The game ends the instant someone reaches 121, even in the middle of pegging or counting. The count stops, the board shows the winning peg in the last hole, then the game-over sheet.',
+    html: T({ ...E0, sc: [118, 112], scAfter: 121, center: countHTML('Your hand', ['4C', '5H', '5S', '6D'], 'KD', 'Fifteen two… <b>121!</b> Game over.'), board: { mode: 'strip', you: [110, 118], cpu: [104, 112], move: { who: 'you', to: 121 } } }) }
+]};
+
+// Menu and the level-change question
+SEQ.M = { title: 'Menu: Cribbage settings', frames: [
+  { cap: 'The Menu, like Euchre and Pitch, plus two Cribbage settings: Muggins (follows the level: off for Easy/Medium, on for Hard, unless you change it) and Counting (animate or totals only).',
+    html: T({ ...C0, sc: [50, 48], peg: { cards: [], count: 0 }, over: sheet(`<h2>Menu</h2><div class="set"><h3>How well the computer plays</h3><div class="seg"><span>Easy</span><span class="on">Medium</span><span>Hard</span></div><div class="note">Friendly. Plays sensibly, like a casual player.</div><h3>Muggins</h3><div class="seg"><span>Off</span><span class="on">On</span></div><div class="note">You count your own hands. Miss points and Computer takes them. (Hard turns this on.)</div><h3>Counting</h3><div class="seg"><span class="on">Animate the count</span><span>Totals only</span></div><h3>Game speed</h3><div class="seg"><span>Slow</span><span class="on">Normal</span><span>Fast</span></div></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:14px"><span class="btn pri">New game</span><span class="btn">Rules</span></div><div style="display:flex;justify-content:space-between;margin-top:14px;font-size:14px"><u>‹ All games</u><span class="btn">Done</span></div>`) }) },
+  { cap: 'Changing the level or muggins mid-game asks first. Continue starts a new game at the new setting; Cancel leaves the game untouched.',
+    html: T({ ...C0, sc: [50, 48], peg: { cards: [], count: 0 }, over: sheet(`<p style="font-size:16px;margin-top:6px">Changing levels will start a new game. Continue?</p><div style="display:flex;gap:8px;justify-content:center"><span class="btn">Cancel</span><span class="btn pri">Continue</span></div>`) }) }
+]};
+
+const DECISIONS = [
+  ['Table layout', 'Layout 1 (board across, one row of played cards) or Layout 2 (board up the side, each player’s cards in front of them)? Or mix: e.g. Layout 1 with cards in front of each player.'],
+  ['Board behavior', 'D0 always-on strip, D1 zoom (your idea), D2 magnifying glass, or D3 drawer?'],
+  ['Peg colors', 'Yours filled black, Computer’s open rings, the moving peg yellow. OK?'],
+  ['Counting area', 'Hands are counted in the middle of the table (where pegging happens). OK, or a pop-up sheet instead?'],
+  ['Muggins input', 'Tap combinations, enter a number, or both (tap first, with an “Enter a number” button)?'],
+  ['Muggins hints', 'When you tap cards, should the button name what they make (“Add fifteen (2)”, friendlier) or just say “Add” and reveal mistakes only at Done (stricter, more like real muggins)?'],
+  ['Muggins on Hard', 'Default on with your override (as written), or required on Hard (your new idea)?'],
+  ['Crib button', '“Send to Computer’s crib” / “Send to your crib”: OK?'],
+  ['Celebrations', 'Size and tone of 29 / Muggins / 19 OK? Keep the odds line on 29?'],
+  ['Games-won tally', 'Lives in memory for this visit: it resets when you go back to the game list or close the page. OK, or carry it in the link like settings so it survives a trip to the game list?']
+];
+
+// ---------- the player ----------
+const app = document.getElementById('app');
+let seq = null, idx = 0, timers = [], tapHook = null;
+const api = {
+  later(fn, ms) { timers.push(setTimeout(fn, ms)); },
+  cancel() { timers.forEach(clearTimeout); timers = []; },
+  onTap(fn) { tapHook = fn; },
+  pegs() {
+    app.querySelectorAll('[data-to]').forEach(g => { g.style.transform = g.dataset.to; });
+    api.later(() => app.querySelectorAll('[data-final]').forEach(b => { b.textContent = b.dataset.final; }), 900);
+  }
+};
+
+function home() {
+  api.cancel(); tapHook = null; seq = null;
+  const item = (k, t, s) => `<a href="#${k}"><b>${k}</b><span>${t}<small>${s}</small></span></a>`;
+  app.innerHTML = `<div class="home"><h1>Cribbage wireframes</h1>
+    <p>Rough on purpose: gray boxes, fake cards, no rules running. Tap anywhere on a screen to go to the next one. The yellow strip explains what you’re looking at.</p>
+    <h2>Scenarios</h2>
+    ${item('A', 'Dealing and the crib', 'Cut for deal, 6 cards, choose 2, crib, starter, his heels')}
+    ${item('B', 'Pegging', '15, pair, go, 31 and reset, run, last card')}
+    ${item('C1', 'Counting: auto-count', 'Your hand, dealer’s hand, crib; totals-only setting')}
+    ${item('C2', 'Counting: muggins, tap combinations', 'You count; Computer calls Muggins!')}
+    ${item('C3', 'Counting: muggins, enter a number', 'The quicker way to count')}
+    ${item('D', 'Moving the pegs', 'Leapfrog, plus 4 board options and what each covers')}
+    <h2>Layout</h2>
+    ${item('L', 'Two layouts for the main table', 'Where the board, crib, starter and pegging area sit')}
+    <h2>Extras</h2>
+    ${item('E', 'Big moments and game over', '29, Muggins steal, 19, skunk, ending mid-count')}
+    ${item('M', 'Menu and the level-change question', 'Muggins and counting settings')}
+    <h2>Your call</h2>
+    ${item('?', 'Decisions I need from you', DECISIONS.length + ' questions before PR 1')}
+    </div>`;
+}
+
+function decisions() {
+  app.innerHTML = `<div class="bar"><button data-nav="home">‹ All</button><span class="where">Decisions for PR 1</span></div>
+    <div class="home"><h1>Your call</h1><p>Answer in chat, e.g. “1: Layout 2, 2: D2…”</p>
+    ${DECISIONS.map(([t, q], i) => `<a style="display:block"><b style="display:inline">${i + 1}. ${t}</b><small style="font-size:14px;color:#333;margin-top:4px">${q}</small></a>`).join('')}</div>`;
+}
+
+function show() {
+  api.cancel(); tapHook = null;
+  const f = seq.frames[idx];
+  app.innerHTML = `<div class="bar"><button data-nav="back">‹</button><span class="where">${seq.title} · ${idx + 1}/${seq.frames.length}</span><button data-nav="home">✕</button></div>
+    <div class="cap">${f.cap}${f.manual ? '' : '<span class="tap">Tap anywhere to continue.</span>'}</div>
+    <div id="stage">${typeof f.html === 'function' ? f.html() : f.html}</div>`;
+  const stage = document.getElementById('stage');
+  if (f.after) f.after(stage, api);
+  if (!f.manual) api.later(() => api.pegs(), 500);
+}
+
+app.addEventListener('click', e => {
+  const n = e.target.closest('[data-nav]');
+  if (n) {
+    if (n.dataset.nav === 'home') { location.hash = ''; return; }
+    if (n.dataset.nav === 'back' && seq) { if (idx > 0) { idx--; show(); } else location.hash = ''; }
+    return;
+  }
+  if (!seq || !e.target.closest('#stage, .cap')) return;
+  if (tapHook) { const fn = tapHook; tapHook = null; fn(); return; }
+  if (idx < seq.frames.length - 1) { idx++; show(); window.scrollTo(0, 0); }
+  else location.hash = '';
+});
+
+function route() {
+  const k = decodeURIComponent(location.hash.slice(1));
+  if (k === '?') { seq = null; return decisions(); }
+  if (SEQ[k]) { seq = SEQ[k]; idx = 0; return show(); }
+  home();
+}
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>
