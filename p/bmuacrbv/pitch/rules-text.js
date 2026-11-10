@@ -9,11 +9,11 @@ export const LEVEL_ABOUT = {
 export const rulesHTML = `
     <h2 id="rules-h">How to play</h2>
     <h3>The deck and teams</h3>
-    <p>A regular 52-card deck. You and Partner play against West and East. Each player gets 6 cards.</p>
+    <p>A regular 52-card deck. You and Partner play against West and East. Each player gets 6 cards. The first dealer is picked at random; after that the deal moves one seat to the left each hand.</p>
     <h3>The four points</h3>
     <p>Each hand, four points are up for grabs:</p>
     <ul>
-      <li><b>High</b>: the highest trump played.</li>
+      <li><b>High</b>: the highest trump played, to the team that played it.</li>
       <li><b>Low</b>: the lowest trump played. It goes to whoever played it, even if they lost that trick.</li>
       <li><b>Jack</b>: the Jack of trump, to whoever wins the trick it's in. If nobody was dealt it, there's no Jack point.</li>
       <li><b>Game</b>: the team whose tricks hold the most of these: 10 = 10, Ace = 4, King = 3, Queen = 2, Jack = 1. A tie means nobody gets it.</li>
@@ -29,7 +29,7 @@ export const rulesHTML = `
       <li>The bidding team wins at least what it bid: it scores every point it won.</li>
       <li>It falls short: it loses the amount it bid.</li>
       <li>The other team always scores the points it won.</li>
-      <li><b>Shoot the moon</b>: win every point in play and you win the game on the spot. Miss even one and you lose 4 points.</li>
+      <li><b>Shoot the moon</b>: win every point in play (all 4, or all 3 if nobody was dealt the Jack) and you win the game on the spot. Miss even one and you lose 4 points.</li>
     </ul>
     <p>First team to <b>21 points</b> wins. If both teams reach 21 in the same hand, the bidding team wins.</p>
     <h3>Computer levels</h3>
