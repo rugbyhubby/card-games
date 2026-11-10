@@ -2,7 +2,7 @@
 import { settings, SPEED_FACTOR } from '../../../shared/settings.js';
 import { createTimer } from '../../../shared/timing.js';
 import { followTheme } from '../../../shared/theme.js';
-import { createSheet, feedbackHref, menuHTML, levelHTML, segHTML, bindSettings, addRotateNotice } from '../../../shared/ui.js';
+import { createSheet, feedbackHref, menuHTML, levelHTML, segHTML, bindSettings, askBeforeLevelChange, addRotateNotice } from '../../../shared/ui.js';
 import { createCribbage } from './game.js';
 import { renderHTML } from './view.js';
 import { createBoard } from './board.js';
@@ -46,7 +46,7 @@ const sheet = createSheet(sheetEl);
 
 function cribbageSettings() {
   const mug = mugginsFor(settings.get('difficulty'), settings.get('muggins')) ? 'on' : 'off';
-  return levelHTML(settings, S.level, LEVEL_ABOUT, { title: 'How well the computer plays', note: false }) +
+  return levelHTML(settings, LEVEL_ABOUT, { title: 'How well the computer plays' }) +
     `<div class="set"><h3>Muggins</h3>
       ${segHTML({ label: 'Muggins', key: 'muggins', options: [['off', 'Off'], ['on', 'On']], value: mug })}
       <p class="note">Hard only. You count your own hands; miss points and the computer takes them.</p>
@@ -62,29 +62,24 @@ const openRules = () => sheet.open(rulesHTML, { cls: 'rules', labelledBy: 'rules
 
 // A game counts as started once the cut for deal has happened, until it's over.
 const inProgress = () => S.phase !== 'gameOver' && !(S.phase === 'cut' && !S.cut);
-let pendingChange = null;
 
-// Level and muggins: changing either during a game asks first, then starts a new game.
-// Runs before bindSettings() sees the tap (capture), so nothing changes until you say so.
+// Counting style changes right away, no new game needed.
 sheetEl.addEventListener('click', e => {
-  const b = e.target.closest('[data-difficulty],[data-muggins],[data-count]');
-  if (!b) return;
-  e.stopPropagation();
-  if (b.dataset.count) { settings.set('count', b.dataset.count); return openMenu(); }
-  let want;
-  if (b.dataset.difficulty) {
-    if (b.dataset.difficulty === settings.get('difficulty')) return;
-    want = { difficulty: b.dataset.difficulty, muggins: 'on' };          // picking a level resets muggins
-  } else if (b.dataset.muggins === 'on') want = { difficulty: 'hard', muggins: 'on' };
-  else want = { difficulty: settings.get('difficulty'), muggins: 'off' };
-  const apply = () => { settings.set('difficulty', want.difficulty); settings.set('muggins', want.muggins); };
-  const same = want.difficulty === S.level && mugginsFor(want.difficulty, want.muggins) === S.muggins;
-  if (same) { apply(); return openMenu(); }
-  if (!inProgress()) { apply(); sheet.close(); return game.newGame(); }
-  pendingChange = apply;
-  sheet.open(`<p class="ask" id="ask-h">Changing levels will start a new game. Continue?</p>
-    <div class="ask-btns"><button class="btn" data-act="keep">Cancel</button><button class="btn pri" data-act="change">Continue</button></div>`, { labelledBy: 'ask-h' });
+  const b = e.target.closest('[data-count]');
+  if (b) { e.stopPropagation(); settings.set('count', b.dataset.count); openMenu(); }
 }, true);
+// Level and muggins: changing either during a game asks first, then starts a new game.
+askBeforeLevelChange({
+  el: sheetEl, sheet, settings, inProgress, openMenu, newGame: () => game.newGame(),
+  pick: b => {
+    if (b.dataset.difficulty) return b.dataset.difficulty === settings.get('difficulty') ? null
+      : { difficulty: b.dataset.difficulty, muggins: 'on' };           // picking a level resets muggins
+    if (b.dataset.muggins === 'on') return { difficulty: 'hard', muggins: 'on' };   // muggins means Hard
+    if (b.dataset.muggins === 'off') return { difficulty: settings.get('difficulty'), muggins: 'off' };
+    return null;
+  },
+  matches: w => w.difficulty === S.level && mugginsFor(w.difficulty, w.muggins) === S.muggins
+});
 bindSettings(sheetEl, settings);
 
 sheetEl.addEventListener('click', e => {
@@ -93,8 +88,6 @@ sheetEl.addEventListener('click', e => {
   const act = a.dataset.act;
   if (act === 'new') { sheet.close(); game.newGame(); }
   if (act === 'rules') openRules();
-  if (act === 'change') { if (pendingChange) pendingChange(); pendingChange = null; sheet.close(); game.newGame(); }
-  if (act === 'keep') { pendingChange = null; openMenu(); }
 });
 
 // ---------- the table ----------

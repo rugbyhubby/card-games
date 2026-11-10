@@ -15,8 +15,10 @@ shared/             The toolkit every game uses: deck, card drawings, table layo
                     score header and sheets, computer-move timing, settings, theme.
                     See shared/README.md.
 p/<slug>/           The game list ("Card Games"). <slug> is a random 8-letter code that keeps the link unlisted.
-  index.html        The list: Euchre, Pitch, Cribbage, then Nertz, Solitaire ("Coming soon").
-  main.js           Settings sheet, links into games, offline setup.
+  index.html        The list: Euchre, Pitch, Cribbage (each with a one-line description, Rules
+                    and Play), then Nertz, Solitaire ("Coming soon").
+  main.js           Settings sheet, each game's rules sheet (from its rules-text.js), links
+                    into games, offline setup.
   version.js        The game list's version number.
   manifest.webmanifest, sw.js, *.png, icon.svg
                     Its own Home Screen app ("Card Games"), offline helper and icon
@@ -61,8 +63,11 @@ Settings (difficulty, game speed, theme, and Cribbage's muggins and counting) ar
 phone. When you move between the game list and a game, the link carries them in the part
 after `#` (e.g. `euchre/#speed=fast&theme=dark`), which never leaves the phone. Closing
 the page resets them. Each game's Menu has the computer level, New game, Rules, game speed,
-theme, and "All games". The computer level is chosen for the next new game; it can't change
-in the middle of a game.
+theme, and "All games". Changing the computer level during a game asks "Changing levels will
+start a new game. Continue?" first (the same in every game).
+
+Every game's rules sheet has the same sections: Setup, How a hand works, Scoring, Winning,
+House rules in use, and Computer levels. The game list's Rules links open the same sheets.
 
 To try the site on your Mac, start a local web server in the `card-games` folder
 (`python3 -m http.server 8000`) and open http://localhost:8000/p/<slug>/euchre/.
@@ -80,7 +85,9 @@ Every page carries `<meta name="robots" content="noindex, nofollow">`. There is 
 | Cribbage  | https://games.rugbyhubby.com/p/bmuacrbv/cribbage/ |
 
 Pitch is 4-point Pitch (High, Low, Jack, Game), two teams, play to 21, bids of 2 to 4 or
-Shoot the moon, dealer stuck at 2. You may trump even when you can follow suit. It has the
+Shoot the moon, dealer stuck at 2. The dealer bids last and may take the bid by matching it
+(even Shoot the moon). Shoot the moon needs all four points, so it fails if nobody was dealt
+the Jack. You may trump even when you can follow suit. It has the
 same folder layout as Euchre.
 
 Cribbage is 2 players, you against the computer, to 121, with skunks (under 91: 2 games;

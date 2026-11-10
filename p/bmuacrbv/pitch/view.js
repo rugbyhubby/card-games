@@ -40,7 +40,9 @@ function center(S) {
 
 function actions(S, bidOptions) {
   if (S.turn === 0 && S.phase === 'bid') {
-    return bidOptions().map(b => `<button class="btn${b === MOON ? '' : ' num'}" data-act="bid" data-b="${b}" aria-label="Bid ${bidName(b)}">${bidShort(b)}</button>`).join('') +
+    return bidOptions().map(b => b === S.bid
+      ? `<button class="btn" data-act="bid" data-b="${b}" aria-label="Match ${bidName(b)} and take the bid">Take ${bidShort(b)}</button>`
+      : `<button class="btn${b === MOON ? '' : ' num'}" data-act="bid" data-b="${b}" aria-label="Bid ${bidName(b)}">${bidShort(b)}</button>`).join('') +
       `<button class="btn" data-act="pass">Pass</button>`;
   }
   return '';
@@ -71,7 +73,7 @@ function summary(S) {
   const bidTeam = r.bt === 0 ? 'Your team' : 'Their team';
   const got = r.points[r.bt];
   const verdict = S.bid === MOON
-    ? (r.moonMade ? `${bidTeam} shot the moon and took every point.` : `${bidTeam} tried to shoot the moon and took ${got} of ${r.available}: minus 4.`)
+    ? (r.moonMade ? `${bidTeam} shot the moon and took every point.` : `${bidTeam} tried to shoot the moon and took ${got} of 4${r.jack ? '' : ' (nobody was dealt the Jack)'}: minus 4.`)
     : r.made ? `${bidTeam} bid ${S.bid} and took ${got}: ${r.bt === 0 ? 'we score' : 'they score'} ${got}.`
     : `${bidTeam} bid ${S.bid} but took only ${got}: minus ${S.bid}.`;
   const other = r.points[1 - r.bt] ? ` ${r.bt === 0 ? 'They' : 'We'} score ${r.points[1 - r.bt]}.` : '';

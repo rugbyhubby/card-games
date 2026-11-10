@@ -62,5 +62,6 @@ function checkHand(S) {
   if (S.hands.some(h => h.length)) throw new Error('hand ended with cards left');
   const r = S.result;
   if (r.points[0] + r.points[1] > r.available) throw new Error('more points than available');
+  if (r.moonMade && (!r.jack || r.points[r.bt] !== 4)) throw new Error('moon made without all four points');
   if (r.count[0] + r.count[1] !== S.history.reduce((s, e) => s + ({ '10': 10, A: 4, K: 3, Q: 2, J: 1 }[e.card.r] || 0), 0)) throw new Error('game count mismatch');
 }

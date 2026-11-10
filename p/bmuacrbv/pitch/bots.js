@@ -31,8 +31,9 @@ export function bestSuit(hand) {
   return { suit: best, value: bv };
 }
 
-// Bid: one of `options` (amounts above the current bid), or 0 to pass.
+// Bid: one of `options` (amounts above the current bid, or matching it for the dealer), or 0 to pass.
 export function bid(S, p, level, options) {
+  if (S.bidder === partnerOf(p)) options = options.filter(b => b > S.bid);   // never take the bid from partner
   let { value } = bestSuit(S.hands[p]);
   if (level === 'easy') value += Math.random() * 2 - 1;
   value += 0.35;                                        // a partner usually chips in (often the Game point)

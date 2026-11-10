@@ -1,7 +1,7 @@
 // Pitch game flow: dealing, one round of bidding, play and scoring.
 // No drawing here: after each change it calls onChange() and view.js redraws.
 import { makeDeck, shuffle, SUIT_NAME as SNAME, cardName } from '../../../shared/deck.js';
-import { NAMES, team, nextP, RANK, MOON, BIDS, bidName, WIN_AT, legalCards, trickWinner, scoreHand } from './rules.js';
+import { NAMES, team, nextP, RANK, MOON, BIDS, bidName, bidShort, WIN_AT, legalCards, trickWinner, scoreHand } from './rules.js';
 import * as bots from './bots.js';
 import * as hard from './bots-hard.js';
 
@@ -40,7 +40,7 @@ export function createPitch({ timer, levelAtStart = () => 'medium', difficultyFo
     S.hands = [[], [], [], []];
     let p = nextP(S.dealer);
     for (let i = 0; i < 24; i++) { S.hands[p].push(deck[i]); p = nextP(p); }
-    Object.assign(S, { phase: 'bid', turn: nextP(S.dealer), bid: 0, bidder: null, bidsIn: 0, said: {},
+    Object.assign(S, { phase: 'bid', turn: nextP(S.dealer), bid: 0, bidder: null, matched: false, bidsIn: 0, said: {},
       trump: null, trick: [], history: [], won: [[], []], tricks: [0, 0], lastPlayed: null, winner: null,
       result: null, justDealt: true });
     sortHuman();
@@ -54,7 +54,11 @@ export function createPitch({ timer, levelAtStart = () => 'medium', difficultyFo
     S.overlay = null; S.dealer = nextP(S.dealer); newHand();
   }
   function step() {
-    if (S.turn === 0 && S.phase === 'bid') msg(S.bid ? `Your bid: beat ${bidName(S.bid)}, or pass.` : 'Your bid: 2 or more, or pass.');
+    if (S.turn === 0 && S.phase === 'bid') {
+      msg(!S.bid ? 'Your bid: 2 or more, or pass.'
+        : S.dealer === 0 ? `You’re the dealer: match ${bidName(S.bid)} to take the bid, go higher, or pass.`
+        : `Your bid: beat ${bidName(S.bid)}, or pass.`);
+    }
     if (S.turn === 0 && S.phase === 'play') {
       msg(!S.trump ? 'You won the bid. Lead a card: its suit becomes trump.'
         : S.trick.length ? 'Your turn. Tap a card to play.' : 'Your lead. Tap a card to play.');
@@ -63,12 +67,16 @@ export function createPitch({ timer, levelAtStart = () => 'medium', difficultyFo
     if ((S.phase === 'bid' || S.phase === 'play') && S.turn !== 0) later(botAct, S.phase === 'play' ? 650 : 850);
   }
 
-  // Bids allowed for whoever is bidding now.
-  const bidOptions = () => BIDS.filter(b => b > S.bid);
+  // Bids allowed for whoever is bidding now. The dealer bids last and may take
+  // the bid by matching it (even Shoot the moon).
+  const bidOptions = () => BIDS.filter(b => b > S.bid || (b === S.bid && S.turn === S.dealer));
 
   function placeBid(p, amount) {
     onEvent('bid:' + p + ':' + amount);
-    if (amount && amount > S.bid) {
+    if (amount && amount === S.bid && p === S.dealer && S.bidder != null) {   // the dealer matches
+      S.bidder = p; S.matched = true; S.said[p] = `Takes ${bidShort(amount)}`;
+      msg(`${who(p)} ${verb(p, 'match', 'matches')} ${bidName(amount)} and ${verb(p, 'take', 'takes')} the bid.`);
+    } else if (amount && amount > S.bid) {
       S.bid = amount; S.bidder = p; S.said[p] = bidName(amount);
       msg(`${who(p)} ${verb(p, 'bid', 'bids')} ${bidName(amount)}.`);
     } else {
@@ -82,7 +90,8 @@ export function createPitch({ timer, levelAtStart = () => 'medium', difficultyFo
       S.bid = 2; S.bidder = S.dealer; S.said[S.dealer] = 'Stuck at 2';
       msg(`Everyone passed, so ${S.dealer === 0 ? 'you are' : NAMES[S.dealer] + ' is'} stuck with a bid of 2.`);
     } else {
-      msg(`${who(S.bidder)} won the bid at ${bidName(S.bid)}. ${S.bidder === 0 ? 'Your' : 'Their'} first card sets trump.`);
+      const how = S.matched ? `${verb(S.bidder, 'match', 'matches')} ${bidName(S.bid)} and ${verb(S.bidder, 'take', 'takes')} the bid` : `won the bid at ${bidName(S.bid)}`;
+      msg(`${who(S.bidder)} ${how}. ${S.bidder === 0 ? 'Your' : 'Their'} first card sets trump.`);
     }
     S.phase = 'play'; S.turn = null; changed();
     later(() => { S.said = {}; S.turn = S.bidder; step(); }, 1300);
@@ -117,7 +126,7 @@ export function createPitch({ timer, levelAtStart = () => 'medium', difficultyFo
     const before = [...S.score];
     let made, moonMade = false;
     if (S.bid === MOON) {
-      moonMade = r.points[bt] === r.available;
+      moonMade = r.points[bt] === 4;                                    // all four; no Jack dealt means it fails
       made = moonMade;
       if (!moonMade) S.score[bt] -= 4;
     } else {

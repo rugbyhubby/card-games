@@ -42,7 +42,10 @@ To store them properly later, write a small "store" object with `load()` and
 
 `ui.js` has `menuHTML()` (a game's Menu: its own buttons, game speed, theme, and
 "‹ All games") and `settingsHTML()` (just game speed and theme, used on the game list).
-`bindSettings()` makes the controls work. `theme.js` has `followTheme(settings)`.
+`bindSettings()` makes the controls work. `levelHTML()` draws the Easy / Medium / Hard
+choice, and `askBeforeLevelChange()` makes changing it during a game ask "Changing levels
+will start a new game. Continue?" first (Cribbage also uses it for muggins).
+`theme.js` has `followTheme(settings)`.
 
 ## Offline
 

@@ -42,7 +42,7 @@ export const rulesHTML = `
       <li><b>Skunks</b> count: 2 games for a skunk, 3 for a double skunk, in the tally of games won this visit.</li>
     </ul>
     <h3>Computer levels</h3>
-    <p>Choose in the Menu. Changing the level, or muggins, starts a new game.</p>
+    <p>Choose in the Menu. Changing the level or muggins during a game starts a new game (you’re asked first).</p>
     <ul>
       <li><b>Easy</b>: ${LEVEL_ABOUT.easy}</li>
       <li><b>Medium</b>: ${LEVEL_ABOUT.medium}</li>

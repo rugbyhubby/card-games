@@ -105,6 +105,10 @@ Saved results of 300 games each, for Easy and Medium:
 - `euchre-v0.3.0-*.json`: v0.3.0, Easy, Medium and Hard. Easy plays the same as before;
   Medium changed on purpose in v0.3.0 (it no longer beats a partner who is winning the
   trick when it has another card to play).
+- `euchre-v0.3.4-*.json`, `cribbage-v0.1.1-*.json`: same play as v0.3.0 and v0.1.0; only
+  some wording on screen changed (Euchre messages without dashes, Cribbage "Deal next hand").
+- `pitch-v0.1.3-*.json`: the dealer may take the bid by matching it, and Shoot the moon
+  needs all four points. Play changed on purpose.
 
 ## Files
 

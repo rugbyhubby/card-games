@@ -91,7 +91,7 @@ function actions(S, legal) {
     return Object.entries(KIND).map(([k, l]) => `<button class="btn kind" data-act="claim" data-k="${k}"${off}>${l}</button>`).join('') +
       '<button class="btn pri" data-act="done">Done</button>';
   }
-  if (S.phase === 'handEnd') return '<button class="btn pri" data-act="next">Next hand</button>';
+  if (S.phase === 'handEnd') return '<button class="btn pri" data-act="next">Deal next hand</button>';
   return '';
 }
 

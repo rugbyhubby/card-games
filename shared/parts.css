@@ -146,3 +146,7 @@
   .rotate h2{font-family:var(--serif);font-weight:400;font-size:30px;margin:0}
   .rotate p{margin:0;color:var(--muted);font-size:15px;max-width:340px;line-height:1.4}
 }
+
+/* "Changing levels will start a new game. Continue?" */
+.ask{font-size:17px;margin:6px 0 18px;line-height:1.4}
+.ask-btns{display:flex;gap:8px;justify-content:center}

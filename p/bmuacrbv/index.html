@@ -21,19 +21,18 @@
 <link rel="stylesheet" href="../../shared/theme.css">
 <link rel="stylesheet" href="../../shared/parts.css">
 <style>
-/* Game list */
+/* Game list: name and one line about it, then Rules and Play */
 .top .link{font-size:15px;padding:6px 2px 2px}
 .games{list-style:none;margin:8px 0 0;padding:0;flex:1}
-.games li{border-bottom:1.5px solid var(--faint)}
-.game{display:flex;align-items:center;gap:12px;padding:18px 4px;color:inherit;text-decoration:none}
+.game{display:flex;align-items:center;gap:12px;padding:16px 2px;border-bottom:1.5px solid var(--faint)}
+.gtext{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .game .gname{font-family:var(--serif);font-size:32px;line-height:1}
-.game .about{flex:1;font-size:13px;color:var(--muted);text-align:right}
-.game .go{font-size:22px;line-height:1;width:14px;text-align:right}
-a.game:active{background:var(--faint)}
-a.game:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.game .about{font-size:13px;line-height:1.35;color:var(--muted)}
+.gbtns{display:flex;align-items:center;gap:14px;flex:none}
+.gbtns .link{font-size:15px}
+.gbtns .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-width:64px}
 .game.soon .gname{color:var(--muted)}
 .game.soon .about{font-style:italic}
-.game.soon .go{visibility:hidden}
 .sheet .done{display:flex;justify-content:center;margin-top:20px}
 </style>
 </head>
@@ -44,11 +43,24 @@ a.game:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
     <button class="link" data-act="settings">Settings</button>
   </header>
   <ul class="games">
-    <li><a class="game" href="euchre/" data-carry="euchre/"><span class="gname">Euchre</span><span class="about">4 players, with a partner</span><span class="go" aria-hidden="true">›</span></a></li>
-    <li><a class="game" href="pitch/" data-carry="pitch/"><span class="gname">Pitch</span><span class="about">4 players, with a partner</span><span class="go" aria-hidden="true">›</span></a></li>
-    <li><a class="game" href="cribbage/" data-carry="cribbage/"><span class="gname">Cribbage</span><span class="about">2 players, you vs the computer</span><span class="go" aria-hidden="true">›</span></a></li>
-    <li><div class="game soon" aria-disabled="true"><span class="gname">Nertz</span><span class="about">Coming soon</span><span class="go" aria-hidden="true">›</span></div></li>
-    <li><div class="game soon" aria-disabled="true"><span class="gname">Solitaire</span><span class="about">Coming soon</span><span class="go" aria-hidden="true">›</span></div></li>
+    <li class="game">
+      <div class="gtext"><span class="gname">Euchre</span><span class="about">4 players, with a partner. Call trump and take at least 3 of 5 tricks.</span></div>
+      <div class="gbtns"><button class="link" data-rules="euchre" aria-label="Euchre rules">Rules</button><a class="btn pri" href="euchre/" data-carry="euchre/" aria-label="Play Euchre">Play</a></div>
+    </li>
+    <li class="game">
+      <div class="gtext"><span class="gname">Pitch</span><span class="about">4 players, with a partner. Bid, set trump, and win High, Low, Jack and Game.</span></div>
+      <div class="gbtns"><button class="link" data-rules="pitch" aria-label="Pitch rules">Rules</button><a class="btn pri" href="pitch/" data-carry="pitch/" aria-label="Play Pitch">Play</a></div>
+    </li>
+    <li class="game">
+      <div class="gtext"><span class="gname">Cribbage</span><span class="about">2 players, you vs the computer. Score 15s, pairs and runs; first to 121.</span></div>
+      <div class="gbtns"><button class="link" data-rules="cribbage" aria-label="Cribbage rules">Rules</button><a class="btn pri" href="cribbage/" data-carry="cribbage/" aria-label="Play Cribbage">Play</a></div>
+    </li>
+    <li class="game soon" aria-disabled="true">
+      <div class="gtext"><span class="gname">Nertz</span><span class="about">Coming soon</span></div>
+    </li>
+    <li class="game soon" aria-disabled="true">
+      <div class="gtext"><span class="gname">Solitaire</span><span class="about">Coming soon</span></div>
+    </li>
   </ul>
   <div class="foot"><span id="ver"></span><span aria-hidden="true">·</span><a id="fb" href="mailto:contact@rugbyhubby.com">Send feedback</a></div>
 </div>
