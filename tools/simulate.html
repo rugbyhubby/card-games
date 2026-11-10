@@ -22,9 +22,9 @@
 <body>
 <main>
   <h1>Game simulator</h1>
-  <p>Plays Euchre with every seat run by the computer and reports errors, stuck games and win rates. Same as <code>tools/simulate.sh</code>. Needs a local web server (see tools/README.md).</p>
+  <p>Plays Euchre, Pitch or Cribbage with every seat run by the computer and reports errors, stuck games and win rates. Same as <code>tools/simulate.sh</code>. Needs a local web server (see tools/README.md).</p>
   <form id="f">
-    <label for="game">Game</label><select id="game"><option value="euchre">Euchre</option><option value="pitch">Pitch</option></select>
+    <label for="game">Game</label><select id="game"><option value="euchre">Euchre</option><option value="pitch">Pitch</option><option value="cribbage">Cribbage</option></select>
     <label for="games">Games</label><input id="games" type="number" min="1" value="300">
     <label for="us">Your team</label><select id="us"><option>easy</option><option selected>medium</option><option>hard</option></select>
     <label for="them">Other team</label><select id="them"><option>easy</option><option selected>medium</option><option>hard</option></select>
@@ -51,6 +51,7 @@
 import { runGames, compareRuns, margin } from './sim-core.js';
 import { euchreGame } from './euchre-sim.js';
 import { pitchGame } from './pitch-sim.js';
+import { cribbageGame } from './cribbage-sim.js';
 const $ = id => document.getElementById(id);
 const out = $('out');
 const say = t => { out.textContent += t + '\n'; };
@@ -61,7 +62,7 @@ $('f').addEventListener('submit', async e => {
   const us = $('us').value, them = $('them').value, count = +$('games').value, render = $('render').checked;
   say(`Playing ${count} games: us ${us}, them ${them}…`);
   await new Promise(r => setTimeout(r, 30)); // let the page update before the busy part
-  const make = $('game').value === 'pitch' ? pitchGame : euchreGame;
+  const make = { euchre: euchreGame, pitch: pitchGame, cribbage: cribbageGame }[$('game').value];
   const run = runGames(make({ us, them, render }), { count });
   const s = run.summary, pct = x => (100 * x).toFixed(1) + '%';
   say(`Finished: ${s.finished} of ${s.played}   errors or stuck: ${run.problems.length}`);

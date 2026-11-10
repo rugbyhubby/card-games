@@ -1,6 +1,6 @@
 // Command-line simulator. Run it with tools/simulate.sh (see tools/README.md).
 //
-//   --game NAME      euchre | pitch (default euchre)
+//   --game NAME      euchre | pitch | cribbage (default euchre)
 //   --games N        how many games (default 300)
 //   --us LEVEL       your team's difficulty: easy | medium | hard (default medium)
 //   --them LEVEL     the other team's difficulty (default: same as --us)
@@ -11,6 +11,7 @@
 import { runGames, compareRuns, margin } from './sim-core.js';
 import { euchreGame } from './euchre-sim.js';
 import { pitchGame } from './pitch-sim.js';
+import { cribbageGame } from './cribbage-sim.js';
 
 const args = globalThis.arguments || [];
 const opt = { game: 'euchre', games: 300, us: 'medium', them: null, seed: 1, render: false, compare: null, save: null };
@@ -22,7 +23,7 @@ for (let i = 0; i < args.length; i++) {
 }
 opt.games = +opt.games; opt.seed = +opt.seed; opt.them = opt.them || opt.us;
 
-const GAMES = { euchre: ['Euchre', euchreGame], pitch: ['Pitch', pitchGame] };
+const GAMES = { euchre: ['Euchre', euchreGame], pitch: ['Pitch', pitchGame], cribbage: ['Cribbage', cribbageGame] };
 if (!GAMES[opt.game]) { print(`Unknown game: ${opt.game}`); throw new Error('bad game'); }
 const [gameName, makeGame] = GAMES[opt.game];
 print(`Playing ${opt.games} games of ${gameName}: us ${opt.us}, them ${opt.them}, seeds ${opt.seed}–${opt.seed + opt.games - 1}${opt.render ? ', checking screens' : ''}`);

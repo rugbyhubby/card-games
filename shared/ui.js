@@ -130,12 +130,14 @@ function levelNote(chosen, playing) {
   return chosen === playing ? `This game is on ${levelLabel(playing)}.` : `${levelLabel(chosen)} starts when you tap New game.`;
 }
 // `about` gives each level a one-line, plain-language description: { easy, medium, hard }.
-export function levelHTML(settings, playing, about = {}) {
+// Options: `title` for the heading; `note: false` leaves out "Hard starts when you tap New game"
+// (for games that ask to start a new game as soon as the level changes).
+export function levelHTML(settings, playing, about = {}, { title = 'How well the computers play', note = true } = {}) {
   const chosen = settings.get('difficulty');
-  return `<div class="set"><h3>How well the computers play</h3>
-      ${segHTML({ label: 'How well the computers play', key: 'difficulty', options: CHOICES.difficulty.map(v => [v, LABELS.difficulty[v]]), value: chosen })}
+  return `<div class="set"><h3>${title}</h3>
+      ${segHTML({ label: title, key: 'difficulty', options: CHOICES.difficulty.map(v => [v, LABELS.difficulty[v]]), value: chosen })}
       ${CHOICES.difficulty.filter(v => about[v]).map(v => `<p class="about" data-level-about="${v}"${v === chosen ? '' : ' hidden'}>${about[v]}</p>`).join('')}
-      <p class="note" data-level-note="${playing}">${levelNote(chosen, playing)}</p></div>`;
+      ${note ? `<p class="note" data-level-note="${playing}">${levelNote(chosen, playing)}</p>` : ''}</div>`;
 }
 
 // Make the settings controls inside `el` work, and keep links marked

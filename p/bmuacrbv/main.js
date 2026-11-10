@@ -34,5 +34,6 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
     navigator.serviceWorker.register('euchre/sw.js', { scope: 'euchre/' }).catch(() => {});
     navigator.serviceWorker.register('pitch/sw.js', { scope: 'pitch/' }).catch(() => {});
+    navigator.serviceWorker.register('cribbage/sw.js', { scope: 'cribbage/' }).catch(() => {});
   });
 }

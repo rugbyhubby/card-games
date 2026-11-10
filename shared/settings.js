@@ -1,4 +1,5 @@
-// Settings shared by all games: computer difficulty, game speed and theme.
+// Settings shared by all games: computer difficulty, game speed and theme,
+// plus Cribbage's muggins and counting choices.
 //
 // Nothing is saved on the phone or sent anywhere. Settings live in memory,
 // and travel in the page link (the part after #) when you move between the
@@ -11,14 +12,18 @@
 export const DEFAULTS = Object.freeze({
   difficulty: 'medium',
   speed: 'normal',
-  theme: 'system'
+  theme: 'system',
+  muggins: 'on',        // Cribbage: you count your own hands. Only on Hard; Easy and Medium never use it.
+  count: 'animate'      // Cribbage: show the count one combination at a time, or 'totals'
 });
 
 // Allowed values, in the order they're shown.
 export const CHOICES = Object.freeze({
   difficulty: ['easy', 'medium', 'hard'],
   speed: ['slow', 'normal', 'fast'],
-  theme: ['system', 'light', 'dark']
+  theme: ['system', 'light', 'dark'],
+  muggins: ['on', 'off'],
+  count: ['animate', 'totals']
 });
 
 // How much longer (or shorter) computer pauses are at each speed.

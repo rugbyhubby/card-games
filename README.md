@@ -15,7 +15,7 @@ shared/             The toolkit every game uses: deck, card drawings, table layo
                     score header and sheets, computer-move timing, settings, theme.
                     See shared/README.md.
 p/<slug>/           The game list ("Card Games"). <slug> is a random 8-letter code that keeps the link unlisted.
-  index.html        The list: Euchre, Pitch, then Cribbage, Nertz, Solitaire ("Coming soon").
+  index.html        The list: Euchre, Pitch, Cribbage, then Nertz, Solitaire ("Coming soon").
   main.js           Settings sheet, links into games, offline setup.
   version.js        The game list's version number.
   manifest.webmanifest, sw.js, *.png, icon.svg
@@ -31,6 +31,7 @@ p/<slug>/<game>/    One folder per game.
   bots-hard.js      Computer-player strategy, Hard: remembers cards played, bids by seat and
                     score, plays by position. Tuned with the simulator (see tools/README.md).
   view.js           Draws the screen from the shared parts.
+  board.js          Cribbage only: the cribbage board and its pegs.
   version.js        The version number.
   manifest.webmanifest   Name, icons and settings for "Add to Home Screen".
   sw.js             Service worker: saves the game's files (and the shared files it uses) so it runs offline.
@@ -56,7 +57,7 @@ What goes where:
 - **the game's folder**: only that game's rules, bidding, scoring and computer strategy,
   plus the small file that draws its screen from the shared parts.
 
-Settings (difficulty, game speed, theme) are kept in memory only. Nothing is saved on the
+Settings (difficulty, game speed, theme, and Cribbage's muggins and counting) are kept in memory only. Nothing is saved on the
 phone. When you move between the game list and a game, the link carries them in the part
 after `#` (e.g. `euchre/#speed=fast&theme=dark`), which never leaves the phone. Closing
 the page resets them. Each game's Menu has the computer level, New game, Rules, game speed,
@@ -76,10 +77,19 @@ Every page carries `<meta name="robots" content="noindex, nofollow">`. There is 
 | Game list | https://games.rugbyhubby.com/p/bmuacrbv/ |
 | Euchre    | https://games.rugbyhubby.com/p/bmuacrbv/euchre/ |
 | Pitch     | https://games.rugbyhubby.com/p/bmuacrbv/pitch/ |
+| Cribbage  | https://games.rugbyhubby.com/p/bmuacrbv/cribbage/ |
 
 Pitch is 4-point Pitch (High, Low, Jack, Game), two teams, play to 21, bids of 2 to 4 or
 Shoot the moon, dealer stuck at 2. You may trump even when you can follow suit. It has the
 same folder layout as Euchre.
+
+Cribbage is 2 players, you against the computer, to 121, with skunks (under 91: 2 games;
+under 61: 3 games) counted in a games-won tally for the visit. The board lies across the
+top of the table (you red, Computer blue) and pegs move hole by hole. Muggins is a Hard-only
+setting: you count your own hands and the computer takes what you miss. A Counting setting
+chooses between showing each combination in turn (about 1.2 s each, tap to skip) and totals only.
+Changing the level or muggins mid-game asks before starting a new game. The rules don't assume
+2 players (deal sizes come from SETUP in rules.js), so 3-player Cribbage can be added later.
 
 Testers who added Euchre to their Home Screen before the game list existed keep that icon; it
 still works. Adding the game list to the Home Screen gives a "Card Games" icon that opens the list.
