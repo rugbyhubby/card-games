@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Cribbage icon: one card with board holes and a red and a blue peg, black line style on white (matches Euchre and Pitch). Source for the PNGs. -->
+  <rect width="512" height="512" fill="#ffffff"/>
+  <rect x="146" y="96" width="220" height="320" rx="24" fill="#ffffff" stroke="#1d1d1f" stroke-width="13"/>
+  <circle cx="196" cy="196" r="7" fill="#1d1d1f"/><circle cx="226" cy="196" r="7" fill="#1d1d1f"/><circle cx="256" cy="196" r="7" fill="#1d1d1f"/><circle cx="286" cy="196" r="7" fill="#1d1d1f"/><circle cx="316" cy="196" r="7" fill="#1d1d1f"/><circle cx="196" cy="256" r="7" fill="#1d1d1f"/><circle cx="226" cy="256" r="7" fill="#1d1d1f"/><circle cx="256" cy="256" r="7" fill="#1d1d1f"/><circle cx="286" cy="256" r="7" fill="#1d1d1f"/><circle cx="316" cy="256" r="7" fill="#1d1d1f"/><circle cx="196" cy="316" r="7" fill="#1d1d1f"/><circle cx="226" cy="316" r="7" fill="#1d1d1f"/><circle cx="256" cy="316" r="7" fill="#1d1d1f"/><circle cx="286" cy="316" r="7" fill="#1d1d1f"/><circle cx="316" cy="316" r="7" fill="#1d1d1f"/>
+  <circle cx="226" cy="256" r="17" fill="#d0312d" stroke="#1d1d1f" stroke-width="5"/>
+  <circle cx="286" cy="316" r="17" fill="#2f5fd0" stroke="#1d1d1f" stroke-width="5"/>
+</svg>

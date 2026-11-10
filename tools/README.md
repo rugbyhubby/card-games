@@ -4,7 +4,7 @@ Checks for the games. Nothing here is used by the live games.
 
 ## Simulator
 
-Plays hundreds of complete games of Euchre or Pitch with every seat (including yours)
+Plays hundreds of complete games of Euchre, Pitch or Cribbage with every seat (including yours)
 run by the computer, and reports:
 
 - any errors or stuck games
@@ -28,7 +28,7 @@ Options:
 
 | Option | Meaning |
 |--------|---------|
-| `--game pitch` | which game: euchre (default) or pitch |
+| `--game pitch` | which game: euchre (default), pitch or cribbage |
 | `--games 2000` | how many games (default 300) |
 | `--us hard --them medium` | each team's difficulty: easy, medium or hard (default medium for both) |
 | `--seed 5000` | use different deals (default starts at 1) |
@@ -48,6 +48,25 @@ Pitch (v0.1.0: Hard wins about 62% against Medium):
 tools/simulate.sh --game pitch --games 2000 --us hard --them medium
 tools/simulate.sh --game pitch --us medium --render --compare tools/baselines/pitch-v0.1.0-medium.json
 ```
+
+Cribbage (v0.1.0: Hard wins 59.9% against Medium over 2,000 games). Every hand is checked
+(8 cards pegged, a 4-card crib, no card turned up twice) and every point scored is added up
+and compared with the scores shown:
+
+```sh
+tools/simulate.sh --game cribbage --games 2000 --us hard --them medium
+tools/simulate.sh --game cribbage --us medium --render --compare tools/baselines/cribbage-v0.1.0-medium.json
+```
+
+Cribbage counting and pegging are checked against tricky hands (29, double and triple runs,
+crib flush with 4 vs 5 cards, his nobs, his heels, skunk lines):
+
+```sh
+/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc -m tools/cribbage-count-check.js
+```
+
+Hard's crib table (what two discards are usually worth in a crib) comes from
+`tools/cribbage-crib-table.js`; rerun it and paste the result into `cribbage/bots-hard.js` if counting rules ever change.
 
 Pitch's card rules (following suit, trumping, who gets each point) also have a quick check
 against hand-made examples:
@@ -82,6 +101,7 @@ Saved results of 300 games each, for Easy and Medium:
   Made by running the same test against the v0.1.0 code from the `main` branch.
 - `euchre-v0.2.2-*.json`: v0.2.2 (Menu in place of Rules · New game). Same play as v0.1.0.
 - `pitch-v0.1.0-*.json`: the first Pitch, Easy, Medium and Hard.
+- `cribbage-v0.1.0-*.json`: the first Cribbage, Easy, Medium and Hard.
 - `euchre-v0.3.0-*.json`: v0.3.0, Easy, Medium and Hard. Easy plays the same as before;
   Medium changed on purpose in v0.3.0 (it no longer beats a partner who is winning the
   trick when it has another card to play).
@@ -96,5 +116,8 @@ Saved results of 300 games each, for Easy and Medium:
 | `euchre-sim.js` | Plays one game of Euchre using the real game code, with a pretend clock so it runs instantly. |
 | `pitch-sim.js` | The same for Pitch. Also checks every hand: 24 cards played, points add up. |
 | `pitch-rules-check.js` | Checks Pitch's card rules against hand-made examples. |
+| `cribbage-sim.js` | The same for Cribbage. Checks every hand and that the points add up. |
+| `cribbage-count-check.js` | Checks Cribbage counting and pegging against tricky hands. |
+| `cribbage-crib-table.js` | Works out the average crib value of every pair of discards (for Hard). |
 | `sim-core.js` | Repeatable random numbers, the pretend clock, comparing runs. |
 | `sim-env.js` | Stand-ins for the few browser features the game mentions, when run from Terminal. |

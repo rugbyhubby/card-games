@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cribbage">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18181a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>Cribbage</title>
+<script>/* Use the theme from the link right away, so the page doesn't flash the other theme first. */(function(){var m=/[#&]theme=(light|dark)(&|$)/.exec(location.hash);if(m)document.documentElement.dataset.theme=m[1];})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../shared/theme.css">
+<link rel="stylesheet" href="../../../shared/parts.css">
+<style>
+/* Cribbage only: the board, the crib and starter, the pegging and counting area, muggins buttons */
+.board-slot{margin:6px 0 0;color:var(--ink);min-height:calc(min(100vw,520px)*.26)}
+.cboard svg{display:block;width:100%;height:auto;overflow:visible}
+.cboard .num{fill:var(--muted)}
+.cboard .sk{fill:var(--ink);font-weight:600}
+.pdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:1px}
+.toprow{display:flex;justify-content:center;align-items:flex-end;gap:16px;padding-top:10px;min-height:96px}
+.toprow .seat.north{margin:0}
+.mid{display:flex;gap:8px;align-items:stretch;margin:4px 0}
+.side{width:50px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.pa{flex:1;border:1.5px dashed var(--faint);border-radius:18px;min-height:clamp(150px,22vh,190px);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:6px;padding:8px 6px;position:relative}
+.stk{display:flex;flex-direction:column;align-items:center;gap:4px;font:inherit;font-size:11px;color:var(--muted);background:none;border:0;padding:0}
+.pile{position:relative;width:44px;height:58px}
+.pile .card{position:absolute;left:0;top:0}
+.pile .card:nth-child(2){left:2px;top:-2px}.pile .card:nth-child(3){left:4px;top:-4px}.pile .card:nth-child(4){left:6px;top:-6px}
+.card.sm{--cw:38px;--ch:53px}
+.card.sm .ix{font-size:14px;left:4px}.card.sm .ix i{font-size:11px}.card.sm .pip{font-size:15px;right:4px}
+.tapdeck{cursor:pointer}
+.tapdeck.big{display:flex;flex-direction:column;align-items:center;gap:8px;border:0;background:none;font-size:13px;color:var(--muted)}
+.tapdeck.big .pile{width:50px}
+.cuts{display:flex;gap:28px}
+.cuts .stk{font-size:12px}
+.played{display:flex;align-items:center;min-height:66px}
+.played .card{margin-left:-20px}
+.played .card.old + .card.old{margin-left:-30px}
+.played .card:first-child,.played .gap + .card{margin-left:0}
+.played .gap{width:10px}
+.pc.you{transform:translateY(6px)}
+.pc.them{transform:translateY(-6px)}
+.pc.old{opacity:.3}
+.cnt{font-size:13px;color:var(--muted)}
+.cnt b{font-family:var(--serif);font-weight:400;font-size:24px;color:var(--ink);margin-left:4px}
+.cl{font-size:12px;color:var(--muted)}
+.cards{display:flex;gap:4px;align-items:center}
+.cards .gap{width:8px}
+.say{font-family:var(--serif);font-size:17px;text-align:center;line-height:1.25;min-height:44px;padding:0 4px}
+.card.sel{outline:2.5px dashed var(--ink);outline-offset:2px}
+.claims{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.chip{border:1.2px solid var(--ink);border-radius:999px;padding:2px 9px;font-size:12px;background:none;cursor:pointer}
+.chip.bad{text-decoration:line-through;color:var(--muted);border-color:var(--faint)}
+.hint{font-size:12px;color:var(--muted);text-align:center;max-width:220px}
+.btn.kind{padding:6px 11px;min-height:36px;font-size:14px}
+.btn.num{width:44px;padding:8px 0}
+.btn:disabled{opacity:.35;cursor:default}
+.claimn{font-family:var(--serif);font-weight:400;font-size:30px;width:40px;text-align:center}
+.merow{position:relative;display:flex;justify-content:center;align-items:center;gap:14px;min-height:30px}
+.merow .stk{flex-direction:row;gap:6px}
+.merow .pile{width:30px;height:40px}
+.merow .pile .card{--cw:26px;--ch:36px}
+.bubble.pts,.seat .bubble{white-space:nowrap}
+.bubble.pts{background:var(--mark);color:var(--mark-ink)}
+.bubble.pts::after{border-top-color:var(--mark)}
+.log{font-size:14px;line-height:1.7;text-align:center}
+.log b{font-family:var(--serif);font-weight:400;font-size:20px;margin-left:6px}
+.log small{display:block;font-size:11px;color:var(--muted);line-height:1.2;margin-bottom:4px}
+.pa.skip{cursor:pointer}
+.sheet .tally{display:block;margin-top:12px;padding-top:10px;border-top:1px solid var(--faint);font-size:13px;color:var(--muted)}
+.sheet .tally b{display:block;color:var(--ink);font-size:15px;font-weight:600;margin-top:2px}
+.ask{font-size:17px;margin:6px 0 18px;line-height:1.4}
+.ask-btns{display:flex;gap:8px;justify-content:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="sheet" hidden></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

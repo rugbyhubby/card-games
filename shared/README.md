@@ -26,7 +26,7 @@ import { makeDeck, shuffle } from '../../../shared/deck.js';
 | `table.js` | Table layout for 4 seats or 2 seats: `seatHTML()` (avatar, dealer tag, speech bubble, turn highlight), `meHTML()`, `tableHTML()`, `centerHTML()`, `slotHTML()`. |
 | `ui.js` | Score header, controls row, status line, action buttons, footer, the end-of-hand / game-over sheet, pop-up sheets (`createSheet()`), the menu and settings sheet, the feedback email link, and `addRotateNotice()` (a "turn your phone upright" note when a phone is held sideways; each game calls it once). |
 | `timing.js` | `createTimer()`: pauses between computer moves, and `cancelAll()` so New game drops any moves still waiting. |
-| `settings.js` | Difficulty, game speed and theme. In memory, carried between pages in the link (see below). |
+| `settings.js` | Difficulty, game speed and theme (plus Cribbage's muggins and counting). In memory, carried between pages in the link (see below). |
 
 ## Settings and storage
 
