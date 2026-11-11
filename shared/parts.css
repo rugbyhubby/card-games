@@ -61,8 +61,9 @@
   position:relative;padding:0;display:block;flex:none}
 .center{--cw:46px;--ch:64px}
 .center .card{--cw:46px;--ch:64px}
-.card .ix{position:absolute;top:3px;left:5px;font-family:var(--serif);font-size:17px;line-height:1;text-align:center}
-.card .ix i{font-style:normal;display:block;font-size:13px;margin-top:.3em}
+/* The card's number or letter: bold sans so it reads at a glance. The suit under it stays as it was. */
+.card .ix{position:absolute;top:3px;left:4px;font-family:var(--sans);font-weight:600;font-size:18px;letter-spacing:-.04em;line-height:1;text-align:center}
+.card .ix i{font-style:normal;font-weight:400;letter-spacing:0;display:block;font-size:13px;margin-top:.25em}
 .card .pip{position:absolute;right:5px;bottom:2px;font-size:22px;line-height:1}
 .card.red{color:#cc1f2d}
 .card.back{background-image:repeating-linear-gradient(45deg,#c9c9ce 0 1px,transparent 1px 6px)}
@@ -92,7 +93,7 @@
    lets all --n cards fit across the game area (520px max, 12px side padding, 5px gaps). */
 .hand .card{--cw:min(17.5vw,70px,calc((min(100vw,520px) - 24px - (var(--n,5) - 1)*5px)/var(--n,5)));
   --ch:calc(var(--cw)*1.4);transition:transform .15s}
-.hand .card .ix{font-size:21px}.hand .card .ix i{font-size:16px}
+.hand .card .ix{font-size:23px}.hand .card .ix i{font-size:16px}
 .hand .card .pip{font-size:30px}
 .hand .card.can{cursor:pointer}
 .hand .card.can:active{transform:translateY(-6px)}
