@@ -81,14 +81,14 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
       msg(`${who(p)} ${verb(p, 'pass', 'passes')}.`);
       if (S.passes === 4) {
         S.phase = 'bid2'; S.turnedDown = S.upcard.s; S.passes = 0; S.said = {}; S.turn = nextP(S.dealer);
-        msg(`Everyone passed. ${SNAME[S.turnedDown]} are out — name another suit.`);
+        msg(`Everyone passed. ${SNAME[S.turnedDown]} are out. Name another suit, or pass.`);
         changed(); return later(step, 1200);
       }
       S.turn = nextP(S.turn); return step();
     }
     setTrump(S.upcard.s, p, alone);
     S.said[p] = (p === S.dealer ? 'I’ll take it' : 'Order up') + (alone ? ', alone' : '');
-    msg(`${who(p)} ${p === S.dealer ? verb(p, 'pick', 'picks') + ' it up' : verb(p, 'order', 'orders') + ' it up'}. ${SNAME[S.trump]} are trump${alone ? ' — going alone' : ''}.`);
+    msg(`${who(p)} ${p === S.dealer ? verb(p, 'pick', 'picks') + ' it up' : verb(p, 'order', 'orders') + ' it up'}. ${SNAME[S.trump]} are trump${alone ? ', going alone' : ''}.`);
     S.turn = null;
     if (S.sitter !== S.dealer) {
       S.hands[S.dealer].push(S.upcard); S.upcardTaken = true;

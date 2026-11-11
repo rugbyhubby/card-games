@@ -123,21 +123,49 @@ export function settingsHTML(settings) {
   return `<div class="set">${row('speed', 'Game speed')}${row('theme', 'Theme')}</div>`;
 }
 
-// Computer level, for a game's menu. The level is chosen for the next new game;
-// `playing` is the level of the game in progress.
+// Computer level, for a game's menu. Changing it during a game asks first and
+// then starts a new game (see askBeforeLevelChange below).
 export const levelLabel = level => LABELS.difficulty[level] || level;
-function levelNote(chosen, playing) {
-  return chosen === playing ? `This game is on ${levelLabel(playing)}.` : `${levelLabel(chosen)} starts when you tap New game.`;
-}
 // `about` gives each level a one-line, plain-language description: { easy, medium, hard }.
-// Options: `title` for the heading; `note: false` leaves out "Hard starts when you tap New game"
-// (for games that ask to start a new game as soon as the level changes).
-export function levelHTML(settings, playing, about = {}, { title = 'How well the computers play', note = true } = {}) {
+export function levelHTML(settings, about = {}, { title = 'How well the computers play' } = {}) {
   const chosen = settings.get('difficulty');
   return `<div class="set"><h3>${title}</h3>
       ${segHTML({ label: title, key: 'difficulty', options: CHOICES.difficulty.map(v => [v, LABELS.difficulty[v]]), value: chosen })}
-      ${CHOICES.difficulty.filter(v => about[v]).map(v => `<p class="about" data-level-about="${v}"${v === chosen ? '' : ' hidden'}>${about[v]}</p>`).join('')}
-      ${note ? `<p class="note" data-level-note="${playing}">${levelNote(chosen, playing)}</p>` : ''}</div>`;
+      ${CHOICES.difficulty.filter(v => about[v]).map(v => `<p class="about" data-level-about="${v}"${v === chosen ? '' : ' hidden'}>${about[v]}</p>`).join('')}</div>`;
+}
+
+// Changing the level in a game's menu. If a game is under way it asks
+// "Changing levels will start a new game. Continue?" first; Cancel goes back
+// to the menu with nothing changed, Continue starts a new game on the new level.
+//   el, sheet     the menu's sheet element and createSheet() for it
+//   pick(button)  the settings a tapped button asks for, e.g. { difficulty: 'hard' }, or null
+//                 if it isn't a level button (default: the Easy / Medium / Hard buttons)
+//   matches(want) true if the game on screen already uses those settings (nothing to do)
+//   inProgress()  true once a game has really started and isn't over
+//   openMenu()    redraws the menu; newGame() starts a new game
+// Listens before bindSettings() does, so nothing changes until you say so.
+export function askBeforeLevelChange({ el, sheet, settings, matches, inProgress, openMenu, newGame,
+  pick = b => b.dataset.difficulty ? { difficulty: b.dataset.difficulty } : null }) {
+  let pending = null;
+  const apply = want => Object.entries(want).forEach(([k, v]) => settings.set(k, v));
+  el.addEventListener('click', e => {
+    const ask = e.target.closest('[data-ask]');
+    if (ask) {
+      e.stopPropagation();
+      const want = pending; pending = null;
+      if (ask.dataset.ask === 'change' && want) { apply(want); sheet.close(); return newGame(); }
+      return openMenu();
+    }
+    const b = e.target.closest('button');
+    const want = b && pick(b);
+    if (!want) return;
+    e.stopPropagation();
+    if (matches(want)) { apply(want); return openMenu(); }
+    if (!inProgress()) { apply(want); sheet.close(); return newGame(); }
+    pending = want;
+    sheet.open(`<p class="ask" id="ask-h">Changing levels will start a new game. Continue?</p>
+      <div class="ask-btns"><button class="btn" data-ask="keep">Cancel</button><button class="btn pri" data-ask="change">Continue</button></div>`, { labelledBy: 'ask-h' });
+  }, true);
 }
 
 // Make the settings controls inside `el` work, and keep links marked
@@ -150,7 +178,6 @@ export function bindSettings(el, settings) {
       settings.set(key, b.dataset[key]);
       el.querySelectorAll(`[data-${key}]`).forEach(x => x.setAttribute('aria-pressed', String(x.dataset[key] === settings.get(key))));
       el.querySelectorAll('a[data-carry]').forEach(x => { x.href = settings.link(x.dataset.carry); });
-      el.querySelectorAll('[data-level-note]').forEach(n => { n.textContent = levelNote(settings.get('difficulty'), n.dataset.levelNote); });
       el.querySelectorAll('[data-level-about]').forEach(n => { n.hidden = n.dataset.levelAbout !== settings.get('difficulty'); });
       return;
     }

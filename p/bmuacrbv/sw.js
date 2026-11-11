@@ -3,7 +3,7 @@
 //
 // This helper looks after the game list only. Each game has its own helper
 // in its folder (e.g. euchre/sw.js), which takes over for that game's pages.
-const CACHE = 'cardgames-v0.3.0';
+const CACHE = 'cardgames-v0.3.2';
 
 const SHARED = '../../shared/';
 const FILES = [
@@ -13,6 +13,7 @@ const FILES = [
   'icon-192.png',
   'icon-512.png',
   'main.js', 'version.js',
+  'euchre/rules-text.js', 'pitch/rules-text.js', 'cribbage/rules-text.js',   // for the Rules links
   SHARED + 'theme.css', SHARED + 'parts.css',
   SHARED + 'settings.js', SHARED + 'theme.js', SHARED + 'ui.js'
 ];

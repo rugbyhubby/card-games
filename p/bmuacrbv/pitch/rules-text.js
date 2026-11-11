@@ -8,32 +8,40 @@ export const LEVEL_ABOUT = {
 // The "How to play" sheet.
 export const rulesHTML = `
     <h2 id="rules-h">How to play</h2>
-    <h3>The deck and teams</h3>
-    <p>A regular 52-card deck. You and Partner play against West and East. Each player gets 6 cards. The first dealer is picked at random; after that the deal moves one seat to the left each hand.</p>
+    <h3>Setup</h3>
+    <p>Four players in two teams: you and Partner against West and East. A regular 52-card deck, 6 cards each. The first dealer is picked at random; after that the deal moves one seat to the left each hand.</p>
+    <h3>How a hand works</h3>
+    <ul>
+      <li><b>Bidding.</b> Starting left of the dealer, each player bids once: 2, 3, 4, or <b>Shoot the moon</b>, or passes. Each bid must be higher than the last, except the dealer, who bids last and may <b>take the bid by matching it</b>. The bid is how many points the bidder’s team promises to win. If everyone passes, the dealer is stuck with a bid of 2.</li>
+      <li><b>Trump.</b> Whoever wins the bid leads first. The suit of that first card becomes trump.</li>
+      <li><b>Play.</b> Follow the suit that was led if you can, <b>or play a trump</b>. Unlike Euchre, you may trump even when you could follow suit. If you can’t follow suit, play anything. The highest trump wins the trick, or the highest card of the suit led if no trump was played.</li>
+    </ul>
     <h3>The four points</h3>
-    <p>Each hand, four points are up for grabs:</p>
     <ul>
       <li><b>High</b>: the highest trump played, to the team that played it.</li>
       <li><b>Low</b>: the lowest trump played. It goes to whoever played it, even if they lost that trick.</li>
-      <li><b>Jack</b>: the Jack of trump, to whoever wins the trick it's in. If nobody was dealt it, there's no Jack point.</li>
+      <li><b>Jack</b>: the Jack of trump, to whoever wins the trick it’s in. If nobody was dealt it, there’s no Jack point.</li>
       <li><b>Game</b>: the team whose tricks hold the most of these: 10 = 10, Ace = 4, King = 3, Queen = 2, Jack = 1. A tie means nobody gets it.</li>
     </ul>
-    <h3>Bidding</h3>
-    <p>Starting left of the dealer, each player bids once: 2, 3, 4, or <b>Shoot the moon</b>, or passes. Each bid must be higher than the last. That's how many points the bidder's team promises to win. If everyone passes, the dealer is stuck with a bid of 2.</p>
-    <h3>Trump</h3>
-    <p>Whoever wins the bid leads first. The suit of that first card becomes trump.</p>
-    <h3>Play</h3>
-    <p>Follow the suit that was led if you can, <b>or play a trump</b>. Unlike Euchre, you may trump even when you could follow suit. If you can't follow suit, play anything. The highest trump wins the trick, or the highest card of the suit led if no trump was played.</p>
     <h3>Scoring</h3>
     <ul>
       <li>The bidding team wins at least what it bid: it scores every point it won.</li>
       <li>It falls short: it loses the amount it bid.</li>
       <li>The other team always scores the points it won.</li>
-      <li><b>Shoot the moon</b>: win every point in play (all 4, or all 3 if nobody was dealt the Jack) and you win the game on the spot. Miss even one and you lose 4 points.</li>
+      <li><b>Shoot the moon</b>: win all 4 points and you win the game on the spot. Miss even one and you lose 4. If nobody was dealt the Jack, the moon can’t be made.</li>
     </ul>
+    <h3>Winning</h3>
     <p>First team to <b>21 points</b> wins. If both teams reach 21 in the same hand, the bidding team wins.</p>
+    <h3>House rules in use</h3>
+    <ul>
+      <li>4-point Pitch (High, Low, Jack, Game), played to <b>21</b>. The bidders go out first.</li>
+      <li>One round of bidding. If everyone passes, the dealer is <b>stuck at 2</b>.</li>
+      <li>The <b>dealer may take the bid by matching it</b>, even Shoot the moon.</li>
+      <li>You may <b>trump at any time</b>, even when you could follow suit.</li>
+      <li><b>Shoot the moon</b> needs all 4 points: it wins the game, and missing costs 4.</li>
+    </ul>
     <h3>Computer levels</h3>
-    <p>Choose in the Menu; it starts with your next new game. Your partner plays at the same level as the other two.</p>
+    <p>Choose in the Menu. Changing the level during a game starts a new game (you’re asked first). Your partner plays at the same level as the other two.</p>
     <ul>
       <li><b>Easy</b>: ${LEVEL_ABOUT.easy}</li>
       <li><b>Medium</b>: ${LEVEL_ABOUT.medium}</li>

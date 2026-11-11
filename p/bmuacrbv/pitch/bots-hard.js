@@ -57,14 +57,17 @@ const cheapest = (S, mem, cards) => cards.slice().sort((a, b) => value(S, mem, a
 // ---------- bidding ----------
 
 export function bid(S, p, level, options) {
-  let { value: v } = bestSuit(S.hands[p]);
+  if (S.bidder === partnerOf(p)) options = options.filter(b => b > S.bid);   // never take the bid from partner
+  const best = bestSuit(S.hands[p]);
+  let v = best.value;
   v += TUNE.partnerHelp;
   const pb = S.bidder === partnerOf(p) ? S.bid : 0;
   if (pb) v += TUNE.partnerBidBonus * (pb - 1);
   if (p === S.dealer) v += TUNE.dealerBonus;
   const them = S.score[1 - team(p)];
   if (them >= WIN_AT - 5) v += TUNE.setRisk;
-  if (options.includes(MOON) && v >= TUNE.moonAt) return MOON;
+  // The moon needs all four points, so only try it holding the Jack of trump.
+  if (options.includes(MOON) && v >= TUNE.moonAt && S.hands[p].some(c => c.r === 'J' && c.s === best.suit)) return MOON;
   // Partner already holds the bid: only go over it with real extra strength.
   if (pb && v < pb + 1.2) return 0;
   const want = Math.floor(v);
