@@ -1,5 +1,5 @@
 // Cribbage game flow: the cut for first deal, dealing, the crib, the starter,
-// pegging, counting (automatic, or by you when muggins is on) and the end of the game.
+// pegging, counting (by you, or automatic) and the end of the game.
 // No drawing here: after each change it calls onChange() and view.js redraws.
 //
 // Seat 0 is you, seat 1 the computer. The number of players comes from `players`
@@ -12,13 +12,14 @@ import * as hard from './bots-hard.js';
 // options:
 //   timer          from shared/timing.js; spaces out computer moves
 //   levelAtStart   () => 'easy' | 'medium' | 'hard', fixed for the whole game
-//   mugginsAtStart () => true | false: you count your own hands (Hard only)
+//   mugginsAtStart () => true | false: Computer takes points you miss (Hard only); you always count
+//   youCount       () => true if you count your own hand and crib (checked each time; false = automatic)
 //   animate        () => true to show the count one combination at a time
 //   difficultyFor  (seat) => level, to give seats different levels (simulator only)
 //   human          false: the computer plays your seat too (simulator)
 //   onChange       called whenever something on screen should update
 //   onEvent        called with a short note for every move (used by the simulator)
-export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAtStart = () => false, animate = () => true,
+export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAtStart = () => false, youCount = () => false, animate = () => true,
   difficultyFor = null, human = true, players = 2, onChange = () => {}, onEvent = () => {} }) {
   const n = players, SET = SETUP[n];
   const S = { n, score: Array(n).fill(0), pegs: Array.from({ length: n }, () => [0, 0]), tally: Array(n).fill(0), level: 'medium', phase: 'none', countToken: 0 };
@@ -248,7 +249,7 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
     const bd = countHand(cards, S.starter, st.crib);
     S.said = {}; S.pts = {};
     S.count = { label: stageLabel(st), owner: st.owner, crib: st.crib, cards: [...cards], hl: [], say: '', items: bd.items, total: bd.total, done: false };
-    if (st.owner === 0 && S.muggins) {
+    if (st.owner === 0 && human && (S.muggins || youCount())) {
       S.phase = 'claim';
       S.claim = { sel: [], claims: [] };
       msg(`Count ${st.crib ? 'your crib' : 'your hand'}: tap cards that score together, then what they make.`);
@@ -298,10 +299,10 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
   }
   function nextStage() { S.stage++; S.pts = {}; runStage(); }
 
-  // ---------- your own count (muggins) ----------
+  // ---------- your own count ----------
   // You show every score: select the cards and name what they make (15, pair, run,
   // flush, nibs). Nothing is checked until Done. A wrong claim scores nothing;
-  // anything you missed, Computer takes ("Muggins!").
+  // anything you missed is lost, or with muggins Computer takes it ("Muggins!").
   const CLAIM_PTS = { fifteen: () => 2, pair: () => 2, run: k => k, flush: k => k, nibs: () => 1 };
   function checkClaims() {
     const C = S.count, left = [...C.items];
@@ -327,13 +328,24 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
       changed();
       return later(() => scoreStage(0, real), 1300);
     }
+    const pl = k => `${k} point${k > 1 ? 's' : ''}`;
+    if (!S.muggins) {                       // no muggins: points you miss are simply lost
+      msg(`You counted ${mine}. Here’s the full count: ${real}.`);
+      S.handLog.push({ label: C.label, pts: mine, note: `Missed ${missed}` });
+      return showCount(C.items, () => {
+        if (mine && addScore(0, mine, `${C.label}: ${mine}`)) return;
+        msg(`You missed ${pl(missed)}. You score ${mine}.`);
+        changed();
+        later(nextStage, 1800);
+      }, true);
+    }
     S.said = { 1: 'Muggins!' };
     msg(`Muggins! You claimed ${mine}. Computer shows you the full count.`);
     S.handLog.push({ label: C.label, pts: mine, note: `Computer took ${missed} (muggins)` });
     showCount(C.items, () => {
       if (mine && addScore(0, mine, `${C.label}: ${mine}`)) return;
       if (addScore(1, missed, `Muggins! +${missed}`)) return;
-      msg(`Muggins! Computer takes the ${missed} point${missed > 1 ? 's' : ''} you missed.`);
+      msg(`Muggins! Computer takes the ${pl(missed)} you missed.`);
       changed();
       later(nextStage, 1800);
     }, true);
@@ -374,7 +386,7 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
       if (c) playCard(0, c);
     },
     go() { if (S.phase === 'peg' && S.turn === 0 && !legal(0).length) sayGo(0); },
-    // muggins counting
+    // counting your own hand
     select(id) {
       if (S.phase !== 'claim') return;
       const sel = S.claim.sel;

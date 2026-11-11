@@ -10,8 +10,10 @@ import { rulesHTML, LEVEL_ABOUT } from './rules-text.js';
 import { VERSION } from './version.js';
 
 const speed = () => SPEED_FACTOR[settings.get('speed')] || 1;
-// Muggins only exists on Hard (on unless you turn it off).
-const mugginsFor = (level, m) => level === 'hard' && m === 'on';
+// Muggins only exists on Hard (on unless you turn it off), and only when you count.
+const mugginsFor = (level, m, mine = settings.get('mycount')) => level === 'hard' && m === 'on' && mine !== 'auto';
+// Who counts your hand and crib: you, or automatic. 'level' means automatic on Easy, you otherwise.
+const youCountFor = (level, mine) => mine === 'you' || (mine === 'level' && level !== 'easy');
 
 const app = document.getElementById('app');
 const timer = createTimer({ speed });
@@ -20,6 +22,7 @@ const game = createCribbage({
   timer,
   levelAtStart: () => settings.get('difficulty'),          // fixed for the whole game
   mugginsAtStart: () => mugginsFor(settings.get('difficulty'), settings.get('muggins')),
+  youCount: () => youCountFor(S.level, settings.get('mycount')),
   animate: () => settings.get('count') === 'animate',
   onChange: render
 });
@@ -46,12 +49,16 @@ const sheet = createSheet(sheetEl);
 
 function cribbageSettings() {
   const mug = mugginsFor(settings.get('difficulty'), settings.get('muggins')) ? 'on' : 'off';
+  const mine = mug === 'on' || youCountFor(settings.get('difficulty'), settings.get('mycount')) ? 'you' : 'auto';
   return levelHTML(settings, LEVEL_ABOUT, { title: 'How well the computer plays' }) +
-    `<div class="set"><h3>Muggins</h3>
+    `<div class="set"><h3>Counting your hand and crib</h3>
+      ${segHTML({ label: 'Counting your hand and crib', key: 'mycount', options: [['you', 'You count'], ['auto', 'Automatic']], value: mine })}
+      <p class="note">Easy counts for you to start with. When you count, points you miss are lost.</p>
+      <h3>Muggins</h3>
       ${segHTML({ label: 'Muggins', key: 'muggins', options: [['off', 'Off'], ['on', 'On']], value: mug })}
-      <p class="note">Hard only. You count your own hands; miss points and the computer takes them.</p>
-      <h3>Counting</h3>
-      ${segHTML({ label: 'Counting', key: 'count', options: [['animate', 'Animate the count'], ['totals', 'Totals only']], value: settings.get('count') })}</div>`;
+      <p class="note">Hard only. When you count, the computer takes the points you miss.</p>
+      <h3>Showing the count</h3>
+      ${segHTML({ label: 'Showing the count', key: 'count', options: [['animate', 'One at a time'], ['totals', 'Totals only']], value: settings.get('count') })}</div>`;
 }
 const openMenu = () => sheet.open(menuHTML({
   lead: cribbageSettings(),
@@ -63,22 +70,29 @@ const openRules = () => sheet.open(rulesHTML, { cls: 'rules', labelledBy: 'rules
 // A game counts as started once the cut for deal has happened, until it's over.
 const inProgress = () => S.phase !== 'gameOver' && !(S.phase === 'cut' && !S.cut);
 
-// Counting style changes right away, no new game needed.
+// How the count is shown, and who counts, change right away: no new game needed.
+// (Except turning counting to Automatic in a muggins game: that's a rules change, asked below.)
 sheetEl.addEventListener('click', e => {
-  const b = e.target.closest('[data-count]');
-  if (b) { e.stopPropagation(); settings.set('count', b.dataset.count); openMenu(); }
+  const b = e.target.closest('[data-count],[data-mycount]');
+  if (!b) return;
+  if (b.dataset.mycount === 'auto' && S.muggins) return;
+  e.stopPropagation();
+  if (b.dataset.count) settings.set('count', b.dataset.count);
+  else { settings.set('mycount', b.dataset.mycount); if (b.dataset.mycount === 'auto') settings.set('muggins', 'off'); }
+  openMenu();
 }, true);
 // Level and muggins: changing either during a game asks first, then starts a new game.
 askBeforeLevelChange({
   el: sheetEl, sheet, settings, inProgress, openMenu, newGame: () => game.newGame(),
   pick: b => {
     if (b.dataset.difficulty) return b.dataset.difficulty === settings.get('difficulty') ? null
-      : { difficulty: b.dataset.difficulty, muggins: 'on' };           // picking a level resets muggins
-    if (b.dataset.muggins === 'on') return { difficulty: 'hard', muggins: 'on' };   // muggins means Hard
+      : { difficulty: b.dataset.difficulty, muggins: 'on', mycount: 'level' };   // a new level resets counting
+    if (b.dataset.muggins === 'on') return { difficulty: 'hard', muggins: 'on', mycount: 'you' };   // muggins means Hard, and you count
+    if (b.dataset.mycount === 'auto') return { difficulty: settings.get('difficulty'), muggins: 'off', mycount: 'auto' };
     if (b.dataset.muggins === 'off') return { difficulty: settings.get('difficulty'), muggins: 'off' };
     return null;
   },
-  matches: w => w.difficulty === S.level && mugginsFor(w.difficulty, w.muggins) === S.muggins
+  matches: w => w.difficulty === S.level && mugginsFor(w.difficulty, w.muggins, w.mycount || settings.get('mycount')) === S.muggins
 });
 bindSettings(sheetEl, settings);
 

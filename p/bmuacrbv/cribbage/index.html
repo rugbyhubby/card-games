@@ -27,36 +27,47 @@
 .cboard .num{fill:var(--muted)}
 .cboard .sk{fill:var(--ink);font-weight:600}
 .pdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:1px}
-.toprow{display:flex;justify-content:center;align-items:flex-end;gap:16px;padding-top:10px;min-height:96px}
-.toprow .seat.north{margin:0}
+/* One card size for the whole table: your hand, the Computer's cards, the deck, starter, crib, played cards. */
+#app{--c:min(14.2vw,62px)}
+#app .card{--cw:var(--c);--ch:calc(var(--c)*1.4)}
+#app .card .ix{font-size:calc(var(--c)*.32);left:calc(var(--c)*.08)}
+#app .card .ix i{font-size:calc(var(--c)*.24)}
+#app .card .pip{font-size:calc(var(--c)*.44);right:calc(var(--c)*.08)}
+#app .hand{gap:4px;min-height:calc(var(--c)*1.4 + 14px)}
+/* Computer: avatar on the left, its cards face down beside it */
+.opp{display:flex;align-items:center;gap:10px;padding:10px 0 4px;min-height:calc(var(--c)*1.4 + 14px)}
+.opp .seat{width:70px;flex:none;margin:0}
+.opp .seat .bubble{top:22px;left:100%;transform:translate(6px,-50%);z-index:3;animation:none}
+.opp .seat .bubble::after{left:-4px;top:50%;bottom:auto;margin:-4px 0 0;border:4px solid transparent;border-left:0;border-right-color:var(--ink)}
+.opp .seat .bubble.pts::after{border-right-color:var(--mark)}
+.ofan{display:flex}
+.ofan .card + .card{margin-left:calc(var(--c)*-.58)}
+/* Deck and starter | pegging and counting | crib */
 .mid{display:flex;gap:8px;align-items:stretch;margin:4px 0}
-.side{width:50px;display:flex;flex-direction:column;justify-content:center;align-items:center}
-.pa{flex:1;border:1.5px dashed var(--faint);border-radius:18px;min-height:clamp(150px,22vh,190px);display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:6px;padding:8px 6px;position:relative}
-.stk{display:flex;flex-direction:column;align-items:center;gap:4px;font:inherit;font-size:11px;color:var(--muted);background:none;border:0;padding:0}
-.pile{position:relative;width:44px;height:58px}
-.pile .card{position:absolute;left:0;top:0}
-.pile .card:nth-child(2){left:2px;top:-2px}.pile .card:nth-child(3){left:4px;top:-4px}.pile .card:nth-child(4){left:6px;top:-6px}
-.card.sm{--cw:38px;--ch:53px}
-.card.sm .ix{font-size:14px;left:4px}.card.sm .ix i{font-size:11px}.card.sm .pip{font-size:15px;right:4px}
+.side{width:calc(var(--c) + 4px);flex:none;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.pa{flex:1;min-width:0;container-type:inline-size;border:1.5px dashed var(--faint);border-radius:18px;min-height:calc(var(--c)*1.4 + 64px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;position:relative}
+.stk{display:flex;flex-direction:column;align-items:center;gap:5px;font:inherit;font-size:11px;line-height:1.2;text-align:center;color:var(--muted);background:none;border:0;padding:0}
+.pile{position:relative;width:calc(var(--c) + 4px);height:calc(var(--c)*1.4 + 4px)}
+.pile .card{position:absolute;left:0;top:4px}
+.pile .card:nth-child(2){left:2px;top:2px}.pile .card:nth-child(3){left:4px;top:0}.pile .card:nth-child(4){left:4px;top:0}
 .tapdeck{cursor:pointer}
 .tapdeck.big{display:flex;flex-direction:column;align-items:center;gap:8px;border:0;background:none;font-size:13px;color:var(--muted)}
-.tapdeck.big .pile{width:50px}
 .cuts{display:flex;gap:28px}
 .cuts .stk{font-size:12px}
-.played{display:flex;align-items:center;min-height:66px}
-.played .card{margin-left:-20px}
-.played .card.old + .card.old{margin-left:-30px}
-.played .card:first-child,.played .gap + .card{margin-left:0}
-.played .gap{width:10px}
-.pc.you{transform:translateY(6px)}
-.pc.them{transform:translateY(-6px)}
-.pc.old{opacity:.3}
+/* Played cards: finished rounds face down on the left, this round fanned out */
+.played{display:flex;align-items:center;gap:10px;max-width:100%;padding:6px 0}
+.fanrow{display:flex}
+.fanrow .card + .card{margin-left:calc(min(var(--c)*.62, (100cqw - 16px - var(--c)*(1 + var(--old,0)) - var(--old,0)*14px) / var(--k)) - var(--c))}
+.played.has-old{--old:1}
+.pc.you{transform:translateY(5px)}
+.pc.them{transform:translateY(-5px)}
 .cnt{font-size:13px;color:var(--muted)}
 .cnt b{font-family:var(--serif);font-weight:400;font-size:24px;color:var(--ink);margin-left:4px}
 .cl{font-size:12px;color:var(--muted)}
-.cards{display:flex;gap:4px;align-items:center}
-.cards .gap{width:8px}
+.cl small{font-size:11px}
+.cards{display:flex;align-items:center}
+.cards .card + .card{margin-left:calc(min(4px, (100cqw - 16px - var(--c)*4) / 3))}
 .say{font-family:var(--serif);font-size:17px;text-align:center;line-height:1.25;min-height:44px;padding:0 4px}
 .card.sel{outline:2.5px dashed var(--ink);outline-offset:2px}
 .claims{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
@@ -66,9 +77,6 @@
 .btn.kind{padding:6px 11px;min-height:36px;font-size:14px}
 .btn:disabled{opacity:.35;cursor:default}
 .merow{position:relative;display:flex;justify-content:center;align-items:center;gap:14px;min-height:30px}
-.merow .stk{flex-direction:row;gap:6px}
-.merow .pile{width:30px;height:40px}
-.merow .pile .card{--cw:26px;--ch:36px}
 .bubble.pts,.seat .bubble{white-space:nowrap}
 .bubble.pts{background:var(--mark);color:var(--mark-ink)}
 .bubble.pts::after{border-top-color:var(--mark)}

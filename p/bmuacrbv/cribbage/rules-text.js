@@ -38,7 +38,8 @@ export const rulesHTML = `
     <p>First to <b>121</b> wins, the moment it happens, even in the middle of pegging or counting. That’s why the counting order matters. If the loser hasn’t reached 91, it’s a <b>skunk</b> and counts as 2 games; under 61 is a <b>double skunk</b>, 3 games.</p>
     <h3>House rules in use</h3>
     <ul>
-      <li><b>Muggins</b> (Hard only, on unless you turn it off in the Menu): you count your own hand and crib. Show each score: tap the cards that score together, then what they make (15, Pair, Run, Flush, Nibs), and tap Done. A claim that’s wrong scores nothing. Anything you missed, the computer calls “Muggins!” and takes. The computer always counts its own cards correctly.</li>
+      <li><b>You count your own hand and crib</b> (Easy counts for you, unless you change it in the Menu). Show each score: tap the cards that score together (the starter too), then what they make (15, Pair, Run, Flush, Nibs), and tap Done. A claim that’s wrong scores nothing, and points you miss are lost. You can switch to Automatic counting in the Menu at any time.</li>
+      <li><b>Muggins</b> (Hard only, on unless you turn it off): points you miss aren’t lost; the computer calls “Muggins!” and takes them. The computer always counts its own cards correctly.</li>
       <li><b>Skunks</b> count: 2 games for a skunk, 3 for a double skunk, in the tally of games won this visit.</li>
     </ul>
     <h3>Computer levels</h3>
