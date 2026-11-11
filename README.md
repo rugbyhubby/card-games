@@ -96,9 +96,10 @@ top of the table (you red, Computer blue) and pegs move hole by hole. Every card
 is the same size as your hand's cards: the Computer's face-down cards (beside its avatar on the
 left), the deck and starter, the crib, and the played cards. When a pegging round ends (31 or a
 go), its cards turn face down in a stack. You count your own hand and crib (tap the cards and
-what they make); points you miss are lost. Easy counts for you by default, and anyone can
-switch to Automatic in the Menu. Muggins is a Hard-only setting: the computer takes what you
-miss. "Showing the count" chooses between each combination in turn (about 1.2 s each, tap to
+what they make). With "Missed points: Tell me" (the default) the game says how many points
+you missed so you can keep looking; points still missed are lost. Easy counts for you by
+default, and anyone can switch to Automatic in the Menu. Muggins is a Hard-only setting, off
+by default: no reminders, and the computer takes what you miss. "Showing the count" chooses between each combination in turn (about 1.2 s each, tap to
 skip) and totals only.
 Changing the level or muggins mid-game asks before starting a new game. The rules don't assume
 2 players (deal sizes come from SETUP in rules.js), so 3-player Cribbage can be added later.

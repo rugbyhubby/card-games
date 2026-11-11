@@ -13,9 +13,10 @@ export const DEFAULTS = Object.freeze({
   difficulty: 'medium',
   speed: 'normal',
   theme: 'system',
-  muggins: 'on',        // Cribbage: you count your own hands. Only on Hard; Easy and Medium never use it.
+  muggins: 'off',       // Cribbage: the computer takes points you miss. Only on Hard, with the reminder off.
   count: 'animate',     // Cribbage: show the count one combination at a time, or 'totals'
-  mycount: 'level'      // Cribbage: who counts your hand: 'you', 'auto', or 'level' (automatic on Easy, you otherwise)
+  mycount: 'level',     // Cribbage: who counts your hand: 'you', 'auto', or 'level' (automatic on Easy, you otherwise)
+  remind: 'on'          // Cribbage: when you count, say how many points you missed before scoring
 });
 
 // Allowed values, in the order they're shown.
@@ -25,7 +26,8 @@ export const CHOICES = Object.freeze({
   theme: ['system', 'light', 'dark'],
   muggins: ['on', 'off'],
   count: ['animate', 'totals'],
-  mycount: ['level', 'you', 'auto']
+  mycount: ['level', 'you', 'auto'],
+  remind: ['on', 'off']
 });
 
 // How much longer (or shorter) computer pauses are at each speed.

@@ -14,12 +14,13 @@ import * as hard from './bots-hard.js';
 //   levelAtStart   () => 'easy' | 'medium' | 'hard', fixed for the whole game
 //   mugginsAtStart () => true | false: Computer takes points you miss (Hard only); you always count
 //   youCount       () => true if you count your own hand and crib (checked each time; false = automatic)
+//   remind         () => true to say how many points you missed (once) before scoring, so you can keep looking
 //   animate        () => true to show the count one combination at a time
 //   difficultyFor  (seat) => level, to give seats different levels (simulator only)
 //   human          false: the computer plays your seat too (simulator)
 //   onChange       called whenever something on screen should update
 //   onEvent        called with a short note for every move (used by the simulator)
-export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAtStart = () => false, youCount = () => false, animate = () => true,
+export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAtStart = () => false, youCount = () => false, remind = () => false, animate = () => true,
   difficultyFor = null, human = true, players = 2, onChange = () => {}, onEvent = () => {} }) {
   const n = players, SET = SETUP[n];
   const S = { n, score: Array(n).fill(0), pegs: Array.from({ length: n }, () => [0, 0]), tally: Array(n).fill(0), level: 'medium', phase: 'none', countToken: 0 };
@@ -319,6 +320,13 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
     if (S.phase !== 'claim') return;
     const C = S.count, real = C.total;
     const mine = checkClaims(), missed = real - mine;
+    const pl = k => `${k} point${k > 1 ? 's' : ''}`;
+    if (missed && !S.muggins && remind() && !S.claim.warned) {   // one reminder, then Done scores what you have
+      S.claim.warned = true;
+      msg(`You missed ${pl(missed)}. Keep looking, or tap Done to score ${mine}.`);
+      changed();
+      return;
+    }
     S.claim.result = { mine, missed };
     onEvent(`claim:${mine}:${missed}`);
     S.phase = 'count';
@@ -328,7 +336,6 @@ export function createCribbage({ timer, levelAtStart = () => 'medium', mugginsAt
       changed();
       return later(() => scoreStage(0, real), 1300);
     }
-    const pl = k => `${k} point${k > 1 ? 's' : ''}`;
     if (!S.muggins) {                       // no muggins: points you miss are simply lost
       msg(`You counted ${mine}. Here’s the full count: ${real}.`);
       S.handLog.push({ label: C.label, pts: mine, note: `Missed ${missed}` });

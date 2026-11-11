@@ -73,7 +73,7 @@ function countArea(S) {
   let h = `<div class="cl">${C.label} <small>+ starter</small></div><div class="cards">${C.cards.map(card).join('')}</div>`;
   if (S.phase === 'claim') {
     const cl = S.claim;
-    h += `<div class="claims">${cl.claims.map((x, i) => `<button class="chip" data-act="unclaim" data-i="${i}" aria-label="Remove">${KIND[x.kind]} ${x.pts} ×</button>`).join('') || '<span class="hint">Tap cards that score together, then what they make.</span>'}</div>`;
+    h += `<div class="claims">${cl.claims.map((x, i) => `<button class="chip${cl.warned && x.ok === false ? ' bad' : ''}" data-act="unclaim" data-i="${i}" aria-label="Remove">${KIND[x.kind]} ${x.pts} ×</button>`).join('') || '<span class="hint">Tap cards that score together, then what they make.</span>'}</div>`;
   } else {
     h += `<div class="say">${C.say || '&nbsp;'}</div>`;
     const res = S.claim && S.claim.result && S.claim.claims.length && C.owner === 0 ? S.claim.claims : null;
@@ -118,7 +118,7 @@ function hand(S, legal) {
 
 function detail(S) {
   if (S.phase === 'count' && S.count && !S.count.done && S.count.items.length) return 'Tap to skip to the total';
-  if (S.phase === 'claim') return `Claimed so far: ${S.claim.claims.reduce((t, x) => t + x.pts, 0)}`;
+  if (S.phase === 'claim') return `Claimed so far: ${S.claim.claims.reduce((t, x) => t + (S.claim.warned && x.ok === false ? 0 : x.pts), 0)}`;   // crossed-out claims don't count
   return 'First to 121 wins';
 }
 
