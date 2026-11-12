@@ -41,6 +41,9 @@ p/<slug>/<game>/    One folder per game.
 p/<slug>/wireframes/cribbage/
                     Rough, clickable Cribbage wireframes (Step 0), for making UI decisions on a phone.
                     Not linked from the game list, not saved for offline. Delete once Cribbage ships.
+p/<slug>/wireframes/dot/
+                    Learn Euchre with Grandma Dot, Step 1: Dot sketches (three takes, nine poses) and
+                    clickable wireframes (index.html, app.js, dot.js). Not linked, not saved for offline.
 tools/              Simulator that plays hundreds of computer-only games to check for errors
                     and compare versions. Not used by the live site. See tools/README.md.
 ```
