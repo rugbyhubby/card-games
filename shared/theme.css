@@ -32,5 +32,5 @@ body{margin:0;height:100%;background:var(--paper);color:var(--ink);
   font-family:var(--sans);font-size:15px;
   -webkit-tap-highlight-color:transparent;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
 button{font:inherit;color:inherit}
-#app{max-width:520px;height:100%;margin:0 auto;display:flex;flex-direction:column;padding:6px 12px 8px}
+#app{max-width:520px;min-height:100%;margin:0 auto;display:flex;flex-direction:column;padding:6px 12px 8px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
