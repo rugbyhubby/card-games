@@ -103,6 +103,13 @@ svg.dot{display:block;width:100%;height:auto;overflow:visible}
 
 .napkin{width:38px;height:34px;color:var(--ink)}
 .mugsm{width:22px;color:var(--ink)}
+.napshow{position:absolute;left:50%;top:318px;z-index:15;text-align:center;pointer-events:none;transform:translate(-50%,-50%);animation:napin 3.4s ease forwards}
+.napshow svg{width:262px;color:var(--ink);filter:drop-shadow(0 3px 8px rgba(0,0,0,.25))}
+.napshow .ncap{display:inline-block;font:600 20px 'Bradley Hand','Segoe Print','Comic Sans MS',cursive;margin-top:4px;color:var(--bg);background:var(--ink);padding:2px 14px;border-radius:99px}
+.napshow .new{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .8s forwards}
+.napshow .newt{opacity:0;animation:fadeto .4s 1.2s forwards}
+@keyframes fadeto{to{opacity:1}}
+@keyframes napin{0%{opacity:0;transform:translate(-160%,-190%) scale(.18)}14%{opacity:1;transform:translate(-50%,-50%) scale(1)}84%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-160%,-190%) scale(.18)}}
 .napkin .new{stroke-dasharray:20;stroke-dashoffset:20;animation:draw .5s .7s forwards;stroke-width:2}
 @keyframes draw{to{stroke-dashoffset:0}}
 
