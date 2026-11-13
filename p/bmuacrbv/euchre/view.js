@@ -30,7 +30,9 @@ export function center(S) {
     h += `<div class="pile"><div class="stack">${cardHTML(null)}${cardHTML(null)}${cardHTML(S.upcard)}</div><div class="cap">Turned up<br>${S.dealer === 0 ? 'You dealt' : NAMES[S.dealer] + ' dealt'}</div></div>`;
   } else if (S.phase === 'bid2' || (S.phase === 'redeal')) {
     h += `<div class="pile"><div class="stack">${cardHTML(null)}${cardHTML(null)}${cardHTML(null)}</div><div class="cap">${SYM[S.turnedDown]} turned down</div></div>`;
-  } else if ((S.phase === 'discard' || S.phase === 'called') && S.upcardTaken) {
+  } else if ((S.phase === 'discard' || S.phase === 'called') && S.upcardTaken && S.dealer !== 0) {
+    // A computer dealer picked it up: show which card went into their hand.
+    // (When you're the dealer it's already in your hand, raised, so the middle stays clear.)
     h += `<div class="pile"><div class="stack">${cardHTML(null)}${cardHTML(null)}${cardHTML(S.upcard)}</div><div class="cap">${S.dealer === 0 ? 'You picked it up' : NAMES[S.dealer] + ' picked it up'}</div></div>`;
   } else {
     for (const e of S.trick) {

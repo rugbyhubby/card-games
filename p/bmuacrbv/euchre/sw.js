@@ -1,7 +1,7 @@
 // Euchre offline helper (service worker).
 // RELEASE: bump CACHE together with VERSION in version.js. A new name makes
 // phones fetch a fresh copy of the game and delete the old one.
-const CACHE = 'euchre-v0.3.7';
+const CACHE = 'euchre-v0.3.8';
 
 const SHARED = '../../../shared/';
 const HOME = new URL('./', self.location).pathname;          // this game's own page, e.g. /p/<slug>/euchre/
