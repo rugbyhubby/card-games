@@ -47,18 +47,18 @@ function T(o) {
     return o.arrow === c ? `<span style="position:relative;display:flex">${h}<span class="arrow" style="left:50%;margin-left:-9px;top:-38px">↓</span></span>` : h;
   }).join('');
   const sc = o.scores || [3, 5];
-  return `<div class="ph" style="--dot:${o.size || 84}px">
+  return `<div class="ph" style="--dot:${o.size || 50}px">
     <div class="hd"><span class="t">Euchre</span><div class="s"><div><b>${sc[0]}</b><span>Us</span></div><div><b>${sc[1]}</b><span>Them</span></div></div></div>
     <div class="ctl"><span>${L.bar === 'split' ? `Lesson <b style="color:var(--ink)">${o.n || 1}</b> of 6 · Learn with Grandma Dot` : 'Learn with Grandma Dot'}</span><u data-leave>Leave</u></div>
     ${L.bar === 'top' ? bar : ''}
     <div class="north">
       <div class="props">${L.napkin === 'mug' ? tally : ''}${MUG}</div>
-      <div class="dseat ${o.dotCls || ''}" data-dot>${fig(o.pose || 'sip', o.ring ? 'ring' : '')}<span class="tag ${o.grot ? 'grot' : ''}">${o.grot ? 'Grot' : 'Grandma Dot'}</span>
+      <div class="dseat ${o.dotCls || ''}" data-dot>${fig(o.pose || 'sip', (o.ring ?? true) ? 'ring' : '')}<span class="tag ${o.grot ? 'grot' : ''}">${o.grot ? 'Grot' : 'Grandma Dot'}</span>
         ${o.faceUp && o.faceUp.N ? `<div class="dhand">${o.faceUp.N.map(c => cd(c, 'sm ' + ((o.hc || {})[c] || ''))).join('')}</div>` : ''}</div>
       ${o.say ? `<div class="say ${o.sayCls || ''}">${o.say}</div>` : '<div></div>'}
     </div>
     <div class="mid">${side('West', o.faceUp && o.faceUp.W)}
-      <div class="trick">${slots}${o.center || ''}${o.note ? `<div class="note">${o.note}</div>` : ''}${o.banner ? `<div class="banner">${o.banner}</div>` : ''}</div>
+      <div class="trick">${o.trump === null ? '' : `<div class="trumpb">Trump<b class="${RED(o.trump || '♥') ? 'r' : ''}">${o.trump || '♥'}</b></div>`}${slots}${o.center || ''}${o.note ? `<div class="note">${o.note}</div>` : ''}${o.banner ? `<div class="banner">${o.banner}</div>` : ''}</div>
       ${side('East', o.faceUp && o.faceUp.E)}</div>
     <div class="me">${L.bar === 'split' ? hintBtn : ''}<i></i>You${L.bar === 'split' ? backBtn : ''}</div>
     <div class="msg">${o.msg || ''}</div>
@@ -73,8 +73,12 @@ const TRUMP_GLOW = { 'A♥': 'glow', '10♥': 'glow', 'J♦': 'glow', 'J♥': 'g
 const L1 = { hand: ['J♦', 'A♥', '10♥', 'K♣', '9♠'], faceUp: { N: ['J♥', 'Q♥', 'A♣', 'K♠', '10♦'], W: ['K♥', '9♥', 'A♠', 'Q♣', '9♦'], E: ['A♦', 'K♦', '10♣', 'J♠', 'Q♠'] }, n: 1, scores: [0, 0], tally: 0 };
 const PUTZ = { n: 3, scores: [4, 5], trick: { N: 'A♣', E: '9♣' }, hand: ['9♥', '10♠', 'K♦', 'Q♥', 'A♦'] };
 const PUTZ_END = { ...PUTZ, trick: { N: 'A♣', E: '9♣', S: '9♥' }, hand: ['10♠', 'K♦', 'Q♥', 'A♦'], tally: 3, pose: 'palm', say: 'You trumped my ace. I’ve disowned grandkids for less.' };
-const KITCHEN_LINES = ['Roll it thin. Thinner.', 'Now. About that ten of spades.', 'Cookies fix most things. Not that.'];
-let kitchenSecs = 3;
+// Why you're in the kitchen, and what Dot says there. Three seconds, tap to skip.
+const KITCHEN = {
+  putz: { why: 'You trumped my winning ace on the last trick.', lines: ['I brought you here so you can explain yourself.', 'Don’t you know Euchre is life?'] },
+  euchred: { why: 'We called trump and got euchred.', lines: ['We got euchred. In my house.', 'Sit. Have a cookie. Then explain yourself.'] }
+};
+const KITCHEN_SECS = 3;
 
 function gameList() {
   return `<div class="gl"><h1>Card Games <u>Settings</u></h1>
@@ -112,8 +116,9 @@ function jump(stage) {
   stage.querySelector('#lad').classList.add('done');
 }
 
-function kitchen() {
+function kitchen(k) {
   return `<div class="kitchen" id="kit">
+    <div class="why"><b>Why we’re here</b>${KITCHEN[k].why}</div>
     <svg viewBox="0 0 320 170" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Dot's kitchen">
       <path d="M10 22h190v34h-190zM73 22v34M137 22v34"/><circle cx="66" cy="40" r="1.5"/><circle cx="80" cy="40" r="1.5"/><circle cx="130" cy="40" r="1.5"/><circle cx="144" cy="40" r="1.5"/>
       <path d="M4 120h312"/><path d="M14 120v46M200 120v46"/>
@@ -124,17 +129,25 @@ function kitchen() {
       <text x="105" y="160" font-size="11" fill="currentColor" stroke="none" font-family="Georgia,serif">Dot’s kitchen</text>
     </svg>
     <div style="width:150px;margin-top:-120px;margin-left:150px">${dotSVG(take, 'pin')}</div>
-    <div class="line serif" id="kline">${KITCHEN_LINES[0]}</div>
+    <div class="line serif" id="kline">${KITCHEN[k].lines[0]}</div>
     <div class="prog"><i id="kprog"></i></div>
     <div class="skip">Tap to skip</div>
-    <div class="durs" data-stop>Try a length: ${[2, 3, 5, 8].map(s => `<button data-secs="${s}" class="${s === kitchenSecs ? 'on' : ''}">${s}s</button>`).join('')}</div>
   </div>`;
 }
-function runKitchen(stage, done) {
+function kitchenFrame(k, cap) {
+  return { cap, html: () => T({ n: 4, scores: [4, 7], tally: 4, hand: [], pose: 'pin', extra: kitchen(k) }),
+    after: st => {
+      const f = seq.frames[idx];
+      f.kitchen = true;
+      runKitchen(st, k, () => { if (seq && seq.frames[idx] === f && f.kitchen) next(); });
+    } };
+}
+function runKitchen(stage, k, done) {
   const bar = stage.querySelector('#kprog'), line = stage.querySelector('#kline');
-  bar.style.animation = `fill ${kitchenSecs}s linear forwards`;
-  KITCHEN_LINES.forEach((t, i) => later(() => { line.textContent = t; }, i * kitchenSecs * 1000 / KITCHEN_LINES.length));
-  later(done, kitchenSecs * 1000);
+  const L = KITCHEN[k].lines;
+  bar.style.animation = `fill ${KITCHEN_SECS}s linear forwards`;
+  L.forEach((t, i) => later(() => { line.textContent = t; }, i * KITCHEN_SECS * 1000 / L.length));
+  later(done, KITCHEN_SECS * 1000);
 }
 
 const SEQ = {
@@ -143,7 +156,7 @@ const SEQ = {
     { cap: '<b>The lesson picker.</b> Six lessons. Two done, the next one marked. Dot greets you.', html: picker }
   ] },
   2: { title: '2 · Lesson 1: the bower jump', frames: [
-    { cap: '<b>Lesson 1.</b> Every hand is face up, just this once. Nobody has named trump yet.', html: () => T({ ...L1, note: 'Nobody has named trump yet', pose: 'sip', say: 'Look at everyone’s cards. Just this once.' }) },
+    { cap: '<b>Lesson 1.</b> Every hand is face up, just this once. Nobody has named trump yet.', html: () => T({ ...L1, trump: null, note: 'Nobody has named trump yet', pose: 'sip', say: 'Look at everyone’s cards. Just this once.' }) },
     { cap: '<b>Hearts are trump.</b> Every trump card glows, including the J♦: the other red Jack counts as a heart now.', html: () => T({ ...L1, hc: TRUMP_GLOW, banner: 'Hearts are trump', pose: 'lean' }) },
     { cap: '<b>The jump.</b> Both Jacks hop to the top of the trump suit: right bower, then left bower.', html: () => T({ ...L1, hc: TRUMP_GLOW, center: ladder(), pose: 'lean', say: 'Jacks are the bosses. Both of them. Don’t ask, just watch.' }),
       after: st => later(() => jump(st), 900) }
@@ -165,7 +178,7 @@ const SEQ = {
     { cap: '<b>Lesson 3.</b> Dot leads the A♣ and it’s winning. You have no clubs. Watch what you play…', html: () => T({ ...PUTZ, tally: 2, hc: { '9♥': 'up' }, pose: 'sip' }),
       after: st => later(() => {
         st.innerHTML = T({ ...PUTZ_END, fresh: true });
-        document.querySelector('.cap').innerHTML = '<b>You trumped her ace.</b> Face-palm, and the napkin by her mug gets a mark.<span class="tap">Tap anywhere to continue.</span>';
+        document.querySelector('.cap').innerHTML = '<b>You trumped her ace.</b> Face-palm, and the napkin by her mug gets a mark: one per putz play. It starts fresh each lesson; the total goes on your certificate.<span class="tap">Tap anywhere to continue.</span>';
       }, 1100) },
   ] },
   5: { title: '5 · “Why?”', frames: [
@@ -186,30 +199,23 @@ const SEQ = {
         e.stopPropagation();
         st.innerHTML = T({ ...PUTZ, tally: 3, hand: ['9♥', '10♠', 'K♦', 'Q♥', 'A♦'], hc: { '9♥': 'up' }, back: 'off', backLabel: 'Used this hand', pose: 'brow', say: 'Fine, take it back. You’re on dish duty.' });
         seq.frames[idx].manual = false;
-        document.querySelector('.cap').innerHTML = '<b>The 9♥ comes back</b> to your hand. The button is used up until the next hand. (Does the napkin mark stay? See decisions.)<span class="tap">Tap anywhere to continue.</span>';
+        document.querySelector('.cap').innerHTML = '<b>The 9♥ comes back</b> to your hand. Once per hand: the button is used up until the next deal. The napkin mark stays (she saw it). Dish duty is just a joke.<span class="tap">Tap anywhere to continue.</span>';
       }) }
   ] },
   7: { title: '7 · Catastrophe', frames: [
-    { cap: '<b>You lose the hand on a putz play.</b> You led the 10♠ instead of the A♥ we needed. Euchred.', html: () => T({ n: 4, scores: [4, 7], tally: 4, trick: { S: '10♠', W: 'K♠', N: '9♦', E: '9♠' }, banner: 'Euchred. They score 2.', hand: [], pose: 'pin', say: 'Kitchen. Now. We’re making sugar cookies and talking about that.' }) },
-    { cap: '<b>The kitchen.</b> A short interlude, then the next hand. Tap to skip. Try different lengths at the bottom.', html: () => T({ n: 4, scores: [4, 7], tally: 4, hand: [], pose: 'pin', extra: kitchen() }),
-      after: st => {
-        const go = () => { if (seq && seq.frames[idx] && seq.frames[idx].kitchen) next(); };
-        seq.frames[idx].kitchen = true;
-        runKitchen(st, go);
-        st.querySelector('[data-stop]').addEventListener('click', e => {
-          e.stopPropagation();
-          const b = e.target.closest('[data-secs]'); if (!b) return;
-          kitchenSecs = +b.dataset.secs; cancel(); show();
-        });
-      } },
-    { cap: '<b>Back at the table.</b> Next hand dealt. Dot is calm again.', html: () => T({ n: 4, scores: [4, 7], tally: 4, hand: ['K♥', 'A♣', '9♦', 'J♠', 'Q♣'], pose: 'sip', say: 'Cookies help. Now, deal.' }) }
+    { cap: '<b>Way 1 into the kitchen: a putz play loses the hand.</b> You trumped Dot’s winning ace; West overtrumped and they took the hand.', html: () => T({ n: 4, scores: [4, 7], tally: 4, trick: { N: 'A♣', E: '9♣', S: '9♥', W: 'J♥' }, banner: 'They take the hand.', hand: [], pose: 'pin', say: 'Kitchen. Now. We’re making sugar cookies and talking about that.' }) },
+    kitchenFrame('putz', '<b>The kitchen, 3 seconds.</b> It says why you’re there. Tap to skip.'),
+    { cap: '<b>Back at the table.</b> Next hand dealt. Dot is calm again.', html: () => T({ n: 4, scores: [4, 7], tally: 4, hand: ['K♥', 'A♣', '9♦', 'J♠', 'Q♣'], pose: 'sip', say: 'Cookies help. Now, deal.' }) },
+    { cap: '<b>Way 2 into the kitchen: getting euchred.</b> We called hearts and took only two tricks.', html: () => T({ n: 4, scores: [4, 9], tally: 4, trick: { S: 'Q♥', W: 'A♠', N: '9♦', E: '9♠' }, banner: 'Euchred. They score 2.', hand: [], pose: 'pin', say: 'Euchred? Kitchen. Bring your excuses.' }) },
+    kitchenFrame('euchred', '<b>The kitchen again</b>, with a different reason. Tap to skip.'),
+    { cap: '<b>Back at the table.</b>', html: () => T({ n: 4, scores: [4, 9], tally: 4, hand: ['A♥', 'K♣', '10♦', 'Q♠', '9♣'], pose: 'sip', say: 'Better. Deal.' }) }
   ] },
   8: { title: '8 · Great play', frames: [
     { cap: '<b>A genuinely good play.</b> You led the right bower and pulled two trumps out of their hands.', html: () => T({ n: 5, scores: [6, 7], tally: 4, trick: { S: 'J♥', W: '9♥', N: '10♣', E: 'Q♥' }, tc: { S: 'glow' }, hand: ['A♥', 'K♠', 'Q♦', '10♦'], pose: 'clap', say: 'Okay, that was good. Don’t let it go to your head.' }) }
   ] },
   9: { title: '9 · Hint', frames: [
     { cap: '<b>Taking too long.</b> After a while Dot starts tapping the table. (Extra line, not in your brief.)', html: () => T({ n: 5, scores: [6, 7], tally: 4, trick: { W: '9♠', N: 'Q♠', E: 'K♠' }, hand: ['A♠', '10♠', 'J♣', 'K♦', '9♥'], pose: 'tap', say: 'Any time now. I’m not getting younger.', msg: 'Your turn.' }) },
-    { cap: '<b>You tap Hint.</b> Dot leans in, an arrow points at the card she suggests, and it glows.', html: () => T({ n: 5, scores: [6, 7], tally: 4, trick: { W: '9♠', N: 'Q♠', E: 'K♠' }, hand: ['A♠', '10♠', 'J♣', 'K♦', '9♥'], hc: { 'A♠': 'glow' }, arrow: 'A♠', hint: 'hot', pose: 'lean', say: 'A hint? Lou never needed a hint. He needed glasses.', msg: 'Your turn.' }) }
+    { cap: '<b>You tap Hint.</b> Dot leans in, an arrow points at the card she suggests, and it glows. Hints are unlimited and free; she just has a new remark each time.', html: () => T({ n: 5, scores: [6, 7], tally: 4, trick: { W: '9♠', N: 'Q♠', E: 'K♠' }, hand: ['A♠', '10♠', 'J♣', 'K♦', '9♥'], hc: { 'A♠': 'glow' }, arrow: 'A♠', hint: 'hot', pose: 'lean', say: 'A hint? Lou never needed a hint. He needed glasses.', msg: 'Your turn.' }) }
   ] },
   10: { title: '10 · Leaving mid-lesson', frames: [
     { cap: '<b>You tap Leave</b> in the middle of a lesson. Dot warns you first.', manual: true,
@@ -220,42 +226,45 @@ const SEQ = {
       after: st => st.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); if (b.dataset.x === 'stay') { st.querySelector('.ov').remove(); seq.frames[idx].manual = false; } else { st.innerHTML = picker(); seq.frames[idx].manual = false; } })) }
   ] },
   11: { title: '11 · Graduation', frames: [
-    { cap: '<b>All six lessons done.</b> The certificate, signed Grot.', html: () => T({ n: 6, scores: [10, 6], tally: 9, pose: 'smug', hand: [], extra: `<div class="ov"><div class="cert">
+    { cap: '<b>All six lessons done.</b> The certificate, signed Grot.', html: () => T({ n: 6, scores: [10, 6], tally: 9, trump: null, pose: 'smug', hand: [], extra: `<div class="ov"><div class="cert">
         <h2>Certificate of Euchre</h2><div class="sub">Big table privileges</div>
         <div class="who">You</div>
         <p>Grot says you can sit at the big table.</p>
         <div class="sig"><div class="seal">6 of 6<br>lessons</div><div>Napkin marks: 9<br>(we don’t talk about it)</div><div><b>Grot</b>signed</div></div></div></div>` }) },
-    { cap: '<b>Her name tag changes to Grot.</b> From now on, that’s what it says.', html: () => T({ n: 6, scores: [10, 6], tally: 9, pose: 'smug', grot: true, hand: ['A♥', 'K♣', 'Q♠', '10♦', '9♣'], say: 'You can call me Grot now. Don’t make me regret it.' }) }
+    { cap: '<b>Her name tag changes to Grot.</b> From now on, that’s what it says.', html: () => T({ n: 6, scores: [10, 6], tally: 9, trump: null, pose: 'smug', grot: true, hand: ['A♥', 'K♣', 'Q♠', '10♦', '9♣'], say: 'You can call me Grot now. Don’t make me regret it.' }) }
   ] },
   L: { title: 'Lesson bar options', frames: [
-    { cap: '<b>Option 1 (used in the screens):</b> lesson bar right under the header. The napkin sits by Dot’s mug.', html: () => T({ ...PUTZ_END, say: '' }) },
+    { cap: '<b>Option 1 (your pick):</b> lesson bar right under the header. The napkin sits by Dot’s mug.', html: () => T({ ...PUTZ_END, say: '' }) },
     { cap: '<b>Option 2:</b> lesson bar just above your hand, napkin inside the bar. Buttons are close to your thumb.', html: () => T({ ...PUTZ_END, say: '', layout: { bar: 'bottom', napkin: 'bar' } }) },
     { cap: '<b>Option 3:</b> no bar. “Lesson 3 of 6” on the line under the header; Hint and Take it back on either side of “You”.', html: () => T({ ...PUTZ_END, say: '', layout: { bar: 'split' } }) }
   ] },
   S: { title: 'Dot’s size and frame', frames: [
-    { cap: '<b>Same size as the other players</b> (50px), inside a circle like them.', html: () => T({ ...PUTZ_END, size: 50, ring: true }) },
+    { cap: '<b>Same size as the other players</b> (50px), inside a circle like them. Your pick: the screens use this now.', html: () => T({ ...PUTZ_END, size: 50, ring: true }) },
     { cap: '<b>About 1.4×</b> (70px), no circle.', html: () => T({ ...PUTZ_END, size: 70 }) },
-    { cap: '<b>About 1.7×</b> (84px), no circle. This is what the screens use.', html: () => T({ ...PUTZ_END, size: 84 }) },
+    { cap: '<b>About 1.7×</b> (84px), no circle.', html: () => T({ ...PUTZ_END, size: 84 }) },
     { cap: '<b>About 2×</b> (100px). She takes over the top of the table.', html: () => T({ ...PUTZ_END, size: 100 }) }
   ] }
 };
 SEQ.all = { title: 'All screens', frames: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].flatMap(k => SEQ[k].frames.map(f => ({ ...f, cap: `<span style="color:var(--capink)">${SEQ[k].title}</span><br>` + f.cap }))) };
 
+const DECIDED = [
+  ['Which Dot', 'A, the church-basement classic.'],
+  ['Her size', 'Same as the other players, in a circle.'],
+  ['Lesson bar', 'Under the header. Trump shows in the corner of the table, like the live game.'],
+  ['Kitchen', '3 seconds, tap to skip. It says why you’re there.'],
+  ['What sends you to the kitchen', 'A putz play that loses the hand, or getting euchred.'],
+  ['Hint', 'Unlimited and free. Dot has a new remark each time.'],
+  ['Take it back', 'Once per hand. The napkin mark stays. Dish duty is just a joke.'],
+  ['The napkin', 'Dot’s putz count: one mark per putz play, fresh each lesson, total on the certificate.'],
+  ['Saving progress', 'Later. Idea for then: “We’re back to this again? Haven’t you learned anything?”']
+];
 const DECISIONS = [
-  ['Which Dot?', 'A (perm, cat-eyes), B (beehive, readers), C (simple shapes), or a mix. Say which parts, e.g. “C’s face with B’s hair”.'],
-  ['Her size at the table', 'Same as the others in a circle, 1.4×, 1.7× (used in the screens) or 2×. See “Dot’s size and frame”.'],
-  ['Where the lesson bar goes', 'Under the header (used in the screens), above your hand, or no bar. See “Lesson bar options”.'],
-  ['The napkin tally', 'By her mug (as drawn) or inside the lesson bar. And what is it for: just a running joke, or do enough marks send you to the kitchen?'],
-  ['Kitchen interlude length', 'Try 2, 3, 5 or 8 seconds on screen 7. Always tap to skip. I’d suggest 3 seconds.'],
-  ['What triggers the kitchen', 'Your brief: losing the hand on a putz play. Alternatives: any euchre, or a certain number of napkin marks.'],
-  ['Take it back', 'Once per hand, as in the brief. Does the napkin mark stay after you take it back? Is “dish duty” only a joke, or does it show somewhere?'],
-  ['Hint', 'Unlimited, once per hand, or costs a napkin mark? And should Dot start tapping the table after a while (screen 9, not in the brief)?'],
   ['“Why?”', 'Tap Dot after a putz play (as drawn). Or a small “Why?” button next to her bubble, which is easier to discover.'],
   ['The six lessons', 'I made up: the bowers, follow suit, partner’s tricks, calling trump, going alone, defense. Change, reorder or rename freely.'],
   ['How you graduate', 'After all six lessons (as drawn), or by winning one full game with Dot afterward?'],
-  ['Her bad memory is real', 'Nothing is stored on the phone, so closing the page forgets lesson progress and graduation. That fits her joke. Keep it, or allow saving progress later?'],
   ['The game-list button', 'A full-width “Learn with Grandma Dot” button under Euchre (as drawn), or a third link next to Rules and Play?'],
-  ['Her lines', 'Bubbles are 12 words or fewer. I added a few of my own (marked in the screens): the kitchen lines, “Cookies help. Now, deal.” and the table-tapping line.']
+  ['Her lines', 'Bubbles are 12 words or fewer. Lines I added: the kitchen lines, “Cookies help. Now, deal.”, “Euchred? Kitchen. Bring your excuses.”, “Better. Deal.” and the table-tapping line. Keep, change or cut.'],
+  ['The napkin, keep it?', 'I kept it as her putz count (see Decided). If it feels like clutter now that Dot is smaller, we can drop it.']
 ];
 
 // ---------- pages ----------
@@ -279,16 +288,16 @@ function home() {
     ${item('4', 'Putz reaction', 'Trumping Dot’s ace; the napkin gets a mark')}
     ${item('5', '“Why?”', 'Tap Dot for the reason')}
     ${item('6', 'Take it back', 'Once per hand; dish duty')}
-    ${item('7', 'Catastrophe', 'Rolling pin, then the kitchen interlude')}
+    ${item('7', 'Catastrophe', 'Two ways into the kitchen: a putz play that loses the hand, or getting euchred')}
     ${item('8', 'Great play', 'Slow clap')}
     ${item('9', 'Hint', 'Lou needed glasses; an arrow to the card')}
     ${item('10', 'Leaving mid-lesson', 'Stay or Leave')}
     ${item('11', 'Graduation', 'Certificate signed Grot; the tag changes')}
     <h2>Options to compare</h2>
-    ${item('L', 'Lesson bar placement', 'Three places for lesson X of 6, napkin, Hint, Take it back')}
-    ${item('S', 'Dot’s size and frame', 'From “same as the others” to 2×')}
+    ${item('L', 'Lesson bar placement', 'Decided: under the header')}
+    ${item('S', 'Dot’s size and frame', 'Decided: same as the others')}
     <h2>Your call</h2>
-    ${item('?', 'Decisions I need from you', DECISIONS.length + ' questions')}
+    ${item('?', 'Decisions', DECISIONS.length + ' still open, ' + DECIDED.length + ' decided')}
     </div>`;
 }
 function gallery() {
@@ -301,8 +310,11 @@ function gallery() {
 }
 function decisions() {
   cancel(); seq = null;
-  app.innerHTML = `${chrome('Decisions')}<div class="home"><h1>Your call</h1><p>Answer in chat, e.g. “1: C, 2: 1.7×, 3: option 2…”</p>
-    ${DECISIONS.map(([t, q], i) => `<a style="display:block"><b style="display:inline;font-size:16px">${i + 1}. ${t}</b><small style="font-size:14px;color:var(--ink);margin-top:4px">${q}</small></a>`).join('')}</div>`;
+  app.innerHTML = `${chrome('Decisions')}<div class="home"><h1>Your call</h1><p>Answer in chat, e.g. “1: tap Dot, 3: after six lessons…”</p>
+    <h2>Still open</h2>
+    ${DECISIONS.map(([t, q], i) => `<a style="display:block"><b style="display:inline;font-size:16px">${i + 1}. ${t}</b><small style="font-size:14px;color:var(--ink);margin-top:4px">${q}</small></a>`).join('')}
+    <h2>Decided</h2>
+    ${DECIDED.map(([t, q]) => `<a style="display:block"><b style="display:inline;font-size:15px">✓ ${t}</b><small style="font-size:13.5px;margin-top:3px">${q}</small></a>`).join('')}</div>`;
 }
 function show() {
   cancel();
