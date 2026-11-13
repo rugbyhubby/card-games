@@ -44,11 +44,12 @@ let after = null;
 const then = fn => { after = fn; render(); };
 const canGo = () => !!after || (!paused && waiting.length > 0);
 function go() {                                   // Next: the lesson's next beat, or one game step
-  if (after) { const fn = after; after = null; fn(); render(); return; }
-  if (!canGo()) return;
-  const fn = waiting.shift();
+  const fn = after || (canGo() ? waiting.shift() : null);
+  if (!fn) return;
+  if (fn === after) after = null;
+  const before = draws;
   fn();
-  render();
+  if (draws === before) render();                 // draw once: a second draw would cut a card's slide-in short
 }
 
 const app = document.getElementById('app');
@@ -79,13 +80,20 @@ const L = {
 };
 let snapshot = null, slowTimer = null, lastTurn = null;
 
+// What was on screen last time, so a redraw only animates what's actually new
+// (a card just played, a new line from Dot), not everything again.
+let shownSay = null, shownPlay = null, draws = 0;
 function render() {
+  draws++;
   L.canGo = canGo();
+  L.sayFresh = L.say !== shownSay;
+  L.freshPlay = !!S.lastPlayed && S.lastPlayed !== shownPlay;
   if (L.screen === 'pick') {
     app.innerHTML = pickerHTML(L, { version: VERSION, feedback: feedbackHref({ game: 'Learn Euchre', version: VERSION }), allGames: settings.link('../../') });
     return;
   }
   app.innerHTML = lessonHTML(L, S, { legal: game.legal, version: VERSION, feedback: feedbackHref({ game: 'Learn Euchre', version: VERSION }) });
+  shownSay = L.say; shownPlay = S.lastPlayed;
   S.justDealt = false;
   L.freshMark = false;
 }
@@ -229,15 +237,14 @@ function tapCard(id) {
   if (ex && !ex.ids.includes(id)) return blocked(card, { kind: 'better', say: ex.say, why: ex.why });
   if (!L.backUsed) snapshot = structuredClone(S);
   L.hint = null; L.hintAct = null; L.whyReady = null; L.note = ''; clearTimeout(slowTimer);
-  say('sip', '');
+  praise(g);                                        // set Dot's reaction first, so it all draws at once
   L.canBack = !L.backUsed;
   game.you.play(id);
-  react(g);
 }
-function react(g) {
-  if (!g) return render();
-  if (g.kind === 'good') { say('clap', 'Okay, that was good. Don’t let it go to your head.'); L.note = g.why; render(); return; }
-  addMark(g);
+// A good play gets the slow clap and the reason; anything else, Dot just watches.
+function praise(g) {
+  if (g && g.kind === 'good') { say('clap', 'Okay, that was good. Don’t let it go to your head.'); L.note = g.why; }
+  else say('sip', '');
 }
 // Dot stops a bad choice before it happens: the card shakes, she says why, and you pick
 // again. A putz play still costs a napkin mark.
@@ -297,9 +304,8 @@ function bid(act, suit) {
   const g = gradeBid(S, b, L.lesson.n);
   if (g && g.kind === 'putz') return blocked(null, g);              // not made: try again
   L.hintAct = null; L.whyReady = null; L.note = '';
-  say('sip', '');
+  praise(g);
   if (act === 'pass') game.you.pass(); else if (act === 'order') game.you.order(); else game.you.call(suit);
-  react(g);
 }
 function askWhy() {
   if (!L.whyReady) return;

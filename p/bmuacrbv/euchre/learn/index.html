@@ -41,7 +41,11 @@
 .controls a.link{color:inherit;font-size:15px}
 .greet{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center;margin:8px 0 6px}
 .dotbig img{display:block;width:100%;border-radius:14px;background:#fff}
-.say{position:relative;background:var(--ink);color:var(--paper);font-size:13px;line-height:1.35;padding:7px 10px;border-radius:12px;animation:sayin .25s ease-out}
+.say{position:relative;background:var(--ink);color:var(--paper);font-size:13px;line-height:1.35;padding:7px 10px;border-radius:12px}
+/* Dot's bubble pops in only when she says something new (not on every redraw). */
+.greet .say,.dotseat .say.fresh{animation:sayin .25s ease-out}
+/* The other players' "Pass" bubbles: no pop on every redraw either. */
+.seat .bubble{animation:none}
 .greet .say::before,.dotseat .say::before{content:"";position:absolute;left:-5px;top:14px;border:5px solid transparent;border-left:0;border-right-color:var(--ink)}
 @keyframes sayin{from{opacity:0;transform:scale(.92)}}
 .lessons{list-style:none;margin:6px 0 0;padding:0}
