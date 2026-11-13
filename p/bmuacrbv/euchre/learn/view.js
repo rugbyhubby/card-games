@@ -90,7 +90,7 @@ function stepButtons(L, S) {
   const st = L.step;
   if (!st) return '';
   if (st.kind === 'say') return NEXT('next');
-  if ((st.kind === 'play' || st.kind === 'bid') && L.canGo && !(S.turn === 0 && ['bid1', 'bid2', 'play'].includes(S.phase))) return NEXT('go');
+  if (st.kind !== 'say' && L.canGo && !(S.turn === 0 && ['bid1', 'bid2', 'play'].includes(S.phase))) return NEXT('go');
   if (st.kind === 'play') {
     let h = euchreActions(S);
     // Hint during bidding: the button Dot would press glows.
