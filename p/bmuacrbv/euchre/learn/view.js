@@ -42,7 +42,7 @@ function dotSeat(L, S) {
     <span class="dname">${L.grot ? 'Grot' : 'Grandma Dot'}${dealer ? ' <span class="dl">Dealer</span>' : ''}</span>
     <span class="tag">${seatTag(S, 2)}</span>
     ${faceUp ? `<div class="upfan">${S.hands[2].map(c => cardHTML(c, 'sm ' + glow(c), 'tabindex="-1"')).join('')}</div>` : ''}
-    ${L.say ? `<div class="say${L.sayCls ? ' ' + L.sayCls : ''}" aria-live="polite">${L.say}</div>` : ''}
+    ${L.say ? `<div class="say${L.sayCls ? ' ' + L.sayCls : ''}${L.sayFresh ? ' fresh' : ''}" aria-live="polite">${L.say}</div>` : ''}
   </div>`;
 }
 
@@ -108,7 +108,8 @@ export function lessonHTML(L, S, { legal, version, feedback }) {
   if (!S.hands) return '';
   const scores = [{ label: 'Us', value: S.score[0], cls: 'us' }, { label: 'Them', value: S.score[1] }];
   const showTricks = ['play', 'handEnd', 'gameOver'].includes(S.phase);
-  let mid = center(S);
+  // The card just played slides in once; on later redraws it just sits there.
+  let mid = center(L.freshPlay ? S : { ...S, lastPlayed: null });
   if (L.show === 'ladder') mid = mid.replace(/<\/div>\s*$/, `${ladder(S.trump)}</div>`);
   if (L.show === 'trump' || L.show === 'ladder') mid = mid.replace('<div class="center">', '<div class="center"><div class="banner">' + (S.trump === 'H' ? 'Hearts' : S.trump === 'D' ? 'Diamonds' : S.trump === 'S' ? 'Spades' : 'Clubs') + ' are trump</div>');
   return `
