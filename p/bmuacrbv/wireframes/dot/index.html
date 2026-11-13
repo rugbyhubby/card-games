@@ -14,8 +14,8 @@
 <script>/* Light / Dark switch for checking the sketches; follows the phone unless you pick one. */(function(){var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.dataset.theme=m[1];})();</script>
 <style>
 :root{--bg:#fff;--ink:#222;--mute:#767676;--line:#bdbdbd;--fill:#e8e8e8;--mark:#ffe14d;--mark-ink:#222;--cap:#fff7cc;--capline:#e3cf63;--capink:#6a5a00;--shade:rgba(0,0,0,.35)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#18181a;--ink:#ececec;--mute:#9a9a9a;--line:#4d4d50;--fill:#2b2b2e;--mark:#e6c62e;--mark-ink:#1a1a1a;--cap:#33301a;--capline:#6b5c1a;--capink:#e9d77c;--shade:rgba(0,0,0,.6)}}
-:root[data-theme="dark"]{--bg:#18181a;--ink:#ececec;--mute:#9a9a9a;--line:#4d4d50;--fill:#2b2b2e;--mark:#e6c62e;--mark-ink:#1a1a1a;--cap:#33301a;--capline:#6b5c1a;--capink:#e9d77c;--shade:rgba(0,0,0,.6)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--art-bg:#fff;--art-blend:normal;--bg:#18181a;--ink:#ececec;--mute:#9a9a9a;--line:#4d4d50;--fill:#2b2b2e;--mark:#e6c62e;--mark-ink:#1a1a1a;--cap:#33301a;--capline:#6b5c1a;--capink:#e9d77c;--shade:rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--art-bg:#fff;--art-blend:normal;--bg:#18181a;--ink:#ececec;--mute:#9a9a9a;--line:#4d4d50;--fill:#2b2b2e;--mark:#e6c62e;--mark-ink:#1a1a1a;--cap:#33301a;--capline:#6b5c1a;--capink:#e9d77c;--shade:rgba(0,0,0,.6)}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:15px/1.35 system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
@@ -88,6 +88,16 @@ svg.dot{display:block;width:100%;height:auto;overflow:visible}
 .dseat .fig{width:var(--dot,84px);color:var(--ink)}
 .dseat .fig.ring{border:1.5px solid var(--ink);border-radius:50%;overflow:hidden;width:var(--dot,84px);height:var(--dot,84px);padding:0;background:var(--bg)}
 /* In the circle, show head and shoulders a bit closer, like the other avatars. */
+/* The drawn Dot: a white circle with her head and shoulders, or the whole drawing on white. */
+.fig.art{position:relative;overflow:hidden;border-radius:50%;border:1.5px solid var(--ink);background:#fff;aspect-ratio:1;height:auto}
+.fig.art img.crop{position:absolute;width:161%;max-width:none;left:-32%;top:-22%}
+.dotfull{background:#fff;border-radius:14px;overflow:hidden}
+.dotfull img{display:block;width:100%;height:auto}
+.dotfull.bare{border-radius:12px;background:var(--art-bg,transparent)}
+.dotfull.bare img{mix-blend-mode:var(--art-blend,multiply)}
+.heroart{width:100%;border-radius:14px;background:#fff;display:block}
+.gal .cell.art{padding:4px;background:#fff;color:#222;font-size:11px}
+.gal .cell.art img{display:block;width:100%;height:auto}
 .dseat .fig.ring svg{width:150%;max-width:none;margin:-1px 0 0 -25%}
 .tag{font-size:11.5px;border:1.2px solid var(--ink);border-radius:5px;padding:0 6px;margin-top:2px;white-space:nowrap;background:var(--bg)}
 .tag.grot{background:var(--mark);color:var(--mark-ink);border-color:var(--mark);font-weight:600}

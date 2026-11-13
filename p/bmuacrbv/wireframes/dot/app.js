@@ -3,7 +3,7 @@
 import { dotSVG, POSES, TAKE_INFO } from './dot.js';
 
 const app = document.getElementById('app');
-let take = 'A';                                   // which Dot the screens use (switch in the top bar)
+let take = 'art';                                 // which Dot the screens use: the drawn art, or sketch A/B/C (switch in the top bar)
 let seq = null, idx = 0, timers = [];
 const later = (fn, ms) => timers.push(setTimeout(fn, ms));
 const cancel = () => { timers.forEach(clearTimeout); timers = []; };
@@ -25,7 +25,15 @@ function napkin(n, fresh = false) {
 }
 const MUG = `<svg class="mugsm" viewBox="0 0 22 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
   <path d="M6.5 6q-2-2.5 0-5M10.5 6q2-2.5 0-5" stroke-width="1"/><path d="M15 11q5 0 5 4t-5 4"/><path d="M4 9h11v10q0 3-3 3h-5q-3 0-3-3z" class="occ"/></svg>`;
-const fig = (pose, cls = '') => `<div class="fig ${cls}">${dotSVG(take, pose)}</div>`;
+// The drawn art: one image per pose (art/dot-<pose>.png, cut from the sheet).
+const POSE_NAME = Object.fromEntries(POSES.map(([k, n]) => [k, n]));
+const artImg = (pose, cls = '') => `<img class="${cls}" src="art/dot-${pose}.png" alt="Grandma Dot: ${POSE_NAME[pose] || pose}">`;
+// Dot in her seat: in a circle, cropped to head and shoulders.
+const fig = (pose, cls = '') => take === 'art'
+  ? `<div class="fig ring art ${cls}">${artImg(pose, 'crop')}</div>`
+  : `<div class="fig ${cls}">${dotSVG(take, pose)}</div>`;
+// Dot shown bigger (lesson picker, kitchen, warnings): the whole drawing.
+const D = (pose, cls = '') => take === 'art' ? `<div class="dotfull ${cls}">${artImg(pose)}</div>` : dotSVG(take, pose);
 
 // The napkin up close: marks so far, and what each one was for. Three marks and you
 // go to the kitchen. Shown big for a moment, then it goes back by her mug.
@@ -112,7 +120,7 @@ function picker() {
     ['Calling trump', 'When to order it up, when to pass', ''], ['Going alone', 'Dot sits out. She’ll be watching.', ''], ['Defense', 'How to euchre the other team', '']];
   return `<div class="pick"><div class="ctl" style="font-size:13px"><u>‹ Card Games</u><span></span></div>
     <h1 class="serif" style="font-weight:400;font-size:28px;margin:4px 0 0">Learn Euchre</h1>
-    <div class="top"><div class="dseat"><div class="fig" style="width:110px">${dotSVG(take, 'sip')}</div><span class="tag">Grandma Dot</span></div>
+    <div class="top"><div class="dseat"><div class="fig" style="width:110px">${D('sip')}</div><span class="tag">Grandma Dot</span></div>
       <div class="say">Where were we? Don’t tell me. Pick a lesson.</div></div>
     <ol>${L.map(([t, s, st], i) => `<li class="${st}"><span class="n">${st === 'done' ? '✓' : i + 1}</span><span>${t}<small>${s}</small></span><em>${st === 'next' ? 'Next ›' : st === 'done' ? 'Again' : ''}</em></li>`).join('')}
       <li><span class="n" style="border-style:dashed">★</span><span>Graduation game<small>Win a full game with Dot to graduate</small></span><em>After 6</em></li></ol>
@@ -139,16 +147,16 @@ function jump(stage) {
 function kitchen(k) {
   return `<div class="kitchen" id="kit">
     <div class="why"><b>Why we’re here</b>${KITCHEN[k].why}</div>
-    <svg viewBox="0 0 320 170" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Dot's kitchen">
+    <svg viewBox="0 0 320 128" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-label="Dot's kitchen">
       <path d="M10 22h190v34h-190zM73 22v34M137 22v34"/><circle cx="66" cy="40" r="1.5"/><circle cx="80" cy="40" r="1.5"/><circle cx="130" cy="40" r="1.5"/><circle cx="144" cy="40" r="1.5"/>
-      <path d="M4 120h312"/><path d="M14 120v46M200 120v46"/>
+      <path d="M4 120h312"/>
       <path d="M216 22h44v28h-44z M238 22v28"/>
       <ellipse cx="70" cy="110" rx="42" ry="9"/><path d="M38 104l64-6" stroke-width="5" class="occ"/>
       <path d="M128 114h64v6h-64z"/><circle cx="140" cy="111" r="4.5"/><circle cx="155" cy="111" r="4.5"/><circle cx="170" cy="111" r="4.5"/><circle cx="184" cy="111" r="4.5"/>
       <path d="M120 98l3 6 6 1-4.5 4 1 6-5.5-3-5.5 3 1-6-4.5-4 6-1z"/>
-      <text x="105" y="160" font-size="11" fill="currentColor" stroke="none" font-family="Georgia,serif">Dot’s kitchen</text>
+      <text x="226" y="70" font-size="11" fill="currentColor" stroke="none" font-family="Georgia,serif">Dot’s kitchen</text>
     </svg>
-    <div style="width:150px;margin-top:-120px;margin-left:150px">${dotSVG(take, 'pin')}</div>
+    <div style="width:160px;margin-top:-6px">${D('pin', 'bare')}</div>
     <div class="line serif" id="kline">${KITCHEN[k].lines[0]}</div>
     <div class="prog"><i id="kprog"></i></div>
     <div class="skip">Tap to skip</div>
@@ -244,7 +252,7 @@ const SEQ = {
   ] },
   10: { title: '10 · Leaving mid-lesson', frames: [
     { cap: '<b>You tap Leave</b> in the middle of a lesson. Dot warns you first.', manual: true,
-      html: () => T({ ...PUTZ, tally: 1, pose: 'sip', extra: `<div class="ov"><div class="sheet"><div style="width:110px;margin:0 auto">${dotSVG(take, 'brow')}</div>
+      html: () => T({ ...PUTZ, tally: 1, pose: 'sip', extra: `<div class="ov"><div class="sheet"><div style="width:110px;margin:0 auto">${D('brow', 'bare')}</div>
         <p class="serif" style="font-size:19px;margin:6px 0 14px">Leave now and I’ll forget all of this. I’m old, not patient.</p>
         <div class="btns"><button class="btn pri" data-x="stay">Stay</button><button class="btn" data-x="leave">Leave</button></div>
         <p style="font-size:11.5px;color:var(--mute);margin:10px 0 0">Stay closes this. Leave goes back to the lesson picker.</p></div></div>` }),
@@ -297,7 +305,7 @@ const DECISIONS = [];   // everything for Step 1 is decided
 // ---------- pages ----------
 function chrome(title, back = true) {
   return `<div class="bar">${back ? '<button class="b" data-nav="back">‹</button>' : ''}<span class="where">${title}</span>
-    <span class="tk">${['A', 'B', 'C'].map(k => `<button data-take="${k}" class="${k === take ? 'on' : ''}">${k}</button>`).join('')}</span>
+    <span class="tk">${['art', 'A', 'B', 'C'].map(k => `<button data-take="${k}" class="${k === take ? 'on' : ''}">${k === 'art' ? 'Art' : k}</button>`).join('')}</span>
     <button class="b" data-nav="theme" aria-label="Light or dark">◐</button>${back ? '<button class="b" data-nav="home">✕</button>' : ''}</div>`;
 }
 function home() {
@@ -305,8 +313,8 @@ function home() {
   const item = (k, t, s) => `<a href="#${k}"><b>${k}</b><span>${t}<small>${s}</small></span></a>`;
   app.innerHTML = `${chrome('Grandma Dot wireframes', false)}<div class="home"><h1>Grandma Dot</h1>
     <p>Rough on purpose: sketches, gray boxes, fake cards, no rules running. Tap anywhere on a screen to go to the next. The A · B · C switch at the top changes which Dot the screens use; ◐ flips light and dark.</p>
-    <div class="hero">${['A', 'B', 'C'].map(k => `<div>${dotSVG(k, 'sip')}${k}</div>`).join('')}</div>
-    <h2>Part A</h2>${item('A', 'Dot sketches', 'Three takes side by side, nine poses each. Tap one to see it big.')}
+    <div class="hero"><div style="width:150px">${artImg('sip', 'heroart')}</div></div>
+    <h2>Part A</h2>${item('A', 'Dot', 'The drawn Dot in nine poses, plus the first sketches')}
     <h2>Part B · Tap-through</h2>
     ${item('all', 'All screens in order', 'Screens 1 to 11, one after another')}
     ${item('1', 'Entry', 'Game-list button and the lesson picker')}
@@ -329,7 +337,11 @@ function home() {
 }
 function gallery() {
   cancel(); seq = null;
-  app.innerHTML = `${chrome('Part A · Dot sketches')}<div class="gal">
+  app.innerHTML = `${chrome('Part A · Dot')}<div class="gal">
+    <h2 class="serif" style="font-weight:400;font-size:24px;margin:4px 0 2px">The drawn Dot</h2>
+    <p style="font-size:12.5px;color:var(--mute);margin:0 0 8px">Based on sketch A. Used in the screens. Tap one to see it big.</p>
+    <div class="row">${POSES.map(([k, name]) => `<button class="cell art" data-big="art:${k}">${artImg(k)}<span>${name}</span></button>`).join('')}</div>
+    <h2 class="serif" style="font-weight:400;font-size:24px;margin:22px 0 6px">The first sketches</h2>
     <div class="takes">${['A', 'B', 'C'].map(k => { const [n, ...rest] = TAKE_INFO[k].name.split(' · '); return `<div><b>${n}</b>${rest.join(' · ')}<br><small>${TAKE_INFO[k].about}</small></div>`; }).join('')}</div>
     ${POSES.map(([k, name, when]) => `<h3>${name}<small>${when}</small></h3>
       <div class="row">${['A', 'B', 'C'].map(t => `<button class="cell" data-big="${t}:${k}"><i>${t}</i>${dotSVG(t, k, { label: `Dot ${t}, ${name}` })}</button>`).join('')}</div>`).join('')}
@@ -373,7 +385,7 @@ app.addEventListener('click', e => {
   const b = e.target.closest('[data-big]');
   if (b) {
     const [tk, k] = b.dataset.big.split(':'), P = POSES.find(x => x[0] === k);
-    document.body.insertAdjacentHTML('beforeend', `<div class="big" data-close><div>${dotSVG(tk, k)}<b style="color:var(--ink)">Dot ${tk} · ${P[1]}</b><br>${P[2]}<br><br>Tap to close</div></div>`);
+    document.body.insertAdjacentHTML('beforeend', `<div class="big" data-close><div>${tk === 'art' ? D(k) : dotSVG(tk, k)}<b style="color:var(--ink)">${tk === 'art' ? 'Dot' : 'Dot ' + tk} · ${P[1]}</b><br>${P[2]}<br><br>Tap to close</div></div>`);
     return;
   }
   if (!seq || !e.target.closest('#stage, .cap')) return;
