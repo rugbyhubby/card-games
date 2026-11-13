@@ -17,7 +17,9 @@
 .link{border:0;background:none;font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px 2px}
 
 /* table: seats around a center play area */
-.table{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-around;padding:4px 0}
+/* The table fills the spare height, but never shrinks below what it holds: on a short
+   screen the page scrolls a little instead of the table running under the text below. */
+.table{flex:1 0 auto;display:flex;flex-direction:column;justify-content:space-around;padding:4px 0}
 .mid{display:flex;align-items:center;justify-content:space-between;gap:4px}
 .seat{width:82px;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:opacity .3s}
 .seat.north{margin:0 auto}

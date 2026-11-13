@@ -104,7 +104,7 @@ export function lessonHTML(L, S, { legal, version, feedback }) {
     <div class="controls"><span class="lvl">Learn with Grandma Dot · ${L.lesson.title}</span><div class="menu"><button class="link" data-act="leave">Leave</button></div></div>
     ${lessonBar(L)}
     ${tableHTML({ north: dotSeat(L, S), west: seat(L, S, 1), east: seat(L, S, 3), center: mid,
-      south: meHTML({ turn: S.turn === 0, dealer: S.dealer === 0, tag: seatTag(S, 0) }) })}
+      south: meHTML({ turn: S.turn === 0, dealer: S.dealer === 0, tag: seatTag(S, 0) }) }).replace('<main class="table"', `<main class="table${L.lesson.faceUp ? ' faceup' : ''}"`)}
     ${statusHTML((L.msg || S.msg || '').replace(/\bPartner\b/g, 'Dot'), L.note || (showTricks ? `Tricks this hand: us ${S.tricks[0]}, them ${S.tricks[1]}` : ''))}
     ${actionsHTML(stepButtons(L, S))}
     ${handHTML(handCards(L, S, legal), S.hands[0].length)}
