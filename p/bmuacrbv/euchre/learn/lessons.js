@@ -3,6 +3,8 @@
 //
 // Step kinds:
 //   say    Dot says something; you tap Next.        { say, pose, show? }
+//   bid    the bidding plays out (deal.bids sets what each computer seat says).
+//   discard  you're the dealer: pick up the turned-up card and throw one away.
 //   quiz   you tap a card in your hand to answer.   { say, pose, answer(S) -> card id, right, wrong }
 //   play   play the hand out, with coaching on.     { say, pose }
 // `show` turns on extras for that step: 'trump' (trump cards glow), 'ladder' (the Jacks jump).
@@ -17,15 +19,21 @@ export const LESSONS = [
   {
     n: 1, title: 'The bowers', sub: 'Why two Jacks run the show', ready: true,
     faceUp: true,                                   // every hand face up, just this once
+    // A real first deal: you deal, the 9♥ is turned up, West passes, Dot tells you to pick it up.
     deal: {
-      dealer: 0, trump: 'H', maker: 2, hold: true, upcard: c('9C'),
-      hands: [hand('JD AH 10H KC 9S'), hand('KH 9H AS QC 9D'), hand('JH QH AC KS 10D'), hand('AD KD 10C JS QS')]
+      dealer: 0, hold: true, upcard: c('9H'),
+      hands: [hand('JD AH 10H KC 9S'), hand('KH QD AS QC 9D'), hand('JH QH AC KS 10D'), hand('AD KD 10C JS QS')],
+      bids: { 1: { order: false }, 2: { order: true } }
     },
     steps: [
-      { kind: 'say', pose: 'sip', say: 'Look at everyone’s cards. Just this once.' },
-      { kind: 'say', pose: 'lean', show: 'ladder', say: 'Jacks are the bosses. Both of them. Don’t ask, just watch.',
+      { kind: 'say', pose: 'sip', say: 'Look at everyone’s cards. Just this once.',
+        note: 'You dealt. The 9♥ is turned up. If anyone tells you to pick it up, hearts become trump.' },
+      { kind: 'bid', pose: 'lean', say: 'Watch. I’m about to tell you to pick it up.' },
+      { kind: 'discard', pose: 'lean', say: 'Now throw one away. Not a heart.',
+        note: 'You’re the dealer, so the 9♥ joins your hand. You keep five: tap one card to throw away.' },
+      { kind: 'say', pose: 'lean', show: 'ladder', msg: 'Hearts are trump.', say: 'Jacks are the bosses. Both of them. Don’t ask, just watch.',
         note: 'Top trump: the J♥ (right bower). Next: the other red Jack, the J♦ (left bower). It counts as a heart now.' },
-      { kind: 'quiz', pose: 'lean', say: 'Your turn. Tap your highest trump.',
+      { kind: 'quiz', pose: 'lean', msg: 'Hearts are trump.', say: 'Your turn. Tap your highest trump.',
         answer: S => highestTrump(S.hands[0], S.trump).id,
         right: 'There you go. The left bower beats your ace.', wrong: 'Not that one. Jacks, remember?' },
       { kind: 'play', pose: 'sip', say: 'Now play it out. I’ll be watching.' }
