@@ -6,7 +6,7 @@ import { headerHTML, levelLabel, linkHTML, controlsHTML, statusHTML, actionsHTML
 import { NAMES } from './rules.js';
 
 
-function seatTag(S, p) {
+export function seatTag(S, p) {
   if (p === S.sitter) return 'Sitting out';
   if (p === S.maker && S.trump) return `Called ${SYM[S.trump]}${S.alone ? ' alone' : ''}`;
   return '';
@@ -22,7 +22,8 @@ function seat(S, p) {
 }
 
 // The middle of the table: the turned-up card while bidding, then the trick.
-function center(S) {
+// (Exported for the lessons page, which draws its own table around it.)
+export function center(S) {
   let h = '';
   if (S.trump) h += `<div class="trump">Trump<b class="${isRed(S.trump) ? 'r' : ''}">${SYM[S.trump]}</b></div>`;
   if (S.phase === 'bid1') {
@@ -39,7 +40,7 @@ function center(S) {
   return centerHTML(h);
 }
 
-function actions(S) {
+export function actions(S) {
   if (S.turn === 0 && S.phase === 'bid1') {
     const lbl = S.dealer === 0 ? 'Pick it up' : 'Order up';
     return `<button class="btn pri" data-act="order">${lbl} ${SYM[S.upcard.s]}</button>
