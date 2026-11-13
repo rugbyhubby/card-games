@@ -42,6 +42,7 @@ const game = createEuchre({
   timer,
   levelAtStart: () => 'medium',
   difficultyFor: p => (p === 2 ? 'hard' : 'medium'),   // Dot is a shark; the others play like regulars
+  scriptBid: (S, p) => (L.lesson && L.lesson.deal.bids && L.lesson.deal.bids[p]) || null,
   onChange: () => { watch(); render(); },
   onEvent
 });
@@ -82,9 +83,14 @@ function startLesson(n) {
 }
 function runStep() {
   const st = L.lesson.steps[L.stepIdx];
-  L.step = st; L.show = st.show || null; L.note = st.note || ''; L.quizRight = null;
+  L.step = st; L.show = st.show || null; L.note = st.note || ''; L.msg = st.msg || ''; L.quizRight = null;
   say(st.pose, st.say);
-  if (st.kind === 'play') { L.show = null; L.note = ''; game.beginPlay(); }
+  if (st.kind === 'bid') { L.advancing = false; game.resume(); }
+  if (st.kind === 'play') {
+    L.show = null; L.note = ''; L.msg = '';
+    if (paused) unpause();                  // after your discard, play was waiting for this step
+    else game.beginPlay();
+  }
   render();
   if (st.show === 'ladder') setTimeout(() => { const el = app.querySelector('.ladder'); if (el) el.classList.add('go'); }, 900);
 }
@@ -113,11 +119,14 @@ function watch() {
   }
   if (!yourTurn) clearTimeout(slowTimer);
   lastTurn = yourTurn ? 'you' : 'other';
+  // The bidding is over and you (the dealer) have to discard: on to that step.
+  if (L.step && L.step.kind === 'bid' && S.phase === 'discard' && !L.advancing) { L.advancing = true; L.advanceTimer = setTimeout(nextStep, 1800); }
   if ((S.phase === 'handEnd' || S.phase === 'gameOver') && !L.finished) { L.finished = true; L.canBack = false; L.canHint = false; setTimeout(finishLesson, 900); }
 }
 // Other players' cards: Dot looks pleased with herself when she plays a bower.
 function onEvent(e) {
   const [kind, p, id] = e.split(':');
+  if (kind === 'bid1' && p === '2' && id === 'true') say('lean', 'Pick it up.');
   if (kind === 'play' && p === '2' && id[0] === 'J' && S.trump && (id[1] === S.trump || id === 'J' + { H: 'D', D: 'H', S: 'C', C: 'S' }[S.trump])) say('smug', '');
 }
 
@@ -140,8 +149,19 @@ function finishLesson() {
 
 // ---------- your moves ----------
 function tapCard(id) {
-  if (paused) return;
   if (L.step && L.step.kind === 'quiz') return quizAnswer(id);
+  // Your discard as dealer (also if you tap before the lesson has moved on from the bidding).
+  if (S.phase === 'discard' && L.step && (L.step.kind === 'discard' || L.step.kind === 'bid')) {
+    const di = L.lesson.steps.findIndex(x => x.kind === 'discard');
+    if (di >= 0) {
+      clearTimeout(L.advanceTimer);
+      pause();                                // hold the first lead until the lesson is ready to play
+      game.you.discard(id);
+      L.stepIdx = di;
+      return setTimeout(nextStep, 700);
+    }
+  }
+  if (paused) return;
   if (S.phase === 'discard') return game.you.discard(id);
   if (S.phase !== 'play' || S.turn !== 0 || !L.step || L.step.kind !== 'play') return;
   const card = S.hands[0].find(c => c.id === id);

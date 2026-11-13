@@ -12,7 +12,9 @@ import * as hard from './bots-hard.js';
 //   difficultyFor (seat) => level, to give seats different levels (simulator only)
 //   onChange      called whenever something on screen should update
 //   onEvent       called with a short note for every bid and card (used by the simulator)
-export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyFor = null, onChange = () => {}, onEvent = () => {} }) {
+//   scriptBid     (S, seat) => a bid, or null to let the computer decide. Lessons only:
+//                 { order, alone } in round one, { suit, alone } in round two.
+export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyFor = null, onChange = () => {}, onEvent = () => {}, scriptBid = null }) {
   const S = { score: [0, 0], dealer: 0, level: 'medium' };
   const levelFor = p => difficultyFor ? difficultyFor(p) : S.level;
   const later = (fn, ms) => timer.later(fn, ms);
@@ -65,6 +67,7 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
   // bidding is skipped: `maker` has already called it. With `hold`, play waits until
   // beginPlay() is called (so a lesson can explain things first).
   //   deal: { dealer, hands: [4 arrays of cards], upcard, trump?, maker?, hold? }
+  // Without `trump` the hand starts with the bidding (held, if `hold`, until resume()).
   function startHand({ dealer, hands, upcard, trump = null, maker = null, hold = false }) {
     timer.cancelAll(); S.overlay = null; S.dealer = dealer;
     S.hands = hands.map(h => h.map(c => ({ ...c })));
@@ -73,7 +76,8 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
     if (!trump) {
       msg(`${S.dealer === 0 ? 'You deal' : NAMES[S.dealer] + ' deals'}. The ${cardName(S.upcard)} is turned up.`);
       changed();
-      return later(step, 1000);
+      if (!hold) later(step, 1000);                    // held: bidding starts when resume() is called
+      return;
     }
     setTrump(trump, maker, false);
     S.phase = 'called'; S.turn = null;
@@ -202,8 +206,9 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
   function botMove(p) {
     const level = levelFor(p);
     const b = level === 'hard' ? hard : bots;
-    if (S.phase === 'bid1') { const d = b.bid1(S, p, level); return bid1(p, d.order, d.alone); }
-    if (S.phase === 'bid2') { const d = b.bid2(S, p, level); return bid2(p, d.suit, d.alone); }
+    const scripted = scriptBid && (S.phase === 'bid1' || S.phase === 'bid2') ? scriptBid(S, p) : null;
+    if (S.phase === 'bid1') { const d = scripted || b.bid1(S, p, level); return bid1(p, d.order, d.alone); }
+    if (S.phase === 'bid2') { const d = scripted || b.bid2(S, p, level); return bid2(p, d.suit, d.alone); }
     if (S.phase === 'play') return play(p, b.playCard(S, p, level, activeCount()));
     if (S.phase === 'discard' && p === 0) return discard(bots.discardChoice(S.hands[0], S.trump).id);
   }

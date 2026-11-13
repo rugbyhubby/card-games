@@ -43,7 +43,8 @@ p/<slug>/euchre/learn/
                     your partner. lessons.js (the deals and steps), coach.js (what counts as a putz or
                     good play), main.js (Hint, Take it back, the napkin, "Why?", the kitchen), view.js
                     and parts.js (drawing), art/ (Dot's nine poses), its own sw.js for offline.
-                    Euchre's game.js has three extra calls just for this (startHand, beginPlay, resume).
+                    Euchre's game.js has extras just for this: startHand, beginPlay, resume, and the
+                    scriptBid option (a lesson decides what the computer players bid).
 p/<slug>/wireframes/cribbage/
                     Rough, clickable Cribbage wireframes (Step 0), for making UI decisions on a phone.
                     Not linked from the game list, not saved for offline. Delete once Cribbage ships.
