@@ -96,9 +96,7 @@ export function lessonHTML(L, S, { legal, version, feedback }) {
   if (!S.hands) return '';
   const scores = [{ label: 'Us', value: S.score[0], cls: 'us' }, { label: 'Them', value: S.score[1] }];
   const showTricks = ['play', 'handEnd', 'gameOver'].includes(S.phase);
-  // When you're the dealer and pick up the turned-up card, it's in your hand: don't also
-  // show it in the middle (the lesson pauses here, so it would sit there through the explanation).
-  let mid = center(S.dealer === 0 && S.upcardTaken ? { ...S, upcardTaken: false } : S);
+  let mid = center(S);
   if (L.show === 'ladder') mid = mid.replace(/<\/div>\s*$/, `${ladder(S.trump)}</div>`);
   if (L.show === 'trump' || L.show === 'ladder') mid = mid.replace('<div class="center">', '<div class="center"><div class="banner">' + (S.trump === 'H' ? 'Hearts' : S.trump === 'D' ? 'Diamonds' : S.trump === 'S' ? 'Spades' : 'Clubs') + ' are trump</div>');
   return `

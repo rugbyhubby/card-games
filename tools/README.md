@@ -116,6 +116,8 @@ Saved results of 300 games each, for Easy and Medium:
   some wording on screen changed (Euchre messages without dashes, Cribbage "Deal next hand").
 - `pitch-v0.1.3-*.json`: the dealer may take the bid by matching it, and Shoot the moon
   needs all four points. Play changed on purpose.
+- `euchre-v0.3.8-*.json`: same play as v0.3.4; when you're the dealer and pick up the turned-up
+  card, it no longer also shows in the middle of the table.
 - `cribbage-v0.1.2-*.json`: the redrawn table (every card full size). Same play as v0.1.1.
 
 ## Files
