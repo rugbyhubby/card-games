@@ -14,7 +14,9 @@ import * as hard from './bots-hard.js';
 //   onEvent       called with a short note for every bid and card (used by the simulator)
 //   scriptBid     (S, seat) => a bid, or null to let the computer decide. Lessons only:
 //                 { order, alone } in round one, { suit, alone } in round two.
-export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyFor = null, onChange = () => {}, onEvent = () => {}, scriptBid = null }) {
+//   scriptPlay    (S, seat) => a card id to play, or null to let the computer decide. Lessons
+//                 only; a card that isn't allowed right now is ignored.
+export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyFor = null, onChange = () => {}, onEvent = () => {}, scriptBid = null, scriptPlay = null }) {
   const S = { score: [0, 0], dealer: 0, level: 'medium' };
   const levelFor = p => difficultyFor ? difficultyFor(p) : S.level;
   const later = (fn, ms) => timer.later(fn, ms);
@@ -209,7 +211,11 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
     const scripted = scriptBid && (S.phase === 'bid1' || S.phase === 'bid2') ? scriptBid(S, p) : null;
     if (S.phase === 'bid1') { const d = scripted || b.bid1(S, p, level); return bid1(p, d.order, d.alone); }
     if (S.phase === 'bid2') { const d = scripted || b.bid2(S, p, level); return bid2(p, d.suit, d.alone); }
-    if (S.phase === 'play') return play(p, b.playCard(S, p, level, activeCount()));
+    if (S.phase === 'play') {
+      const id = scriptPlay ? scriptPlay(S, p) : null;
+      const set = id && legal(p).find(c => c.id === id);
+      return play(p, set || b.playCard(S, p, level, activeCount()));
+    }
     if (S.phase === 'discard' && p === 0) return discard(bots.discardChoice(S.hands[0], S.trump).id);
   }
   function botAct() {

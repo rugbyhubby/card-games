@@ -44,7 +44,8 @@ p/<slug>/euchre/learn/
                     good play), main.js (Hint, Take it back, the napkin, "Why?", the kitchen), view.js
                     and parts.js (drawing), art/ (Dot's nine poses), its own sw.js for offline.
                     Euchre's game.js has extras just for this: startHand, beginPlay, resume, and the
-                    scriptBid option (a lesson decides what the computer players bid).
+                    scriptBid and scriptPlay options (a lesson decides what the computer players bid
+                    and their first cards). In lessons every move waits for Next.
 p/<slug>/wireframes/cribbage/
                     Rough, clickable Cribbage wireframes (Step 0), for making UI decisions on a phone.
                     Not linked from the game list, not saved for offline. Delete once Cribbage ships.

@@ -7,8 +7,9 @@ import { createTimer } from '../../../../shared/timing.js';
 import { followTheme } from '../../../../shared/theme.js';
 import { createSheet, feedbackHref, bindSettings, addRotateNotice } from '../../../../shared/ui.js';
 import { createEuchre } from '../game.js';
+import { cardName } from '../../../../shared/deck.js';
 import * as hardBot from '../bots-hard.js';
-import { grade } from './coach.js';
+import { grade, gradeBid, gradeDiscard } from './coach.js';
 import { LESSONS } from './lessons.js';
 import { pickerHTML, lessonHTML, leaveHTML, doneHTML } from './view.js';
 import { napkinShow, kitchen } from './parts.js';
@@ -28,12 +29,22 @@ const HINT_LINES = [
 const KITCHEN_MARKS = { why: 'Three marks on one napkin. In one lesson.', lines: ['I brought you here so you can explain yourself.', 'Don’t you know Euchre is life?'] };
 const KITCHEN_EUCHRED = { why: 'We called trump and got euchred.', lines: ['We got euchred. In my house.', 'Sit. Have a cookie. Then explain yourself.'] };
 
-// ---------- a game whose computer moves can wait (for the kitchen) ----------
+// ---------- a game that moves one step at a time ----------
+// In a lesson, every move the game wants to make next (another player's card or bid,
+// clearing a finished trick, starting play) waits in a queue until you tap Next.
+// `paused` (the kitchen, an explanation) also hides Next until it's over.
 let paused = false;
 let waiting = [];
-const schedule = (fn, ms) => setTimeout(() => (paused ? waiting.push(fn) : fn()), ms);
+const schedule = (fn, ms) => setTimeout(() => { waiting.push(fn); render(); }, Math.min(ms, 250));
 const pause = () => { paused = true; };
-const unpause = () => { paused = false; const w = waiting; waiting = []; w.forEach(f => f()); };
+const unpause = () => { paused = false; render(); };
+const canGo = () => !paused && waiting.length > 0;
+function go() {                                   // Next: let the game take one step
+  if (!canGo()) return;
+  const fn = waiting.shift();
+  fn();
+  render();
+}
 
 const app = document.getElementById('app');
 const fx = document.getElementById('fx');
@@ -42,7 +53,12 @@ const game = createEuchre({
   timer,
   levelAtStart: () => 'medium',
   difficultyFor: p => (p === 2 ? 'hard' : 'medium'),   // Dot is a shark; the others play like regulars
-  scriptBid: (S, p) => (L.lesson && L.lesson.deal.bids && L.lesson.deal.bids[p]) || null,
+  scriptBid: (S, p) => { const b = L.lesson && L.lesson.deal.bids; return (b && b[S.phase] && b[S.phase][p]) || null; },
+  // A lesson's set cards, in order, for each computer seat (then the computer decides).
+  scriptPlay: (S, p) => {
+    const list = L.lesson && L.lesson.deal.plays && L.lesson.deal.plays[p];
+    return list ? list[S.history.filter(e => e.p === p).length] || null : null;
+  },
   onChange: () => { watch(); render(); },
   onEvent
 });
@@ -59,6 +75,7 @@ const L = {
 let snapshot = null, slowTimer = null, lastTurn = null;
 
 function render() {
+  L.canGo = canGo();
   if (L.screen === 'pick') {
     app.innerHTML = pickerHTML(L, { version: VERSION, feedback: feedbackHref({ game: 'Learn Euchre', version: VERSION }), allGames: settings.link('../../') });
     return;
@@ -73,7 +90,7 @@ const say = (pose, text, cls = '') => { L.pose = pose; L.say = text; L.sayCls = 
 function startLesson(n) {
   const lesson = LESSONS.find(x => x.n === n && x.ready);
   if (!lesson) return;
-  sheet.close(); clearFx(); unpause(); clearTimeout(slowTimer);
+  sheet.close(); clearFx(); waiting = []; unpause(); clearTimeout(slowTimer);
   Object.assign(L, { screen: 'lesson', lesson, stepIdx: 0, marks: [], totalMarks: 0, whyReady: null, hint: null, hints: 0,
     canHint: true, canBack: false, backUsed: false, shake: null, quizRight: null, finished: false, show: null, note: '' });
   snapshot = null; lastTurn = null;
@@ -88,7 +105,8 @@ function runStep() {
   if (st.kind === 'bid') { L.advancing = false; game.resume(); }
   if (st.kind === 'play') {
     L.show = null; L.note = ''; L.msg = '';
-    if (paused) unpause();                  // after your discard, play was waiting for this step
+    if (S.phase === 'bid1') game.resume();  // the lesson starts with the bidding
+    else if (paused) unpause();             // after your discard, play was waiting for this step
     else game.beginPlay();
   }
   render();
@@ -113,19 +131,32 @@ function quizAnswer(id) {
 function watch() {
   if (L.screen !== 'lesson') return;
   const yourTurn = S.phase === 'play' && S.turn === 0;
+  const yourBid = (S.phase === 'bid1' || S.phase === 'bid2') && S.turn === 0;
+  if ((yourTurn || yourBid) && lastTurn !== 'you' && L.lesson.cue && !L.quietCue) {
+    const cue = L.lesson.cue(S);
+    if (cue) say(cue.pose, cue.say);
+  }
+  // Your turn right after someone played: say what they played, then that it's your turn.
+  if (yourTurn && S.trick.length && L.lastPlay) { S.msg = `${L.lastPlay} Your turn.`; L.lastPlay = null; }
   if (yourTurn && lastTurn !== 'you') {
     clearTimeout(slowTimer);
     slowTimer = setTimeout(() => { if (S.turn === 0 && S.phase === 'play' && !paused) { say('tap', 'Any time now. I’m not getting younger.'); render(); } }, SLOW_MS);
   }
   if (!yourTurn) clearTimeout(slowTimer);
-  lastTurn = yourTurn ? 'you' : 'other';
+  lastTurn = yourTurn || yourBid ? 'you' : 'other';
+  if (lastTurn === 'you') L.quietCue = false;
   // The bidding is over and you (the dealer) have to discard: on to that step.
   if (L.step && L.step.kind === 'bid' && S.phase === 'discard' && !L.advancing) { L.advancing = true; L.advanceTimer = setTimeout(nextStep, 1800); }
   if ((S.phase === 'handEnd' || S.phase === 'gameOver') && !L.finished) { L.finished = true; L.canBack = false; L.canHint = false; setTimeout(finishLesson, 900); }
 }
 // Other players' cards: Dot looks pleased with herself when she plays a bower.
+const NAME = ['You', 'West', 'Dot', 'East'];
 function onEvent(e) {
   const [kind, p, id] = e.split(':');
+  if (kind === 'play' && p !== '0') {             // say what each card was, so you can follow along
+    const c = S.hands[+p].find(x => x.id === id);
+    if (c) S.msg = L.lastPlay = `${NAME[+p]} ${S.trick.length ? 'plays' : 'leads'} the ${cardName(c)}.`;
+  }
   if (kind === 'bid1' && p === '2' && id === 'true') say('lean', 'Pick it up.');
   if (kind === 'play' && p === '2' && id[0] === 'J' && S.trump && (id[1] === S.trump || id === 'J' + { H: 'D', D: 'H', S: 'C', C: 'S' }[S.trump])) say('smug', '');
 }
@@ -154,11 +185,15 @@ function tapCard(id) {
   if (S.phase === 'discard' && L.step && (L.step.kind === 'discard' || L.step.kind === 'bid')) {
     const di = L.lesson.steps.findIndex(x => x.kind === 'discard');
     if (di >= 0) {
+      const card = S.hands[0].find(c => c.id === id);
+      const g = gradeDiscard(S, card);
+      if (g.kind !== 'good') return blocked(card, g);   // only the best discard goes through
       clearTimeout(L.advanceTimer);
       pause();                                // hold the first lead until the lesson is ready to play
       game.you.discard(id);
+      say('nod', g.say); L.note = g.why; render();
       L.stepIdx = di;
-      return setTimeout(nextStep, 700);
+      return setTimeout(nextStep, 2600);
     }
   }
   if (paused) return;
@@ -168,8 +203,11 @@ function tapCard(id) {
   if (!card) return;
   if (!game.legal(0).includes(card)) return illegal(card);
   const g = grade(S, card, L.lesson.n);
+  if (g && g.kind === 'putz') return blocked(card, g);              // a lesson never lets a putz play through
+  const ex = L.lesson.expect && L.lesson.expect(S);
+  if (ex && !ex.ids.includes(id)) return blocked(card, { kind: 'better', say: ex.say, why: ex.why });
   if (!L.backUsed) snapshot = structuredClone(S);
-  L.hint = null; L.whyReady = null; L.note = ''; clearTimeout(slowTimer);
+  L.hint = null; L.hintAct = null; L.whyReady = null; L.note = ''; clearTimeout(slowTimer);
   say('sip', '');
   L.canBack = !L.backUsed;
   game.you.play(id);
@@ -178,6 +216,18 @@ function tapCard(id) {
 function react(g) {
   if (!g) return render();
   if (g.kind === 'good') { say('clap', 'Okay, that was good. Don’t let it go to your head.'); L.note = g.why; render(); return; }
+  addMark(g);
+}
+// Dot stops a bad choice before it happens: the card shakes, she says why, and you pick
+// again. A putz play still costs a napkin mark.
+function blocked(card, g) {
+  L.shake = card ? card.id : null; L.hint = null; L.hintAct = null;
+  L.note = g.why + (card ? ' Pick again.' : ' Try again.');
+  if (g.kind === 'putz') { addMark(g); L.whyReady = null; }
+  else { say('brow', g.say); render(); }
+  setTimeout(() => { L.shake = null; }, 400);
+}
+function addMark(g) {
   // A putz play: the napkin comes out.
   L.marks.push(g.mark); L.totalMarks++; L.freshMark = true; L.whyReady = g.why;
   say('palm', g.say); render();
@@ -198,21 +248,35 @@ function illegal(card) {
   setTimeout(() => { if (fx.querySelector('.rule')) fx.innerHTML = ''; }, 3200);
 }
 function hint() {
-  if (S.phase !== 'play' || S.turn !== 0 || paused) return;
-  const c = hardBot.playCard(S, 0);
-  L.hint = c.id;
+  if (S.turn !== 0 || paused) return;
+  if (S.phase === 'bid1') { L.hintAct = hardBot.bid1(S, 0, 'hard').order ? 'order' : 'pass'; }
+  else if (S.phase === 'bid2') { const d = hardBot.bid2(S, 0, 'hard'); L.hintAct = d.suit ? 'call:' + d.suit : 'pass'; }
+  else if (S.phase === 'play') { L.hint = hardBot.playCard(S, 0).id; }
+  else return;
   say('lean', HINT_LINES[L.hints++ % HINT_LINES.length]);
   render();
 }
 function takeBack() {
   if (!L.canBack || !snapshot) return;
-  timer.cancelAll(); clearFx(); unpause();
+  timer.cancelAll(); clearFx(); waiting = []; unpause();
   for (const k of Object.keys(S)) delete S[k];
   Object.assign(S, structuredClone(snapshot));
   snapshot = null; L.backUsed = true; L.canBack = false; L.whyReady = null; L.hint = null; L.finished = false;
   say('brow', 'Fine, take it back. You’re on dish duty.');      // the napkin mark stays: she saw it
+  L.quietCue = true;                                             // keep that line up (no cue this turn)
   lastTurn = null;
   game.resume();
+}
+// Your bid: Dot judges it (from Lesson 4), then it's made.
+function bid(act, suit) {
+  if (S.turn !== 0 || (S.phase !== 'bid1' && S.phase !== 'bid2')) return;
+  const b = S.phase === 'bid1' ? { order: act === 'order' } : { suit: act === 'call' ? suit : null };
+  const g = gradeBid(S, b, L.lesson.n);
+  if (g && g.kind === 'putz') return blocked(null, g);              // not made: try again
+  L.hintAct = null; L.whyReady = null; L.note = '';
+  say('sip', '');
+  if (act === 'pass') game.you.pass(); else if (act === 'order') game.you.order(); else game.you.call(suit);
+  react(g);
 }
 function askWhy() {
   if (!L.whyReady) return;
@@ -242,7 +306,7 @@ const sheetEl = document.getElementById('sheet');
 const sheet = createSheet(sheetEl);
 
 function leaveLesson() {
-  timer.cancelAll(); clearFx(); unpause(); clearTimeout(slowTimer);
+  timer.cancelAll(); clearFx(); waiting = []; unpause(); clearTimeout(slowTimer);
   sheet.close(); L.screen = 'pick'; L.step = null; render(); window.scrollTo(0, 0);
 }
 sheetEl.addEventListener('click', e => {
@@ -261,13 +325,12 @@ app.addEventListener('click', e => {
     const act = a.dataset.act;
     if (act === 'leave') return L.finished ? leaveLesson() : sheet.open(leaveHTML(), { labelledBy: 'leave-h', cls: 'dotsheet' });
     if (act === 'next') return nextStep();
+    if (act === 'go') return go();
     if (act === 'hint') return hint();
     if (act === 'back') return takeBack();
     if (act === 'dot') return askWhy();
     if (paused) return;
-    if (act === 'pass') return game.you.pass();
-    if (act === 'order') return game.you.order();
-    if (act === 'call') return game.you.call(a.dataset.s);
+    if (act === 'pass' || act === 'order' || act === 'call') return bid(act, a.dataset.s);
     if (act === 'alone') return game.you.toggleAlone();
     return;
   }

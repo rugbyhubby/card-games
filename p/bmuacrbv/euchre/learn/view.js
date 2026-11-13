@@ -80,15 +80,27 @@ function lessonBar(L) {
   const dots = LESSONS.map(x => `<i class="${x.n <= n ? 'on' : ''}"></i>`).join('');
   const playing = L.step && L.step.kind === 'play';
   return `<div class="lbar"><span class="lx">Lesson <b>${n}</b> of ${LESSONS.length}</span><span class="pr" aria-hidden="true">${dots}</span><span class="grow"></span>
-    <button class="pill" data-act="hint"${playing && L.canHint ? '' : ' disabled'}>Hint</button>
+    <button class="pill" data-act="hint"${playing && L.canHint && !L.finished ? '' : ' disabled'}>Hint</button>
     <button class="pill" data-act="back"${L.canBack ? '' : ' disabled'}>${L.backUsed ? 'Used this hand' : 'Take it back'}</button></div>`;
 }
 
+// A small Next on the right: for Dot's explanations, and for each step of play.
+const NEXT = act => `<div class="nextrow"><button class="pill next" data-act="${act}">Next ›</button></div>`;
 function stepButtons(L, S) {
   const st = L.step;
   if (!st) return '';
-  if (st.kind === 'say') return '<button class="btn pri" data-act="next">Next</button>';
-  if (st.kind === 'play') return euchreActions(S);
+  if (st.kind === 'say') return NEXT('next');
+  if ((st.kind === 'play' || st.kind === 'bid') && L.canGo && !(S.turn === 0 && ['bid1', 'bid2', 'play'].includes(S.phase))) return NEXT('go');
+  if (st.kind === 'play') {
+    let h = euchreActions(S);
+    // Hint during bidding: the button Dot would press glows.
+    if (L.hintAct) {
+      const [act, s] = L.hintAct.split(':');
+      const re = new RegExp(`<button class="([^"]*)" data-act="${act}"${s ? ` data-s="${s}"` : ''}`);
+      h = h.replace(re, (m, cls) => m.replace(cls, cls + ' hinted'));
+    }
+    return h;
+  }
   return '';
 }
 

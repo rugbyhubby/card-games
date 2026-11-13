@@ -83,6 +83,17 @@ Suggested by Claude Code and approved by the owner on 12 November 2026:
 - "We won. Don't get used to it."
 - Napkin reasons such as "Trumped my ace" and "Passed with 3 trump".
 
+Suggested by Claude Code for the lessons and approved by the owner on 13 November 2026:
+
+- "Now play it out. I'll be watching." / "Clubs are trump. Go on. I'm watching."
+- "Your turn. Tap your highest trump." / "There you go. The left bower beats your ace." / "Not that one. Jacks, remember?"
+- "Follow the suit that's led. Can't? Then play anything."
+- "Fine. Look where I'm pointing." / "Again? I'll put it on your tab." (hints)
+- "Not bad. Not good either. Next." (end of a lesson with napkin marks)
+- "Progress lasts while this page is open. Dot's memory isn't what it used to be."
+- "Short lessons. She's your partner. Good luck." (the game-list button)
+- "Watch. I'm about to tell you to pick it up." / "Pick it up." / "Now throw one away. Not a heart."
+
 ## Timeline
 
 | Date | What happened | Where to see it |
@@ -92,3 +103,5 @@ Suggested by Claude Code and approved by the owner on 12 November 2026:
 | 12 Nov 2026 | Owner picks sketch A and makes the design decisions | Pull request #18 |
 | 12 Nov 2026 | Owner generates the drawn Dot with OpenAI's image tool and confirms the usage rights | `art/`, `usage-rights.md` |
 | 12 Nov 2026 | Drawn Dot added to the wireframes | Pull request #18 |
+| 12 Nov 2026 | Teaching mode Phase 1 live: Lessons 1 and 2 with Dot as your partner | Pull requests #20–#23 |
+| 13 Nov 2026 | Owner approves Dot's lesson lines | This file |
