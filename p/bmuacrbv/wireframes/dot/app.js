@@ -172,8 +172,7 @@ function runKitchen(stage, k, done) {
 
 const SEQ = {
   1: { title: '1 · Entry', frames: [
-    { cap: '<b>Button style A (my pick):</b> a full-width “Learn with Grandma Dot” button under Euchre, with a tiny Dot. Easy to find.', html: () => gameList('A') },
-    { cap: '<b>Button style B:</b> a small “Learn” link next to Rules and Play. Quieter, but easy to miss.', html: () => gameList('B') },
+    { cap: '<b>The game list.</b> A full-width “Learn with Grandma Dot” button under Euchre, with a tiny Dot.', html: () => gameList('A') },
     { cap: '<b>The lesson picker.</b> Six lessons. Two done, the next one marked. Dot greets you.', html: picker }
   ] },
   2: { title: '2 · Lesson 1: the bower jump', frames: [
@@ -283,18 +282,17 @@ const DECIDED = [
   ['Graduating', 'Win your first full game with Dot, after the six lessons.'],
   ['The napkin', 'One mark per putz play. Each time, the napkin comes out big with the reason written on it, then goes back by her mug.'],
   ['Kitchen', '3 seconds, tap to skip, says why you’re there. Getting euchred sends you there too.'],
+  ['Game-list button', 'A full-width “Learn with Grandma Dot” button under Euchre.'],
+  ['Kitchen after napkin marks', '3 marks in one lesson, then a fresh napkin.'],
+  ['Getting euchred', 'Sends you to the kitchen, with no napkin mark.'],
+  ['Her lines', 'Keep all: the lines in your brief plus the ones I added.'],
   ['Hint', 'Unlimited and free. Dot has a new remark each time.'],
   ['Take it back', 'Once per hand. The napkin mark stays. Dish duty is just a joke.'],
   ['Saving progress', 'Later. Idea for then: “We’re back to this again? Haven’t you learned anything?”'],
+  ['A more finished Dot', 'You’re looking for an image service where you keep the rights. The sketches here stand in until then.'],
   ['Keep it flexible', 'Lessons may become levels later; the lesson bar can say anything (it already says “Graduation game”).']
 ];
-// Each open question can be answered with one word.
-const DECISIONS = [
-  ['Game-list button: A or B?', 'A: a full-width “Learn with Grandma Dot” button under Euchre (my pick, easy to find). B: a small “Learn” link next to Rules and Play. Both are on screen 1.'],
-  ['Kitchen after how many napkin marks?', 'My pick: 3 in one lesson, then a fresh napkin. Fewer feels harsh; more and the kitchen rarely happens in a short lesson.'],
-  ['Does getting euchred also add a napkin mark?', 'My pick: no. Getting euchred already sends you to the kitchen.'],
-  ['Lines I wrote: keep all?', 'Reply “keep all”, or name the ones to change:<br>a. “Look at everyone’s cards. Just this once.” (lesson 1)<br>b. “Any time now. I’m not getting younger.” (taking too long)<br>c. “That’s one.” / “That’s two.” / “That’s three.” (the napkin)<br>d. “We got euchred. In my house.” / “Sit. Have a cookie. Then explain yourself.” (kitchen)<br>e. “Euchred? Kitchen. Bring your excuses.”<br>f. “Cookies help. Now, deal.” / “Better. Deal.” / “Fresh napkin. Don’t make me use it.”<br>g. “We won. Don’t get used to it.” (graduation game)<br>h. Napkin reasons: “Trumped my ace”, “Passed with 3 trump”, “Trumped my king. Again.”']
-];
+const DECISIONS = [];   // everything for Step 1 is decided
 
 // ---------- pages ----------
 function chrome(title, back = true) {
@@ -311,7 +309,7 @@ function home() {
     <h2>Part A</h2>${item('A', 'Dot sketches', 'Three takes side by side, nine poses each. Tap one to see it big.')}
     <h2>Part B · Tap-through</h2>
     ${item('all', 'All screens in order', 'Screens 1 to 11, one after another')}
-    ${item('1', 'Entry', 'Two game-list button styles and the lesson picker')}
+    ${item('1', 'Entry', 'Game-list button and the lesson picker')}
     ${item('2', 'Lesson 1: the bower jump', 'Hands face up, trump glows, Jacks jump')}
     ${item('3', 'Lesson 2: follow suit', 'Tap a card you can’t play')}
     ${item('4', 'Putz reaction', 'Trumping Dot’s ace; the napkin comes out with the reason')}
@@ -326,7 +324,7 @@ function home() {
     ${item('L', 'Lesson bar placement', 'Decided: under the header')}
     ${item('S', 'Dot’s size and frame', 'Decided: same as the others')}
     <h2>Your call</h2>
-    ${item('?', 'Decisions', DECISIONS.length + ' still open, ' + DECIDED.length + ' decided')}
+    ${item('?', 'Decisions', DECISIONS.length ? DECISIONS.length + ' still open, ' + DECIDED.length + ' decided' : 'All ' + DECIDED.length + ' decided')}
     </div>`;
 }
 function gallery() {
@@ -339,8 +337,9 @@ function gallery() {
 }
 function decisions() {
   cancel(); seq = null;
-  app.innerHTML = `${chrome('Decisions')}<div class="home"><h1>Your call</h1><p>Answer in chat, e.g. “1: tap Dot, 3: after six lessons…”</p>
+  app.innerHTML = `${chrome('Decisions')}<div class="home"><h1>Your call</h1>
     <h2>Still open</h2>
+    ${DECISIONS.length ? '' : '<p>Nothing. Step 1 is fully decided.</p>'}
     ${DECISIONS.map(([t, q], i) => `<a style="display:block"><b style="display:inline;font-size:16px">${i + 1}. ${t}</b><small style="font-size:14px;color:var(--ink);margin-top:4px">${q}</small></a>`).join('')}
     <h2>Decided</h2>
     ${DECIDED.map(([t, q]) => `<a style="display:block"><b style="display:inline;font-size:15px">✓ ${t}</b><small style="font-size:13.5px;margin-top:3px">${q}</small></a>`).join('')}</div>`;
