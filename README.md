@@ -38,6 +38,12 @@ p/<slug>/<game>/    One folder per game.
   manifest.webmanifest   Name, icons and settings for "Add to Home Screen".
   sw.js             Service worker: saves the game's files (and the shared files it uses) so it runs offline.
   *.png             Home Screen icons (180, 192, 512 px).
+p/<slug>/euchre/learn/
+                    Learn Euchre with Grandma Dot: lessons played on the real Euchre game, with Dot as
+                    your partner. lessons.js (the deals and steps), coach.js (what counts as a putz or
+                    good play), main.js (Hint, Take it back, the napkin, "Why?", the kitchen), view.js
+                    and parts.js (drawing), art/ (Dot's nine poses), its own sw.js for offline.
+                    Euchre's game.js has three extra calls just for this (startHand, beginPlay, resume).
 p/<slug>/wireframes/cribbage/
                     Rough, clickable Cribbage wireframes (Step 0), for making UI decisions on a phone.
                     Not linked from the game list, not saved for offline. Delete once Cribbage ships.
@@ -89,6 +95,7 @@ Every page carries `<meta name="robots" content="noindex, nofollow">`. There is 
 | Euchre    | https://games.rugbyhubby.com/p/bmuacrbv/euchre/ |
 | Pitch     | https://games.rugbyhubby.com/p/bmuacrbv/pitch/ |
 | Cribbage  | https://games.rugbyhubby.com/p/bmuacrbv/cribbage/ |
+| Learn Euchre with Grandma Dot | https://games.rugbyhubby.com/p/bmuacrbv/euchre/learn/ |
 
 Pitch is 4-point Pitch (High, Low, Jack, Game), two teams, play to 21, bids of 2 to 4 or
 Shoot the moon, dealer stuck at 2. The dealer bids last and may take the bid by matching it

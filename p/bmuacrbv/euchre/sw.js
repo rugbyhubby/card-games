@@ -1,9 +1,10 @@
 // Euchre offline helper (service worker).
 // RELEASE: bump CACHE together with VERSION in version.js. A new name makes
 // phones fetch a fresh copy of the game and delete the old one.
-const CACHE = 'euchre-v0.3.5';
+const CACHE = 'euchre-v0.3.6';
 
 const SHARED = '../../../shared/';
+const HOME = new URL('./', self.location).pathname;          // this game's own page, e.g. /p/<slug>/euchre/
 const FILES = [
   './',
   'manifest.webmanifest',
@@ -47,8 +48,12 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // The game page: network first, so testers get the newest release.
-  if (req.mode === 'navigate') { e.respondWith(networkFirst(req, './')); return; }
+  // The game page: network first, so testers get the newest release. Other pages in
+  // this folder (like the lessons in learn/) have their own helper, so leave them alone.
+  if (req.mode === 'navigate') {
+    if (url.pathname === HOME || url.pathname === HOME + 'index.html') e.respondWith(networkFirst(req, './'));
+    return;
+  }
 
   // Code and styles (this game's and shared/): network first too, so a new
   // page never runs with old code. Offline, the saved copy is used.

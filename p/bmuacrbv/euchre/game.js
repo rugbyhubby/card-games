@@ -49,13 +49,37 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
     let p = nextP(S.dealer);
     for (let i = 0; i < 20; i++) { S.hands[p].push(deck[i]); p = nextP(p); }
     S.upcard = deck[20];
+    resetHand();
+    msg(`${S.dealer === 0 ? 'You deal' : NAMES[S.dealer] + ' deals'}. The ${cardName(S.upcard)} is turned up.`);
+    changed();
+    later(step, 1000);
+  }
+  // Clear everything from the last hand (the cards are already dealt).
+  function resetHand() {
     Object.assign(S, { trump: null, maker: null, alone: false, sitter: null, turnedDown: null, trick: [], tricks: [0, 0],
       said: {}, aloneToggle: false, upcardTaken: false, lastPlayed: null, winner: null, phase: 'bid1', turn: nextP(S.dealer), passes: 0, justDealt: true,
       history: [], discard: null });
     sortHuman();
-    msg(`${S.dealer === 0 ? 'You deal' : NAMES[S.dealer] + ' deals'}. The ${cardName(S.upcard)} is turned up.`);
+  }
+  // Lessons (euchre/learn/) deal set cards instead of shuffling. With `trump`, the
+  // bidding is skipped: `maker` has already called it. With `hold`, play waits until
+  // beginPlay() is called (so a lesson can explain things first).
+  //   deal: { dealer, hands: [4 arrays of cards], upcard, trump?, maker?, hold? }
+  function startHand({ dealer, hands, upcard, trump = null, maker = null, hold = false }) {
+    timer.cancelAll(); S.overlay = null; S.dealer = dealer;
+    S.hands = hands.map(h => h.map(c => ({ ...c })));
+    S.upcard = { ...upcard };
+    resetHand();
+    if (!trump) {
+      msg(`${S.dealer === 0 ? 'You deal' : NAMES[S.dealer] + ' deals'}. The ${cardName(S.upcard)} is turned up.`);
+      changed();
+      return later(step, 1000);
+    }
+    setTrump(trump, maker, false);
+    S.phase = 'called'; S.turn = null;
+    msg(`${who(maker)} ${verb(maker, 'call', 'calls')} ${SNAME[trump]}.`);
     changed();
-    later(step, 1000);
+    if (!hold) later(startPlay, 900);
   }
   // After the end-of-hand sheet: deal the next hand, or start over after game over.
   function next() {
@@ -202,5 +226,7 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
     }
   };
 
-  return { state: S, newGame, next, you, legal, botMove };
+  // startHand, beginPlay and resume are for the lessons (euchre/learn/); the game itself doesn't use them.
+  // resume() carries on from the current state, e.g. after a lesson puts a card back.
+  return { state: S, newGame, next, you, legal, botMove, startHand, beginPlay: startPlay, resume: step };
 }

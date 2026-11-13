@@ -29,6 +29,14 @@
 .game .gname{font-family:var(--serif);font-size:32px;line-height:1}
 .game .about{font-size:13px;line-height:1.35;color:var(--muted)}
 .gbtns{display:flex;align-items:center;gap:14px;flex:none}
+/* Euchre's "Learn with Grandma Dot" button, full width under its row */
+.game{flex-wrap:wrap}
+.learn{flex-basis:100%;display:flex;align-items:center;gap:10px;border:1.5px solid var(--ink);border-radius:14px;padding:5px 12px 5px 6px;color:inherit;text-decoration:none;font-size:14.5px}
+.learn:active{background:var(--faint)}
+.learn .lfig{width:40px;height:40px;border-radius:50%;overflow:hidden;position:relative;background:#fff;border:1.2px solid var(--ink);flex:none}
+.learn .lfig img{position:absolute;width:161%;max-width:none;left:-32%;top:-22%}
+.learn .ltext{flex:1}
+.learn small{display:block;color:var(--muted);font-size:12px}
 .gbtns .link{font-size:15px}
 .gbtns .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-width:64px}
 .game.soon .gname{color:var(--muted)}
@@ -46,6 +54,7 @@
     <li class="game">
       <div class="gtext"><span class="gname">Euchre</span><span class="about">4 players, with a partner. Call trump and take at least 3 of 5 tricks.</span></div>
       <div class="gbtns"><button class="link" data-rules="euchre" aria-label="Euchre rules">Rules</button><a class="btn pri" href="euchre/" data-carry="euchre/" aria-label="Play Euchre">Play</a></div>
+      <a class="learn" href="euchre/learn/" data-carry="euchre/learn/"><span class="lfig"><img src="euchre/learn/art/dot-sip.png" alt=""></span><span class="ltext"><b>Learn with Grandma Dot</b><small>Short lessons. She’s your partner. Good luck.</small></span><span aria-hidden="true">›</span></a>
     </li>
     <li class="game">
       <div class="gtext"><span class="gname">Pitch</span><span class="about">4 players, with a partner. Bid, set trump, and win High, Low, Jack and Game.</span></div>

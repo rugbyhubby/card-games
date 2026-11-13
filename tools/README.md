@@ -65,6 +65,13 @@ crib flush with 4 vs 5 cards, his nibs, his heels, skunk lines):
 /System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc -m tools/cribbage-count-check.js
 ```
 
+Grandma Dot's coaching rules (what counts as a putz play or a good play, and the
+"highest trump" quiz) are checked the same way:
+
+```sh
+/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc -m tools/euchre-coach-check.js
+```
+
 Hard's crib table (what two discards are usually worth in a crib) comes from
 `tools/cribbage-crib-table.js`; rerun it and paste the result into `cribbage/bots-hard.js` if counting rules ever change.
 
@@ -123,6 +130,7 @@ Saved results of 300 games each, for Easy and Medium:
 | `pitch-rules-check.js` | Checks Pitch's card rules against hand-made examples. |
 | `cribbage-sim.js` | The same for Cribbage. Checks every hand and that the points add up. |
 | `cribbage-count-check.js` | Checks Cribbage counting and pegging against tricky hands. |
+| `euchre-coach-check.js` | Checks Grandma Dot's coaching rules (putz plays, good plays, highest trump). |
 | `cribbage-crib-table.js` | Works out the average crib value of every pair of discards (for Hard). |
 | `sim-core.js` | Repeatable random numbers, the pretend clock, comparing runs. |
 | `sim-env.js` | Stand-ins for the few browser features the game mentions, when run from Terminal. |
