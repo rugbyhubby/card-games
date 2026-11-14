@@ -118,6 +118,8 @@ Saved results of 300 games each, for Easy and Medium:
   needs all four points. Play changed on purpose.
 - `euchre-v0.3.8-*.json`: same play as v0.3.4; when you're the dealer and pick up the turned-up
   card, it no longer also shows in the middle of the table.
+- `euchre-v0.3.11-*.json`, `pitch-v0.1.6-*.json`: same play as before; at the end of each trick the cards
+  now slide to the winner (one extra screen per trick).
 - `cribbage-v0.1.2-*.json`: the redrawn table (every card full size). Same play as v0.1.1.
 
 ## Files

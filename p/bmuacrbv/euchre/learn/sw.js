@@ -1,13 +1,13 @@
 // Learn Euchre with Grandma Dot: offline helper (service worker).
 // RELEASE: bump CACHE together with VERSION in version.js (this folder).
 // It looks after the lessons page only; Euchre itself has its own helper one folder up.
-const CACHE = 'dotlearn-v0.1.7';
+const CACHE = 'dotlearn-v0.1.8';
 
 const SHARED = '../../../../shared/';
 const POSES = ['sip', 'lean', 'nod', 'brow', 'palm', 'pin', 'clap', 'smug', 'tap'];
 const FILES = [
   './',
-  'main.js', 'view.js', 'parts.js', 'coach.js', 'lessons.js', 'version.js',
+  'main.js', 'view.js', 'parts.js', 'coach.js', 'narrator.js', 'lessons.js', 'version.js',
   ...POSES.map(p => `art/dot-${p}.png`),
   // Euchre's game code that the lessons run on
   '../game.js', '../rules.js', '../bots.js', '../bots-hard.js', '../view.js',

@@ -2,6 +2,7 @@
 // Run from the card-games folder:
 //   /System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc -m tools/euchre-coach-check.js
 import { grade, gradeBid, gradeDiscard, bestDiscard, highestTrump } from '../p/bmuacrbv/euchre/learn/coach.js';
+import { narrate } from '../p/bmuacrbv/euchre/learn/narrator.js';
 
 let fails = 0;
 const c = id => ({ r: id.slice(0, -1), s: id.slice(-1), id });
@@ -80,5 +81,24 @@ check('discard: keeps aces when it can', bestDiscard(hand('AH JH AC 9C 10D'), 'H
 check('highest trump: left bower beats the ace', highestTrump(hand('AH JD 10H KC'), 'H').id, 'JD');
 check('highest trump: right bower beats the left', highestTrump(hand('JD JH'), 'H').id, 'JH');
 check('highest trump: ace when no bowers', highestTrump(hand('10H AH KS'), 'H').id, 'AH');
+
+// The lessons' narration (hearts trump).
+const N = (trick, mine, turn, extra = {}) => ({ phase: 'play', trump: 'H', turn, winner: null, collecting: null, history: trick.map(() => 1),
+  trick: trick.map(([p, id]) => ({ p, card: c(id) })), hands: [hand(mine), [], [], []], ...extra });
+check('narrate: West leads, Dot’s turn', narrate(N([[1, 'KS']], 'AH', 2)),
+  'West led the King of Spades. Spades were led, so everyone must play a spade if they have one. It’s Dot’s turn. Tap Next to see her card.');
+check('narrate: your turn, you have one', narrate(N([[1, 'KS'], [2, 'AS'], [3, '9S']], 'QS AH', 0)),
+  'East played the 9 of Spades. Dot is winning so far. Your turn. You have a spade, so you must play it.');
+check('narrate: your turn, none of the suit', narrate(N([[1, 'KS'], [2, 'AS'], [3, '9S']], '10H KC', 0)),
+  'East played the 9 of Spades. Dot is winning so far. Your turn. You have no spades, so you can play any card, even a trump.');
+check('narrate: left bower is not a diamond', narrate(N([[1, 'KD'], [2, 'AD'], [3, '9D']], 'JD KC', 0)),
+  'East played the 9 of Diamonds. Dot is winning so far. Your turn. You have no diamonds, so you can play any card, even a trump. (Your Jack of Diamonds counts as trump, not as a diamond.)');
+check('narrate: trick won by the only trump', narrate(N([[1, '9C'], [2, 'AC'], [3, '10C'], [0, '9H']], '', null, { winner: 0 })),
+  'You played the 9 of Hearts. You win the trick with the 9 of Hearts (the only trump played). Tap Next to give yourself the cards.');
+check('narrate: trick won by the highest of the suit', narrate(N([[1, 'KC'], [2, 'AC'], [3, '10C'], [0, '9C']], '', null, { winner: 2 })),
+  'You played the 9 of Clubs. Dot wins the trick with the Ace of Clubs (the highest club played). Tap Next to give Dot the cards.');
+check('narrate: after the trick, the winner leads', narrate(N([], 'AH', 2, { history: [1, 1, 1, 1] })),
+  'Dot won that trick, so she leads next. It’s Dot’s turn. Tap Next to see her card.');
+check('narrate: bidding is left to the game', String(narrate({ phase: 'bid1' })), 'null');
 
 print(fails ? `${fails} FAILED` : 'All coaching checks passed');

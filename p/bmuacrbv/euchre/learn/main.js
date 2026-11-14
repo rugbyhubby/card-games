@@ -10,6 +10,7 @@ import { createEuchre } from '../game.js';
 import { cardName } from '../../../../shared/deck.js';
 import * as hardBot from '../bots-hard.js';
 import { grade, gradeBid, gradeDiscard } from './coach.js';
+import { narrate } from './narrator.js';
 import { LESSONS } from './lessons.js';
 import { pickerHTML, lessonHTML, leaveHTML, doneHTML } from './view.js';
 import { napkinShow, kitchen } from './parts.js';
@@ -35,7 +36,10 @@ const KITCHEN_EUCHRED = { why: 'We called trump and got euchred.', lines: ['We g
 // `paused` (the kitchen, an explanation) also hides Next until it's over.
 let paused = false;
 let waiting = [];
-const schedule = (fn, ms) => setTimeout(() => { waiting.push(fn); render(); }, Math.min(ms, 250));
+// (While a finished trick's cards slide to the winner, the clean-up runs by itself.)
+const schedule = (fn, ms) => S.collecting != null
+  ? setTimeout(fn, ms)
+  : setTimeout(() => { waiting.push(fn); render(); }, Math.min(ms, 250));
 const pause = () => { paused = true; };
 const unpause = () => { paused = false; render(); };
 // The lesson's own next beat (moving to the next step, the end-of-hand sheet, the
@@ -156,8 +160,9 @@ function watch() {
   }
   // Your call right after someone passed: keep that in view too.
   if (yourBid && L.lastBid) { S.msg = `${L.lastBid} ${S.msg}`; L.lastBid = null; }
-  // Your turn right after someone played: say what they played, then that it's your turn.
-  if (yourTurn && S.trick.length && L.lastPlay) { S.msg = `${L.lastPlay} Your turn.`; L.lastPlay = null; }
+  // During play: what just happened, the rule, and whose turn it is.
+  const told = narrate(S);
+  if (told) S.msg = told;
   if (yourTurn && lastTurn !== 'you') {
     clearTimeout(slowTimer);
     slowTimer = setTimeout(() => { if (S.turn === 0 && S.phase === 'play' && !paused) { say('tap', 'Any time now. I’m not getting younger.'); render(); } }, SLOW_MS);
@@ -178,10 +183,6 @@ function watch() {
 const NAME = ['You', 'West', 'Dot', 'East'];
 function onEvent(e) {
   const [kind, p, id] = e.split(':');
-  if (kind === 'play' && p !== '0') {             // say what each card was, so you can follow along
-    const c = S.hands[+p].find(x => x.id === id);
-    if (c) S.msg = L.lastPlay = `${NAME[+p]} ${S.trick.length ? 'plays' : 'leads'} the ${cardName(c)}.`;
-  }
   if (kind === 'bid1' && p === '2' && id === 'true') say('lean', 'Pick it up.');
   if ((kind === 'bid1' || kind === 'bid2') && p !== '0') {
     const called = kind === 'bid1' ? id === 'true' : id !== 'null';
