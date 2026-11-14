@@ -54,6 +54,17 @@
 @keyframes inW{from{opacity:0;transform:translate(-40px,-50%)}}
 @keyframes inE{from{opacity:0;transform:translate(40px,-50%)}}
 
+/* the end of a trick: its cards slide toward the winner's seat */
+.center.take-N .slot .card{animation:takeN .45s ease-in forwards}
+.center.take-S .slot .card{animation:takeS .45s ease-in forwards}
+.center.take-W .slot .card{animation:takeW .45s ease-in forwards}
+.center.take-E .slot .card{animation:takeE .45s ease-in forwards}
+@keyframes takeN{to{transform:translateY(-150px) scale(.45);opacity:0}}
+@keyframes takeS{to{transform:translateY(150px) scale(.45);opacity:0}}
+@keyframes takeW{to{transform:translateX(-140px) scale(.45);opacity:0}}
+@keyframes takeE{to{transform:translateX(140px) scale(.45);opacity:0}}
+@media (prefers-reduced-motion:reduce){.center[class*="take-"] .slot .card{animation:none;opacity:.4}}
+
 /* two-seat tables (2-player games): one opponent across, no side seats */
 .table.two .mid{justify-content:center}
 .table.two .center{max-width:320px}

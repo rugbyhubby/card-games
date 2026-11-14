@@ -36,10 +36,12 @@ export function center(S) {
     h += `<div class="pile"><div class="stack">${cardHTML(null)}${cardHTML(null)}${cardHTML(S.upcard)}</div><div class="cap">${S.dealer === 0 ? 'You picked it up' : NAMES[S.dealer] + ' picked it up'}</div></div>`;
   } else {
     for (const e of S.trick) {
-      h += slotHTML(SLOTS_4[e.p], cardHTML(e.card, S.winner === e.p ? 'win' : '', 'tabindex="-1"'), e.card.id === S.lastPlayed);
+      h += slotHTML(SLOTS_4[e.p], cardHTML(e.card, S.winner === e.p ? 'win' : '', 'tabindex="-1"'), e.card.id === S.lastPlayed && S.collecting == null);
     }
   }
-  return centerHTML(h);
+  // The trick is over: its cards slide toward the winner's seat.
+  const html = centerHTML(h);
+  return S.collecting == null ? html : html.replace('class="center"', `class="center take-${SLOTS_4[S.collecting]}"`);
 }
 
 export function actions(S) {

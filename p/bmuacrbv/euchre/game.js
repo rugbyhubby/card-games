@@ -60,7 +60,7 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
   }
   // Clear everything from the last hand (the cards are already dealt).
   function resetHand() {
-    Object.assign(S, { trump: null, maker: null, alone: false, sitter: null, turnedDown: null, trick: [], tricks: [0, 0],
+    Object.assign(S, { trump: null, maker: null, alone: false, sitter: null, turnedDown: null, trick: [], tricks: [0, 0], collecting: null,
       said: {}, aloneToggle: false, upcardTaken: false, lastPlayed: null, winner: null, phase: 'bid1', turn: nextP(S.dealer), passes: 0, justDealt: true,
       history: [], discard: null });
     sortHuman();
@@ -173,12 +173,16 @@ export function createEuchre({ timer, levelAtStart = () => 'medium', difficultyF
       S.winner = w.p; S.tricks[team(w.p)]++; S.turn = null;
       msg(`${who(w.p)} ${verb(w.p, 'take', 'takes')} the trick.`);
       changed();
+      // Show the finished trick, then slide the cards to the winner, then clear it.
       return later(() => {
-        S.trick = []; S.winner = null; S.lastPlayed = null;
-        if (!S.hands[w.p].length) return endHand();
-        S.turn = w.p; if (w.p !== 0) msg(`${who(w.p)} ${verb(w.p, 'lead', 'leads')}.`);
-        step();
-      }, 1300);
+        S.collecting = w.p; changed();
+        later(() => {
+          S.collecting = null; S.trick = []; S.winner = null; S.lastPlayed = null;
+          if (!S.hands[w.p].length) return endHand();
+          S.turn = w.p; if (w.p !== 0) msg(`${who(w.p)} ${verb(w.p, 'lead', 'leads')}.`);
+          step();
+        }, 450);
+      }, 900);
     }
     S.turn = nextActive(p);
     step();

@@ -32,10 +32,12 @@ function center(S) {
     h += `<div class="pile"><div class="bigbid">${S.bid ? bidShort(S.bid) : '–'}</div><div class="cap">${cap}</div></div>`;
   } else {
     for (const e of S.trick) {
-      h += slotHTML(SLOTS_4[e.p], cardHTML(e.card, S.winner === e.p ? 'win' : '', 'tabindex="-1"'), e.card.id === S.lastPlayed);
+      h += slotHTML(SLOTS_4[e.p], cardHTML(e.card, S.winner === e.p ? 'win' : '', 'tabindex="-1"'), e.card.id === S.lastPlayed && S.collecting == null);
     }
   }
-  return centerHTML(h);
+  // The trick is over: its cards slide toward the winner's seat.
+  const html = centerHTML(h);
+  return S.collecting == null ? html : html.replace('class="center"', `class="center take-${SLOTS_4[S.collecting]}"`);
 }
 
 function actions(S, bidOptions) {

@@ -40,7 +40,7 @@ export function createPitch({ timer, levelAtStart = () => 'medium', difficultyFo
     S.hands = [[], [], [], []];
     let p = nextP(S.dealer);
     for (let i = 0; i < 24; i++) { S.hands[p].push(deck[i]); p = nextP(p); }
-    Object.assign(S, { phase: 'bid', turn: nextP(S.dealer), bid: 0, bidder: null, matched: false, bidsIn: 0, said: {},
+    Object.assign(S, { phase: 'bid', turn: nextP(S.dealer), bid: 0, bidder: null, matched: false, bidsIn: 0, said: {}, collecting: null,
       trump: null, trick: [], history: [], won: [[], []], tricks: [0, 0], lastPlayed: null, winner: null,
       result: null, justDealt: true });
     sortHuman();
@@ -109,12 +109,16 @@ export function createPitch({ timer, levelAtStart = () => 'medium', difficultyFo
       S.winner = w.p; S.tricks[team(w.p)]++; S.won[team(w.p)].push(...S.trick.map(e => e.card)); S.turn = null;
       msg(`${who(w.p)} ${verb(w.p, 'take', 'takes')} the trick.`);
       changed();
+      // Show the finished trick, then slide the cards to the winner, then clear it.
       return later(() => {
-        S.trick = []; S.winner = null; S.lastPlayed = null;
-        if (!S.hands[w.p].length) return endHand();
-        S.turn = w.p; if (w.p !== 0) msg(`${who(w.p)} ${verb(w.p, 'lead', 'leads')}.`);
-        step();
-      }, 1300);
+        S.collecting = w.p; changed();
+        later(() => {
+          S.collecting = null; S.trick = []; S.winner = null; S.lastPlayed = null;
+          if (!S.hands[w.p].length) return endHand();
+          S.turn = w.p; if (w.p !== 0) msg(`${who(w.p)} ${verb(w.p, 'lead', 'leads')}.`);
+          step();
+        }, 450);
+      }, 900);
     }
     S.turn = nextP(p);
     step();
